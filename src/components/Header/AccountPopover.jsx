@@ -11,13 +11,8 @@ import {
   IconButton,
   Popover,
 } from "@mui/material";
-import avata from "../../assets/images/avatars/avatar_default.jpg";
-// mocks_
-const account = {
-  displayName: "Lê Đức Anh",
-  email: "leducanh@gmail.com",
-  photoURL: avata,
-};
+// account
+import user from '../../api/user'
 
 // ----------------------------------------------------------------------
 
@@ -68,7 +63,7 @@ const AccountPopover = () => {
           }),
         }}
       >
-        <Avatar src={account.photoURL} alt="photoURL" />
+        <Avatar src={user.photoURL} alt="photoURL" />
       </IconButton>
 
       <Popover
@@ -92,10 +87,10 @@ const AccountPopover = () => {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {account.displayName}
+            {user.displayName}
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
-            {account.email}
+            {user.email}
           </Typography>
         </Box>
 

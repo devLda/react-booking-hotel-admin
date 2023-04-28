@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import Header from '../Header/Header';
+import Nav from '../Nav/Nav';
 
 const APP_BAR_MOBILE = 64;
 const APP_BAR_DESKTOP = 92;
@@ -32,7 +33,7 @@ const Layout = () => {
     <StyledRoot>
       <Header onOpenNav={() => setOpen(true)} />
 
-      {/* <Nav openNav={open} onCloseNav={() => setOpen(false)} /> */}
+      <Nav openNav={open} onCloseNav={() => setOpen(false)} />
 
       <Main>
         <Outlet />

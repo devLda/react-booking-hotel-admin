@@ -1,10 +1,13 @@
-import { BrowserRouter } from 'react-router-dom';
-import Routers from './routes/Routes';
+import { BrowserRouter } from "react-router-dom";
+import Routers from "./routes/Routes";
+import ThemeProvider from './components/theme'
 
 function App() {
   return (
     <BrowserRouter>
-      <Routers />
+      <ThemeProvider>
+        <Routers />
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
