@@ -23,8 +23,8 @@ const navConfig = [
     icon: icon(ic_cart),
   },
   {
-    title: 'Offers',
-    path: '/dashboard/offer',
+    title: 'Invoice',
+    path: '/dashboard/invoice',
     icon: icon(ic_blog),
   },
   {

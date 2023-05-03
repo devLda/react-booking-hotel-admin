@@ -6,26 +6,39 @@ import { Card, Typography } from '@mui/material';
 // utils
 import { fCurrency, fPercent } from '../../Utils/formatNumber';
 
-const AppWidgetSummary = ({ total, increase, title, color = 'primary', sx, ...other }) => {
+const AppWidgetSummary = ({ header, total, increase, title, color = 'primary', sx, ...other }) => {
   return (
     <Card
       sx={{
         py: 5,
+        px: 4,
         boxShadow: 0,
-        textAlign: 'center',
+        textAlign: 'left',
         color: (theme) => theme.palette[color].darker,
         bgcolor: (theme) => theme.palette[color].lighter,
         ...sx,
       }}
       {...other}
     >
-      <Typography variant="h4">Total Earning</Typography>
+      <Typography variant="h4">{header}</Typography>
 
-      <Typography variant="h3">{fCurrency(total)}</Typography>
+      <Typography variant="h3">
+        {fCurrency(total)} 
+        <Typography 
+          sx = {{
+            display: 'inline',
+            color: '#7BB31A'
+          }}
+        >+ {fPercent(increase)}</Typography> 
+      </Typography> 
 
-      <Typography variant="h4">+ {fPercent(increase)}</Typography>
-
-      <Typography variant="subtitle2" sx={{ opacity: 0.72 }}>
+      <Typography 
+      variant="subtitle2" 
+      sx={{ 
+        opacity: 0.3,
+        color: '#111111'
+      }}
+      >
         {title}
       </Typography>
     </Card>

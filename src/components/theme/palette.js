@@ -36,10 +36,10 @@ const SECONDARY = {
 
 const INFO = {
   lighter: '#D0F2FF',
-  light: '#74CAFF',
+  light: '#c6f3d7',
   main: '#1890FF',
   dark: '#0C53B7',
-  darker: '#04297A',
+  darker: '#51904d',
   contrastText: '#fff',
 };
 
