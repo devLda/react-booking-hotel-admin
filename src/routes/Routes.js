@@ -6,6 +6,7 @@ import Login from '../pages/Login'
 import Page404 from '../pages/Page404'
 import Layout from '../components/Layout/Layout'
 import Reservation from '../pages/Reservation'
+import Account from '../pages/Account'
 
 const Routers = () => {
   const routes = useRoutes([
@@ -17,6 +18,7 @@ const Routers = () => {
         { path: 'app', element: <Dashboard /> },
         { path: 'user', element: <User /> },
         { path: 'reservation', element: <Reservation /> },
+        { path: 'account', element: <Account /> },
       ],
     },
     {

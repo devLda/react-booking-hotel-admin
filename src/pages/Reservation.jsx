@@ -26,17 +26,16 @@ import {
 import Iconify from "../components/UI/iconify";
 import Scrollbar from "../components/UI/scrollbar";
 // sections
-import { UserListHead, UserListToolbar } from "../sections/@dashboard/user";
+import { ListHead, ListToolbar } from "../components/UI/table";
 // mock
-import USERLIST from "../_mock/user";
+import USERLIST from "../api/listAccount";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: "name", label: "Name", alignRight: false },
-  { id: "company", label: "Company", alignRight: false },
+  { id: "email", label: "Email", alignRight: false },
   { id: "role", label: "Role", alignRight: false },
-  { id: "isVerified", label: "Verified", alignRight: false },
   { id: "status", label: "Status", alignRight: false },
   { id: "" },
 ];
@@ -166,18 +165,18 @@ const Reservation = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            User
+            Reservation
           </Typography>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
           >
-            New User
+            New Reservation
           </Button>
         </Stack>
 
         <Card>
-          <UserListToolbar
+          <ListToolbar
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
@@ -186,7 +185,7 @@ const Reservation = () => {
           <Scrollbar>
             <TableContainer sx={{ minWidth: 800 }}>
               <Table>
-                <UserListHead
+                <ListHead
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
@@ -201,12 +200,11 @@ const Reservation = () => {
                     .map((row) => {
                       const {
                         id,
+                        photoURL,
                         name,
+                        email,
                         role,
-                        status,
-                        company,
-                        avatarUrl,
-                        isVerified,
+                        status
                       } = row;
                       const selectedUser = selected.indexOf(name) !== -1;
 
@@ -231,19 +229,19 @@ const Reservation = () => {
                               alignItems="center"
                               spacing={2}
                             >
-                              <Avatar alt={name} src={avatarUrl} />
+                              <Avatar alt={name} src={photoURL} />
                               <Typography variant="subtitle2" noWrap>
                                 {name}
                               </Typography>
                             </Stack>
                           </TableCell>
 
-                          <TableCell align="left">{company}</TableCell>
+                          <TableCell align="left">{email}</TableCell>
 
                           <TableCell align="left">{role}</TableCell>
 
                           <TableCell align="left">
-                            {isVerified ? "Yes" : "No"}
+                            {status}
                           </TableCell>
 
                           {/* <TableCell align="left">
