@@ -1,13 +1,13 @@
 import { filter } from "lodash";
 // import { sentenceCase } from 'change-case';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // @mui
 import {
   Card,
   Table,
   Stack,
   Paper,
-  Avatar,
+  // Avatar,
   Button,
   Popover,
   Checkbox,
@@ -23,20 +23,23 @@ import {
 } from "@mui/material";
 // components
 // import Label from '../components/label';
-import Iconify from "../components/UI/iconify";
-import Scrollbar from "../components/UI/scrollbar";
+import Iconify from "../../components/UI/iconify";
+import Scrollbar from "../../components/UI/scrollbar";
 // sections
-import { ListHead, ListToolbar } from "../components/UI/table";
+import { ListHead, ListToolbar } from "../../components/UI/table";
 // mock
-import USERLIST from "../api/listAccount";
+// import USERLIST from "../../api/listAccount";
+import api from "./config";
+import { Link } from "react-router-dom";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "name", label: "Name", alignRight: false },
-  { id: "email", label: "Email", alignRight: false },
-  { id: "role", label: "Role", alignRight: false },
-  { id: "status", label: "Status", alignRight: false },
+  { id: "HoVaTen", label: "Name", alignRight: false },
+  { id: "Username", label: "Username", alignRight: false },
+  { id: "SDT", label: "Phone", alignRight: false },
+  { id: "Email", label: "Email", alignRight: false },
+  { id: "GioiTinh", label: "Gender", alignRight: false },
   { id: "" },
 ];
 
@@ -68,13 +71,14 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) => _user.name.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_user) => _user.HoVaTen.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-const Reservation = () => {
+const Account = () => { 
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -83,11 +87,13 @@ const Reservation = () => {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState("name");
+  const [orderBy, setOrderBy] = useState("HoVaTen");
 
   const [filterName, setFilterName] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [listAcc, setListAcc] = useState([])
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -105,7 +111,8 @@ const Reservation = () => {
 
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
-      const newSelecteds = USERLIST.map((n) => n.name);
+      // const newSelecteds = USERLIST.map((n) => n.name);
+      const newSelecteds = listAcc.map((n) => n.HoVaTen);
       setSelected(newSelecteds);
       return;
     }
@@ -145,15 +152,33 @@ const Reservation = () => {
   };
 
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+    // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listAcc.length) : 0;
 
   const filteredUsers = applySortFilter(
-    USERLIST,
+    // USERLIST,
+    listAcc,
     getComparator(order, orderBy),
     filterName
   );
 
   const isNotFound = !filteredUsers.length && !!filterName;
+
+  useEffect(() => {
+    api
+    .listAccount()
+    .then((res) => {
+      if (res.status > 0) {
+        setListAcc(res.data)
+      }
+      console.log("res ", res);
+    })
+    .catch((err) => {
+      console.log("error: ", err);
+    });
+  }, [])
+
+  console.log("list acc: ", listAcc);
 
   return (
     <>
@@ -165,14 +190,16 @@ const Reservation = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Reservation
+            Account
           </Typography>
+          <Link to='/dashboard/account/create'>
           <Button
             variant="contained"
             startIcon={<Iconify icon="eva:plus-fill" />}
           >
-            New Reservation
-          </Button>
+            New Account
+          </Button>          
+          </Link>
         </Stack>
 
         <Card>
@@ -189,7 +216,8 @@ const Reservation = () => {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  rowCount={USERLIST.length}
+                  // rowCount={USERLIST.length}
+                  rowCount={listAcc.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -198,15 +226,8 @@ const Reservation = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const {
-                        id,
-                        photoURL,
-                        name,
-                        email,
-                        role,
-                        status
-                      } = row;
-                      const selectedUser = selected.indexOf(name) !== -1;
+                      const { id, Username, HoVaTen, SDT, Email, GioiTinh } = row;
+                      const selectedUser = selected.indexOf(HoVaTen) !== -1;
 
                       return (
                         <TableRow
@@ -219,11 +240,11 @@ const Reservation = () => {
                           <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
-                              onChange={(event) => handleClick(event, name)}
+                              onChange={(event) => handleClick(event, HoVaTen)}
                             />
                           </TableCell>
 
-                          <TableCell component="th" scope="row" padding="none">
+                          {/* <TableCell component="th" scope="row" padding="none">
                             <Stack
                               direction="row"
                               alignItems="center"
@@ -231,22 +252,24 @@ const Reservation = () => {
                             >
                               <Avatar alt={name} src={photoURL} />
                               <Typography variant="subtitle2" noWrap>
-                                {name}
+                                {HoVaTen}
                               </Typography>
                             </Stack>
-                          </TableCell>
+                          </TableCell> */}
 
-                          <TableCell align="left">{email}</TableCell>
+                          <TableCell align="left">{HoVaTen}</TableCell>
 
-                          <TableCell align="left">{role}</TableCell>
+                          <TableCell align="left">{Username}</TableCell>
 
-                          <TableCell align="left">
-                            {status}
-                          </TableCell>
+                          <TableCell align="left">{SDT}</TableCell>
+
+                          <TableCell align="left">{Email}</TableCell>
+
+                          <TableCell align="left">{GioiTinh ? 'Nam' : 'Nữ'}</TableCell>
 
                           {/* <TableCell align="left">
-                            <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                          </TableCell> */}
+                              <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
+                            </TableCell> */}
 
                           <TableCell align="right">
                             <IconButton
@@ -298,7 +321,8 @@ const Reservation = () => {
           <TablePagination
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
-            count={USERLIST.length}
+            // count={USERLIST.length}
+            count={listAcc.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -339,4 +363,4 @@ const Reservation = () => {
   );
 };
 
-export default Reservation;
+export default Account;

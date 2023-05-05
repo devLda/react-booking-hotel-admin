@@ -7,6 +7,7 @@ import Page404 from '../pages/Page404'
 import Layout from '../components/Layout/Layout'
 import Reservation from '../pages/Reservation'
 import Account from '../pages/Account'
+import CreateAccount from '../pages/Account/create'
 
 const Routers = () => {
   const routes = useRoutes([
@@ -19,6 +20,7 @@ const Routers = () => {
         { path: 'user', element: <User /> },
         { path: 'reservation', element: <Reservation /> },
         { path: 'account', element: <Account /> },
+        { path: 'account/create', element: <CreateAccount /> },
       ],
     },
     {

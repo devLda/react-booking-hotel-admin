@@ -2,7 +2,7 @@ import React from "react";
 
 import { Grid, Container, Typography } from "@mui/material";
 
-import { AppWidgetSummary, AppWebsiteVisits } from "../components/UI/dashboard";
+import { AppWidgetSummary, AppWebsiteVisits } from "../../components/UI/dashboard";
 
 const Dashboard = () => {
   return (

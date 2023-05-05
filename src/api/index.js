@@ -36,15 +36,15 @@ const callApi = (
       if (error.response) {
         // The request was made and the server responded with a status code
         const status = error.response.status;
-        if (status === 401) {
-          auth_actions.logout();
-          return;
-        }
+        // if (status === 401) {
+        //   auth_actions.logout();
+        //   return;
+        // }
         // environment should not be used
-        if (status === 403) {
-          // history.replace("/404");
-          // return error.response;
-        }
+        // if (status === 403) {
+        //   // history.replace("/404");
+        //   // return error.response;
+        // }
         if (status <= 504 && status >= 500) {
           // router.push('/exception/500');
           return;
@@ -52,7 +52,6 @@ const callApi = (
         if (status >= 404 && status < 422) {
           return error.response;
           // history.replace('/404');
-          return;
         }
       } else if (error.request) {
         // The request was made but no response was received
@@ -66,6 +65,8 @@ const callApi = (
       console.log("Api default error", error.config);
     });
 };
+
+export const apiURL = 'http://localhost:3300/api/'
 
 export const apiGet = async (url, params = null, headers = {}) => {
     return await callApi(url, params, headers, "GET", "json");
