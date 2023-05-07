@@ -77,8 +77,7 @@ function applySortFilter(array, comparator, query) {
   return stabilizedThis.map((el) => el[0]);
 }
 
-const Account = () => { 
-
+const Account = () => {
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -93,7 +92,7 @@ const Account = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listAcc, setListAcc] = useState([])
+  const [listAcc, setListAcc] = useState([]);
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -166,19 +165,16 @@ const Account = () => {
 
   useEffect(() => {
     api
-    .listAccount()
-    .then((res) => {
-      if (res.status > 0) {
-        setListAcc(res.data)
-      }
-      console.log("res ", res);
-    })
-    .catch((err) => {
-      console.log("error: ", err);
-    });
-  }, [])
-
-  console.log("list acc: ", listAcc);
+      .listAccount()
+      .then((res) => {
+        if (res.status > 0) {
+          setListAcc(res.data);
+        }
+      })
+      .catch((err) => {
+        console.log("error: ", err);
+      });
+  }, []);
 
   return (
     <>
@@ -192,13 +188,13 @@ const Account = () => {
           <Typography variant="h4" gutterBottom>
             Account
           </Typography>
-          <Link to='/dashboard/account/create'>
-          <Button
-            variant="contained"
-            startIcon={<Iconify icon="eva:plus-fill" />}
-          >
-            New Account
-          </Button>          
+          <Link to="/dashboard/account/create">
+            <Button
+              variant="contained"
+              startIcon={<Iconify icon="eva:plus-fill" />}
+            >
+              New Account
+            </Button>
           </Link>
         </Stack>
 
@@ -226,7 +222,8 @@ const Account = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, Username, HoVaTen, SDT, Email, GioiTinh } = row;
+                      const { id, Username, HoVaTen, SDT, Email, GioiTinh } =
+                        row;
                       const selectedUser = selected.indexOf(HoVaTen) !== -1;
 
                       return (
@@ -265,7 +262,9 @@ const Account = () => {
 
                           <TableCell align="left">{Email}</TableCell>
 
-                          <TableCell align="left">{GioiTinh ? 'Nam' : 'Nữ'}</TableCell>
+                          <TableCell align="left">
+                            {GioiTinh ? "Nam" : "Nữ"}
+                          </TableCell>
 
                           {/* <TableCell align="left">
                               <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
