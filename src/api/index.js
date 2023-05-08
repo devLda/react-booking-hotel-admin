@@ -66,8 +66,20 @@ const callApi = (
     });
 };
 
-export const apiURL = 'http://localhost:3300/api/'
+export const apiURL = "http://localhost:3300/api/";
 
 export const apiGet = async (url, params = null, headers = {}) => {
-    return await callApi(url, params, headers, "GET", "json");
+  return await callApi(url, params, headers, "GET", "json");
+};
+
+export const apiPost = async (url, params = null, headers = {}, isFormData) => {
+  return await callApi(url, params, headers, "POST", "json", isFormData);
+};
+
+export const apiPut = async (url, params = null, headers = {}) => {
+  return await callApi(url, params, headers, "PUT", "json");
+};
+
+export const apiDelete = async (url, params = null, headers = {}) => {
+  return await callApi(url, params, headers, "DELETE", "json");
 };

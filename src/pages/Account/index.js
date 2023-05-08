@@ -21,10 +21,12 @@ import {
   TableContainer,
   TablePagination,
 } from "@mui/material";
+
 // components
 // import Label from '../components/label';
 import Iconify from "../../components/UI/iconify";
 import Scrollbar from "../../components/UI/scrollbar";
+import AlertDialog from "../../components/UI/dialog";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
 // mock
@@ -94,11 +96,17 @@ const Account = () => {
 
   const [listAcc, setListAcc] = useState([]);
 
-  const handleOpenMenu = (event) => {
+  const [userSelected, setUserSelected] = useState("");
+
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleOpenMenu = (event, Username) => {
+    setUserSelected(Username);
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
+    setUserSelected("");
     setOpen(null);
   };
 
@@ -162,6 +170,11 @@ const Account = () => {
   );
 
   const isNotFound = !filteredUsers.length && !!filterName;
+
+  const handleDelete = (e) => {
+    console.log("event ", e.target.dataset.set);
+    setOpenDialog(true);
+  };
 
   useEffect(() => {
     api
@@ -274,7 +287,7 @@ const Account = () => {
                             <IconButton
                               size="large"
                               color="inherit"
-                              onClick={handleOpenMenu}
+                              onClick={(e) => handleOpenMenu(e, Username)}
                             >
                               <Iconify icon={"eva:more-vertical-fill"} />
                             </IconButton>
@@ -348,16 +361,25 @@ const Account = () => {
           },
         }}
       >
-        <MenuItem>
+        <MenuItem data-set={userSelected} onClick={handleDelete}>
           <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
           Edit
         </MenuItem>
 
-        <MenuItem sx={{ color: "error.main" }}>
+        <MenuItem
+          sx={{ color: "error.main" }}
+          data-set={userSelected}
+          onClick={handleDelete}
+        >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
           Delete
         </MenuItem>
       </Popover>
+
+      <AlertDialog
+        alert="Bạn có muốn xoá người dùng không?"
+        openIni={openDialog}
+      />
     </>
   );
 };
