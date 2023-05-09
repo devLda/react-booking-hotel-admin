@@ -10,6 +10,8 @@ const callApi = (
 ) => {
   if (!headers) headers = {};
 
+  console.log("data ", data);
+
   headers = {
     "Content-Type": !isFormData ? "application/json" : "multipart/form-data",
     ...headers,
@@ -17,10 +19,9 @@ const callApi = (
 
   let params = {};
 
-  if(method === 'DELETE')
-  {
+  if (method === "DELETE") {
     url += data;
-    data = {}
+    data = {};
   }
 
   if (!(method === "PUT" || method === "POST" || method === "PATCH")) {

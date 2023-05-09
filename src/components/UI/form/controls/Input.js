@@ -22,7 +22,6 @@ export default function Input(props) {
       helperText={helperText}
       onChange={(e) => {
         setValueData(e.target.value);
-        console.log(valueData)
       }}
       {...(error && { error: true, helperText: error })}
     />
