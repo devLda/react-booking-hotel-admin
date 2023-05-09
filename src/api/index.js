@@ -16,6 +16,13 @@ const callApi = (
   };
 
   let params = {};
+
+  if(method === 'DELETE')
+  {
+    url += data;
+    data = {}
+  }
+
   if (!(method === "PUT" || method === "POST" || method === "PATCH")) {
     params = data;
     data = {};
@@ -67,6 +74,10 @@ const callApi = (
 };
 
 export const apiURL = "http://localhost:3300/api/";
+
+export const apiGetAll = async (url, params = null, headers = {}) => {
+  return await callApi(url, params, headers, "GET", "json");
+};
 
 export const apiGet = async (url, params = null, headers = {}) => {
   return await callApi(url, params, headers, "GET", "json");

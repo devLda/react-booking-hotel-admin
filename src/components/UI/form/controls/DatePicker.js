@@ -11,13 +11,23 @@ export default function DatePickerComponent(props) {
   const [value, setValue] = React.useState(dayjs());
 
   return (
+    // <LocalizationProvider dateAdapter={AdapterDayjs}>
+    //   <DemoContainer components={["DatePicker", "DatePicker"]}>
+    //     <DatePicker
+    //       label={label}
+    //       value={value}
+    //       format="DD/MM/YYYY"
+    //       onChange={(newValue) => setValue(newValue)}
+    //     />
+    //   </DemoContainer>
+    // </LocalizationProvider>
+
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={["DatePicker", "DatePicker"]}>
+      <DemoContainer components={["DatePicker"]}>
         <DatePicker
           label={label}
-          value={value}
           format="DD/MM/YYYY"
-          onChange={(newValue) => setValue(newValue)}
+          defaultValue={null}
         />
       </DemoContainer>
     </LocalizationProvider>

@@ -21,6 +21,7 @@ const Routers = () => {
         { path: 'reservation', element: <Reservation /> },
         { path: 'account', element: <Account /> },
         { path: 'account/create', element: <CreateAccount /> },
+        { path: 'account/update/:id', element: <CreateAccount type="Edit" /> },
       ],
     },
     {

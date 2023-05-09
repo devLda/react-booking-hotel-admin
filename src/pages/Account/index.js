@@ -26,13 +26,18 @@ import {
 // import Label from '../components/label';
 import Iconify from "../../components/UI/iconify";
 import Scrollbar from "../../components/UI/scrollbar";
-import AlertDialog from "../../components/UI/dialog";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
 // mock
 // import USERLIST from "../../api/listAccount";
 import api from "./config";
 import { Link } from "react-router-dom";
+
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 
 // ----------------------------------------------------------------------
 
@@ -171,9 +176,30 @@ const Account = () => {
 
   const isNotFound = !filteredUsers.length && !!filterName;
 
-  const handleDelete = (e) => {
-    console.log("event ", e.target.dataset.set);
-    setOpenDialog(true);
+  const handleAction = (e) => {
+    console.log("event ", e.target.innerText);
+    if (e.target.dataset.set) {
+      if (e.target.innerText === "Delete") setOpenDialog(true);
+    }
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+    setOpen(false);
+  };
+
+  const handleDelete = (event, selectedAcc) => {
+    if (event) {
+      api
+        .deleteUser(selectedAcc)
+        .then((res) => {
+          console.log("res delete ", res);
+        })
+        .catch((err) => {
+          console.log("error delete ", err);
+        });
+      setOpen(false);
+    }
   };
 
   useEffect(() => {
@@ -361,25 +387,44 @@ const Account = () => {
           },
         }}
       >
-        <MenuItem data-set={userSelected} onClick={handleDelete}>
-          <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
-          Edit
-        </MenuItem>
+        <Link to = {`/dashboard/account/update/${userSelected}`}>
+          <MenuItem>
+            <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
+            Edit
+          </MenuItem>
+        </Link>
 
         <MenuItem
           sx={{ color: "error.main" }}
           data-set={userSelected}
-          onClick={handleDelete}
+          onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
           Delete
         </MenuItem>
       </Popover>
 
-      <AlertDialog
-        alert="Bạn có muốn xoá người dùng không?"
-        openIni={openDialog}
-      />
+      {openDialog && (
+        <Dialog
+          open={openDialog}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Xóa tài khoản</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              {`Bạn có muốn xóa tài khoản ${userSelected} không?`}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Không</Button>
+            <Button onClick={(e) => handleDelete(e, userSelected)} autoFocus>
+              Có
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   );
 };

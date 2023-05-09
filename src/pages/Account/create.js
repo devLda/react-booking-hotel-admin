@@ -5,41 +5,37 @@ import {
   Form,
   Input,
   Select,
-  DatePicker,
+  // DatePicker,
   Button,
 } from "../../components/UI/form";
+import api from "./config";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const genderItems = [
   { id: "Female", title: "Female" },
   { id: "Male", title: "Male" },
 ];
 
-const create = () => {
-  // const validate = (fieldValues = values) => {
-  //     let temp = { ...errors }
-  //     if ('fullName' in fieldValues)
-  //         temp.fullName = fieldValues.fullName ? "" : "This field is required."
-  //     if ('email' in fieldValues)
-  //         temp.email = (/$^|.+@.+..+/).test(fieldValues.email) ? "" : "Email is not valid."
-  //     if ('mobile' in fieldValues)
-  //         temp.mobile = fieldValues.mobile.length > 9 ? "" : "Minimum 10 numbers required."
-  //     if ('departmentId' in fieldValues)
-  //         temp.departmentId = fieldValues.departmentId.length != 0 ? "" : "This field is required."
-  //     setErrors({
-  //         ...temp
-  //     })
-
-  //     if (fieldValues == values)
-  //         return Object.values(temp).every(x => x == "")
-  // }
-
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //     if (validate()){
-  //         // employeeService.insertEmployee(values)
-  //         resetForm()
-  //     }
-  // };
+const Create = (props) => {
+  const { type } = props;
+  const {id} = useParams()
+  const [value, setValue] = useState({});
+  useEffect(() => {
+    if (type === "Edit") {
+      api
+        .getUser({ Username: id })
+        .then((res) => {
+          console.log("res ", res);
+          setValue(res.data[0]);
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
+    }
+  }, []);
+  console.log("value ", value);
+  console.log('id ', id)
 
   return (
     <>
@@ -62,25 +58,28 @@ const create = () => {
         <Form method="post" action="http://localhost:3300/api/user/add">
           <Grid container spacing={2} padding={2}>
             <Grid item md={6}>
-              <Input name="Username" label="Username: " />
+              <Input name="Username" label="Username: " value={value.Username ? value.Username : ""} />
             </Grid>
             <Grid item md={6}>
               <Input name="Password" label="Password: " type="password" />
             </Grid>
             <Grid item md={6}>
-              <Input name="HoVaTen" label="Họ và tên: " />
+              <Input name="HoVaTen" label="Họ và tên: " value={value.HoVaTen ? value.HoVaTen : ""}/>
             </Grid>
             <Grid item md={6}>
-              <Input name="SDT" label="Số điện thoại: " />
+              <Input name="SDT" label="Số điện thoại: " value={value.SDT ? value.SDT : ""}/>
             </Grid>
             <Grid item md={6}>
-              <Input name="Email" label="Email: " />
+              <Input name="Email" label="Email: " value={value.Email ? value.Email : ""}/>
             </Grid>
             <Grid item md={6}>
               <Select
                 label="Giới tính "
                 name="GioiTinh"
                 options={genderItems}
+                value={value.GioiTinh 
+                  ? "Male" 
+                  : (value.GioiTinh === false ? "Female" : null)}
               />
             </Grid>
             <Grid item md={6}>
@@ -89,9 +88,8 @@ const create = () => {
             <Grid item md={6}>
               <Input
                 name="NgaySinh"
-                label="Ngày Sinh: "
+                helperText="Nhập hoặc chọn Ngày Sinh"
                 type="date"
-                value={null}
               />
             </Grid>
           </Grid>
@@ -109,4 +107,4 @@ const create = () => {
   );
 };
 
-export default create;
+export default Create;

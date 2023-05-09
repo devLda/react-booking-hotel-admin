@@ -7,7 +7,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
 export default function AlertDialog(props) {
-  const { alert, openIni } = props;
+  const { alert, content, openIni } = props;
 
   const [open, setOpen] = useState(openIni);
 
@@ -19,7 +19,7 @@ export default function AlertDialog(props) {
   };
 
   return (
-    <>
+    <div>
       <Dialog
         open={open}
         onClose={handleClose}
@@ -27,11 +27,11 @@ export default function AlertDialog(props) {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
+          {alert}
         </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            {alert}
+            {content}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -41,6 +41,6 @@ export default function AlertDialog(props) {
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   );
 }
