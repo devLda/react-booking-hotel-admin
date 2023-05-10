@@ -24,6 +24,10 @@ const callApi = (
     data = {};
   }
 
+  if (method === "PUT") {
+    url += data.Username;
+  }
+
   if (!(method === "PUT" || method === "POST" || method === "PATCH")) {
     params = data;
     data = {};

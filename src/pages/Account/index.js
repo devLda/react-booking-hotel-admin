@@ -105,6 +105,8 @@ const Account = () => {
 
   const [openDialog, setOpenDialog] = useState(false);
 
+  const [deleted, setDeleted] = useState(false);
+
   const handleOpenMenu = (event, Username) => {
     setUserSelected(Username);
     setOpen(event.currentTarget);
@@ -193,12 +195,16 @@ const Account = () => {
       api
         .deleteUser(selectedAcc)
         .then((res) => {
-          console.log("res delete ", res);
+          if (res.status === 200) {
+            setOpenDialog(false);
+            setDeleted(true);
+            setOpen(false);
+            console.log("res delete ", res);
+          }
         })
         .catch((err) => {
           console.log("error delete ", err);
         });
-      setOpen(false);
     }
   };
 
@@ -206,14 +212,15 @@ const Account = () => {
     api
       .listAccount()
       .then((res) => {
-        if (res.status > 0) {
+        if (res.status === 200) {
           setListAcc(res.data);
+          setDeleted(false);
         }
       })
       .catch((err) => {
         console.log("error: ", err);
       });
-  }, []);
+  }, [deleted]);
 
   return (
     <>
@@ -231,6 +238,7 @@ const Account = () => {
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
+              className="bg-green-600"
             >
               New Account
             </Button>
@@ -387,7 +395,10 @@ const Account = () => {
           },
         }}
       >
-        <Link to = {`/dashboard/account/update/${userSelected}`}>
+        <Link
+          to={`/dashboard/account/update/${userSelected}`}
+          className="no-underline"
+        >
           <MenuItem>
             <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
             Edit

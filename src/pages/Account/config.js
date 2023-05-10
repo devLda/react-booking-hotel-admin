@@ -19,7 +19,7 @@ const api = {
     return apiGet(Url.getUser, param);
   },
   updateUser: (param) => {
-    return apiPut(Url.updateUser, param);
+    return apiPut(Url.updateUser, { ...param });
   },
   deleteUser: (param) => {
     return apiDelete(Url.deleteUser, param);

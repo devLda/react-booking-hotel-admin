@@ -5,7 +5,6 @@ import {
   MenuItem,
   FormHelperText,
 } from "@mui/material";
-import { stubFalse } from "lodash";
 
 import { useState, useEffect } from "react";
 
@@ -19,7 +18,7 @@ export default function Select(props) {
 
   return (
     <FormControl variant="outlined" fullWidth {...(error && { error: true })}>
-      <InputLabel shrink={valueData ? true : false}>{label}</InputLabel>
+      <InputLabel>{label}</InputLabel>
       <MuiSelect
         label={label}
         name={name}
