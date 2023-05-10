@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 export default function Input(props) {
   const { name, label, value, type, helperText, disable } = props;
-  let {error = null} = props
+  let { error = null } = props;
   const [valueData, setValueData] = useState(value);
 
   useEffect(() => {
@@ -25,16 +25,17 @@ export default function Input(props) {
         onChange={(e) => {
           setValueData(e.target.value);
         }}
-        // {...( ((valueData === "" && error?.includes("là trường bắt buộc")) 
-        // || (valueData !== "" && !error?.includes("là trường bắt buộc"))) && { error: true, helperText: error })}
+        //   {...(((valueData === "" && error?.includes("là trường bắt buộc")) ||
+        //     (valueData !== "" && !error?.includes("là trường bắt buộc"))) && {
+        //     error: true,
+        //     helperText: error,
+        //   })
+        // }
       />
-      {
-        ((valueData === "" && error?.includes("là trường bắt buộc")) 
-        || (valueData !== "" && !error?.includes("là trường bắt buộc")))
-         && (
-          <label className="text-red-600 ml-2 mt-2 block">{error}</label>
-        )
-      }
+      {((valueData === "" && error?.includes("là trường bắt buộc")) ||
+        (valueData !== "" && !error?.includes("là trường bắt buộc"))) && (
+        <label className="text-red-600 ml-2 mt-2 block">{error}</label>
+      )}
     </>
   );
 }

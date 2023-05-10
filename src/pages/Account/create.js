@@ -30,7 +30,9 @@ const userSchema = object({
   SDT: string()
     .required("Số điện thoại là trường bắt buộc")
     .matches(phoneRegExp, "Không đúng định dạng số điện thoại"),
-  Email: string().required("Email là trường bắt buộc").email("Không đúng định dạng email"),
+  Email: string()
+    .required("Email là trường bắt buộc")
+    .email("Không đúng định dạng email"),
   GioiTinh: string().nullable(),
   CCCD: number().nullable(),
   NgaySinh: date()
@@ -65,42 +67,38 @@ const Create = (props) => {
 
   const handlePost = () => {
     let data = getValue();
-    console.log('zo')
-    // if (data) {
-    //   api
-    //     .addUser(data)
-    //     .then((res) => {
-    //       if (res.status === 200) {
-    //         window.location.href = "/dashboard/account";
-    //       }
-    //     })
-    //     .catch((err) => {
-    //       console.log("error ", err);
-    //     });
-    // }
 
-    const errors =  async () => {
+    (async () => {
       const validationResult = await userSchema
-      .validate(data, { abortEarly: false })
-      .then((res) => {
-        console.log("res ", res);
-        setError({});
-      })
-      .catch((err) => { 
-        return err;
-      });
-      let err = {}
-      for(let i in validationResult.inner){
-        if(validationResult.inner[i].path)
-        {
-          err[validationResult.inner[i].path] = validationResult.inner[i].message
+        .validate(data, { abortEarly: false })
+        .then((res) => {
+          console.log("res ", res);
+          setError({});
+          if (Object.keys(res).length > 0) {
+            api
+              .addUser(data)
+              .then((res) => {
+                if (res.status === 200) {
+                  window.location.href = "/dashboard/account";
+                }
+              })
+              .catch((err) => {
+                console.log("error ", err);
+              });
+          }
+        })
+        .catch((err) => {
+          return err;
+        });
+      let err = {};
+      for (let i in validationResult.inner) {
+        if (validationResult.inner[i].path) {
+          err[validationResult.inner[i].path] =
+            validationResult.inner[i].message;
         }
       }
-      console.log('err ', err)
       setError(err);
-    }
-     
-    errors();
+    })();
   };
 
   const handlePut = (e) => {
@@ -134,8 +132,8 @@ const Create = (props) => {
   }, []);
 
   useLayoutEffect(() => {
-    console.log('re-render')
-  }, [error])
+    console.log("re-render");
+  }, [error]);
 
   return (
     <>
@@ -158,7 +156,7 @@ const Create = (props) => {
         <Grid container spacing={2} padding={2}>
           <Grid item md={6}>
             <Input
-              error = {error.Username}
+              error={error.Username}
               disable={value.Username ? true : false}
               name="Username"
               label="Username: "
@@ -167,7 +165,7 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6}>
             <Input
-              error = {error.HoVaTen}
+              error={error.HoVaTen}
               name="HoVaTen"
               label="Họ và tên: "
               value={value.HoVaTen ? value.HoVaTen : ""}
@@ -175,7 +173,7 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6}>
             <Input
-              error = {error.SDT}
+              error={error.SDT}
               name="SDT"
               label="Số điện thoại: "
               value={value.SDT ? value.SDT : ""}
@@ -183,7 +181,7 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6}>
             <Input
-              error = {error.Email}
+              error={error.Email}
               name="Email"
               label="Email: "
               value={value.Email ? value.Email : ""}
