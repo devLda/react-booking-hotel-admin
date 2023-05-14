@@ -12,7 +12,13 @@ import {
   Popover,
 } from "@mui/material";
 // account
-import user from '../../api/user'
+import avata from "../../assets/images/avatars/avatar_default.jpg";
+import { useDispatch, useSelector } from "react-redux";
+import { apiLogout } from "../../api/user";
+import { logout } from "../../store/user/userSlice";
+import Swal from "sweetalert2";
+import path from "../../utils/path";
+import { useNavigate } from "react-router-dom";
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +40,11 @@ const MENU_OPTIONS = [
 // ----------------------------------------------------------------------
 
 const AccountPopover = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const { current } = useSelector((state) => state.user);
+
   const [open, setOpen] = useState(null);
 
   const handleOpen = (event) => {
@@ -42,6 +53,22 @@ const AccountPopover = () => {
 
   const handleClose = () => {
     setOpen(null);
+  };
+
+  const handleLogout = async () => {
+    const response = await apiLogout();
+    if (response.success) {
+      Swal.fire("Thành công", "Đăng xuất thành công", "success").then(() => {
+        dispatch(
+          logout({
+            isLoggedIn: false,
+            token: null,
+            userData: null,
+          })
+        );
+        navigate(`/${path.LOGIN}`);
+      });
+    } else Swal.fire("Thất bại", "Đã xảy ra lỗi!", "error");
   };
 
   return (
@@ -58,12 +85,12 @@ const AccountPopover = () => {
               height: "100%",
               borderRadius: "50%",
               position: "absolute",
-              bgcolor: (theme) => alpha(theme.palette.grey[900], 0.8),
+              bgcolor: (theme) => alpha(theme.palette.grey[500], 0.8),
             },
           }),
         }}
       >
-        <Avatar src={user.photoURL} alt="photoURL" />
+        <Avatar src={avata} alt="photoURL" />
       </IconButton>
 
       <Popover
@@ -87,10 +114,10 @@ const AccountPopover = () => {
       >
         <Box sx={{ my: 1.5, px: 2.5 }}>
           <Typography variant="subtitle2" noWrap>
-            {user.displayName}
+            {current?.HoVaTen}
           </Typography>
           <Typography variant="body2" sx={{ color: "text.secondary" }} noWrap>
-            {user.email}
+            {current?.Email}
           </Typography>
         </Box>
 
@@ -106,7 +133,7 @@ const AccountPopover = () => {
 
         <Divider sx={{ borderStyle: "dashed" }} />
 
-        <MenuItem onClick={handleClose} sx={{ m: 1 }}>
+        <MenuItem onClick={handleLogout} sx={{ m: 1 }}>
           Logout
         </MenuItem>
       </Popover>

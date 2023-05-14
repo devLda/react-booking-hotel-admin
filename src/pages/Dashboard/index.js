@@ -2,9 +2,20 @@ import React from "react";
 
 import { Grid, Container, Typography } from "@mui/material";
 
-import { AppWidgetSummary, AppWebsiteVisits } from "../../components/UI/dashboard";
+import {
+  AppWidgetSummary,
+  AppWebsiteVisits,
+} from "../../components/UI/dashboard";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import path from "../../utils/path";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { isLoggedIn } = useSelector((state) => state.user);
+
+  if (!isLoggedIn) navigate(`/${path.LOGIN}`);
+
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>

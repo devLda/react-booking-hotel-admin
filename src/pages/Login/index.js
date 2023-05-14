@@ -1,6 +1,6 @@
 // @mui
 import { styled } from "@mui/material/styles";
-import { Link, Container, Typography, Divider, Box } from "@mui/material";
+import { Container, Typography, Box } from "@mui/material";
 // hooks
 // components
 import Logo from "../../assets/logo.png";
@@ -36,7 +36,7 @@ const StyledContent = styled("div")(({ theme }) => ({
   padding: theme.spacing(12, 0),
 }));
 
-const index = () => {
+const Index = () => {
   return (
     <>
       <StyledRoot>
@@ -45,7 +45,7 @@ const index = () => {
             position: "fixed",
             top: { xs: 16, sm: 24, md: 40 },
             left: { xs: 16, sm: 24, md: 40 },
-            width: '10%',
+            width: "10%",
           }}
         >
           <img src={Logo} alt="logo" />
@@ -53,13 +53,8 @@ const index = () => {
 
         <Container maxWidth="sm">
           <StyledContent>
-            <Typography variant="h4" gutterBottom>
+            <Typography className="mb-6" variant="h4" gutterBottom>
               Sign in to Admin Dashboard
-            </Typography>
-
-            <Typography variant="body2" sx={{ mb: 5 }}>
-              Don’t have an account? {" "}
-              <Link variant="subtitle2">Get started</Link>
             </Typography>
 
             <LoginForm />
@@ -77,4 +72,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default Index;
