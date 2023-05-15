@@ -29,7 +29,6 @@ import Scrollbar from "../../components/UI/scrollbar";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
 // mock
-// import USERLIST from "../../api/listAccount";
 import api from "./config";
 import { Link } from "react-router-dom";
 
@@ -39,17 +38,12 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
-import { useDispatch, useSelector } from "react-redux";
-import { getAllUser } from "../../store/user/asyncAction";
-
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "HoVaTen", label: "Name", alignRight: false },
-  { id: "Username", label: "Username", alignRight: false },
-  { id: "SDT", label: "Phone", alignRight: false },
-  { id: "Email", label: "Email", alignRight: false },
-  { id: "GioiTinh", label: "Gender", alignRight: false },
+  { id: "TenLoaiPhong", label: "Name", alignRight: false },
+  { id: "MoTa", label: "Mô Tả", alignRight: false },
+  { id: "Image", label: "Image", alignRight: false },
   { id: "" },
 ];
 
@@ -81,15 +75,14 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) => _user.HoVaTen.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_user) =>
+        _user.TenLoaiPhong.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-const Account = () => {
-  const dispatch = useDispatch();
-
+const LoaiPhong = () => {
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -98,7 +91,7 @@ const Account = () => {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState("HoVaTen");
+  const [orderBy, setOrderBy] = useState("TenLoaiPhong");
 
   const [filterName, setFilterName] = useState("");
 
@@ -112,8 +105,8 @@ const Account = () => {
 
   const [deleted, setDeleted] = useState(false);
 
-  const handleOpenMenu = (event, Username) => {
-    setUserSelected(Username);
+  const handleOpenMenu = (event, MoTa) => {
+    setUserSelected(MoTa);
     setOpen(event.currentTarget);
   };
 
@@ -131,7 +124,7 @@ const Account = () => {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // const newSelecteds = USERLIST.map((n) => n.name);
-      const newSelecteds = listAcc.map((n) => n.HoVaTen);
+      const newSelecteds = listAcc.map((n) => n.TenLoaiPhong);
       setSelected(newSelecteds);
       return;
     }
@@ -213,24 +206,20 @@ const Account = () => {
     }
   };
 
-  // const { allUser } = useSelector();
-
-  // console.log("user ", allUser);
-
   useEffect(() => {
-    dispatch(getAllUser());
-    // api
-    //   .listAccount()
-    //   .then((res) => {
-    //     if (res.status === 200) {
-    //       console.log(res.data);
-    //       setListAcc(res.data.user);
-    //       setDeleted(false);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log("error: ", err);
-    //   });
+    console.log("mounted");
+    api
+      .listLoaiPhong()
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("mounted ", res.data.loaiphong);
+          setListAcc(res.data.loaiphong);
+          setDeleted(false);
+        }
+      })
+      .catch((err) => {
+        console.log("error: ", err);
+      });
   }, [deleted]);
 
   return (
@@ -243,15 +232,15 @@ const Account = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Account
+            Loại Phòng
           </Typography>
-          <Link to="/dashboard/account/create">
+          <Link to="/dashboard/loaiphong/create">
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
               className="bg-green-600"
             >
-              New Account
+              Thêm Loại Phòng
             </Button>
           </Link>
         </Stack>
@@ -280,14 +269,14 @@ const Account = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, Username, HoVaTen, SDT, Email, GioiTinh } =
-                        row;
-                      const selectedUser = selected.indexOf(HoVaTen) !== -1;
+                      const { IDLoaiPhong, MoTa, TenLoaiPhong, images } = row;
+                      const selectedUser =
+                        selected.indexOf(TenLoaiPhong) !== -1;
 
                       return (
                         <TableRow
                           hover
-                          key={id}
+                          key={IDLoaiPhong}
                           tabIndex={-1}
                           role="checkbox"
                           selected={selectedUser}
@@ -295,7 +284,9 @@ const Account = () => {
                           <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
-                              onChange={(event) => handleClick(event, HoVaTen)}
+                              onChange={(event) =>
+                                handleClick(event, TenLoaiPhong)
+                              }
                             />
                           </TableCell>
 
@@ -307,21 +298,21 @@ const Account = () => {
                             >
                               <Avatar alt={name} src={photoURL} />
                               <Typography variant="subtitle2" noWrap>
-                                {HoVaTen}
+                                {TenLoaiPhong}
                               </Typography>
                             </Stack>
                           </TableCell> */}
 
-                          <TableCell align="left">{HoVaTen}</TableCell>
+                          <TableCell align="left">{TenLoaiPhong}</TableCell>
 
-                          <TableCell align="left">{Username}</TableCell>
-
-                          <TableCell align="left">{SDT}</TableCell>
-
-                          <TableCell align="left">{Email}</TableCell>
+                          <TableCell align="left">{MoTa}</TableCell>
 
                           <TableCell align="left">
-                            {GioiTinh ? "Nam" : "Nữ"}
+                            <img
+                              src={images[0]}
+                              className="w-20 h-20"
+                              alt={TenLoaiPhong}
+                            />
                           </TableCell>
 
                           {/* <TableCell align="left">
@@ -332,7 +323,7 @@ const Account = () => {
                             <IconButton
                               size="large"
                               color="inherit"
-                              onClick={(e) => handleOpenMenu(e, Username)}
+                              onClick={(e) => handleOpenMenu(e, MoTa)}
                             >
                               <Iconify icon={"eva:more-vertical-fill"} />
                             </IconButton>
@@ -407,7 +398,7 @@ const Account = () => {
         }}
       >
         <Link
-          to={`/dashboard/account/update/${userSelected}`}
+          to={`/dashboard/loaiphong/update/${userSelected}`}
           className="no-underline"
         >
           <MenuItem>
@@ -451,4 +442,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default LoaiPhong;

@@ -1,12 +1,13 @@
 /* eslint-disable no-empty-pattern */
 import { createSlice } from "@reduxjs/toolkit";
+import * as action from "./asyncAction";
 
 export const userSlice = createSlice({
   name: "user",
   initialState: {
     isLoggedIn: false,
-    current: null,
     token: null,
+    allUser: null,
   },
   reducers: {
     login: (state, action) => {
@@ -20,6 +21,26 @@ export const userSlice = createSlice({
       state.current = action.payload.userData;
       state.token = action.payload.token;
     },
+  },
+  // Code logic xử lý async action
+  extraReducers: (builder) => {
+    builder.addCase(action.getAllUser.pending, (state) => {
+      state.isLoading = true;
+      state.statusPhong = "pending";
+    });
+
+    builder.addCase(action.getAllUser.fulfilled, (state, action) => {
+      console.log("action ", action);
+      state.isLoading = false;
+      state.statusPhong = "resolved";
+      state.allUser = action.payload;
+    });
+
+    builder.addCase(action.getAllUser.rejected, (state, action) => {
+      state.isLoading = false;
+      state.statusPhong = "rejected";
+      state.errorMessage = action.payload.message;
+    });
   },
 });
 

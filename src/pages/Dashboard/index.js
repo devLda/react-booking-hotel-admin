@@ -6,15 +6,15 @@ import {
   AppWidgetSummary,
   AppWebsiteVisits,
 } from "../../components/UI/dashboard";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import path from "../../utils/path";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { isLoggedIn } = useSelector((state) => state.user);
 
-  if (!isLoggedIn) navigate(`/${path.LOGIN}`);
+  const isLogged = JSON.parse(localStorage.getItem("persist:admin/login"));
+
+  if (isLogged.isLoggedIn === "false") navigate(`/${path.LOGIN}`);
 
   return (
     <Container maxWidth="xl">

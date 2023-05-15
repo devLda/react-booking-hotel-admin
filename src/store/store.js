@@ -5,12 +5,12 @@ import { persistReducer, persistStore } from "redux-persist";
 import userSlice from "./user/userSlice";
 
 const commonConfig = {
-  key: "dashboard/user",
   storage,
 };
 
 const userConfig = {
   ...commonConfig,
+  key: "admin/login",
   whitelist: ["isLoggedIn", "current", "token"],
 };
 

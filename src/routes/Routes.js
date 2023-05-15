@@ -7,7 +7,9 @@ import Page404 from "../pages/Page404";
 import Layout from "../components/Layout/Layout";
 import Reservation from "../pages/Reservation";
 import Account from "../pages/Account";
+import LoaiPhong from "../pages/LoaiPhong";
 import CreateAccount from "../pages/Account/create";
+import CreateLP from "../pages/LoaiPhong/create";
 import PrivateRoute from "./PrivateRoute";
 
 const Routers = () => {
@@ -54,6 +56,22 @@ const Routers = () => {
           element: (
             <PrivateRoute>
               <CreateAccount />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "loaiphong",
+          element: (
+            <PrivateRoute>
+              <LoaiPhong />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "loaiphong/create",
+          element: (
+            <PrivateRoute>
+              <CreateLP />
             </PrivateRoute>
           ),
         },

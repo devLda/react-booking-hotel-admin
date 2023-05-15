@@ -13,3 +13,9 @@ export const apiLogout = () =>
     method: "get",
     withCredentials: true,
   });
+
+export const apiAllUser = () =>
+  axios({
+    url: "/user",
+    method: "get",
+  });

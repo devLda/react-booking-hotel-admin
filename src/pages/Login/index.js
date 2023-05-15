@@ -4,7 +4,7 @@ import { Container, Typography, Box } from "@mui/material";
 // hooks
 // components
 import Logo from "../../assets/logo.png";
-import Login from "../../assets/images/illustrations/illustration_login.png";
+import LoginIll from "../../assets/images/illustrations/illustration_login.png";
 // sections
 import { LoginForm } from "../../components/UI/login";
 
@@ -36,7 +36,7 @@ const StyledContent = styled("div")(({ theme }) => ({
   padding: theme.spacing(12, 0),
 }));
 
-const Index = () => {
+const Login = () => {
   return (
     <>
       <StyledRoot>
@@ -65,11 +65,11 @@ const Index = () => {
           <Typography variant="h3" sx={{ px: 5, mt: 10, mb: 5 }}>
             Hi, Welcome Back
           </Typography>
-          <img src={Login} alt="login" />
+          <img src={LoginIll} alt="login" />
         </StyledSection>
       </StyledRoot>
     </>
   );
 };
 
-export default Index;
+export default Login;
