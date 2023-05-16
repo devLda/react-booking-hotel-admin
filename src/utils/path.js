@@ -4,8 +4,8 @@ const path = {
   DASHBOARD: "dashboard",
   ACCOUNT: "dashboard/account",
   ACCOUNT_UPDATE: "/dashboard/account/update",
-  LOAIPHONG: "/dashboard/loaiphong/create",
-  LOAIPHONG_CREATE: "/dashboard/loaiphong/update",
+  LOAIPHONG: "/dashboard/loaiphong",
+  LOAIPHONG_CREATE: "/dashboard/loaiphong/create",
 };
 
 export default path;

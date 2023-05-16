@@ -63,7 +63,7 @@ const Routers = () => {
           path: "account/update/:Email",
           element: (
             <PrivateRoute>
-              <CreateAccount type = "Edit" />
+              <CreateAccount type="Edit" />
             </PrivateRoute>
           ),
         },
