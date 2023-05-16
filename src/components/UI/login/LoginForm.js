@@ -41,14 +41,14 @@ export default function LoginForm() {
     const data = getValue();
     const response = await apiLogin(data);
     if (response.success) {
+      dispatch(
+        login({
+          isLoggedIn: true,
+          token: response.accessToken,
+          userData: response.userData,
+        })
+      );
       Swal.fire("Thành công", "Đăng nhập thành công", "success").then(() => {
-        dispatch(
-          login({
-            isLoggedIn: true,
-            token: response.accessToken,
-            userData: response.userData,
-          })
-        );
         navigate(`/${path.DASHBOARD}`);
       });
     } else Swal.fire("Thất bại", response.mes, "error");

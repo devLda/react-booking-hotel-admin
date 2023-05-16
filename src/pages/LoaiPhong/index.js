@@ -28,8 +28,7 @@ import Iconify from "../../components/UI/iconify";
 import Scrollbar from "../../components/UI/scrollbar";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
-// mock
-import api from "./config";
+
 import { Link } from "react-router-dom";
 
 import Dialog from "@mui/material/Dialog";
@@ -37,6 +36,10 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllLP } from "../../store/loaiphong/asyncAction";
+import { LoadingData } from "../../components/UI/loading";
+import path from "../../utils/path";
 
 // ----------------------------------------------------------------------
 
@@ -83,6 +86,10 @@ function applySortFilter(array, comparator, query) {
 }
 
 const LoaiPhong = () => {
+  const { isLoading } = useSelector((state) => state.loaiphong);
+
+  const dispatch = useDispatch();
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -190,37 +197,35 @@ const LoaiPhong = () => {
 
   const handleDelete = (event, selectedAcc) => {
     if (event) {
-      api
-        .deleteUser(selectedAcc)
-        .then((res) => {
-          if (res.status === 200) {
-            setOpenDialog(false);
-            setDeleted(true);
-            setOpen(false);
-            console.log("res delete ", res);
-          }
-        })
-        .catch((err) => {
-          console.log("error delete ", err);
-        });
+      // api
+      //   .deleteUser(selectedAcc)
+      //   .then((res) => {
+      //     if (res.status === 200) {
+      //       setOpenDialog(false);
+      //       setDeleted(true);
+      //       setOpen(false);
+      //       console.log("res delete ", res);
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.log("error delete ", err);
+      //   });
     }
   };
 
   useEffect(() => {
-    console.log("mounted");
-    api
-      .listLoaiPhong()
+    dispatch(getAllLP())
       .then((res) => {
-        if (res.status === 200) {
-          console.log("mounted ", res.data.loaiphong);
-          setListAcc(res.data.loaiphong);
-          setDeleted(false);
-        }
+        console.log("res ", res);
       })
       .catch((err) => {
-        console.log("error: ", err);
+        console.log("err ", err);
       });
-  }, [deleted]);
+  }, [dispatch, deleted]);
+
+  if (isLoading) {
+    return <LoadingData />;
+  }
 
   return (
     <>
@@ -234,7 +239,7 @@ const LoaiPhong = () => {
           <Typography variant="h4" gutterBottom>
             Loại Phòng
           </Typography>
-          <Link to="/dashboard/loaiphong/create">
+          <Link to={`${path.LOAIPHONG_CREATE}`}>
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}

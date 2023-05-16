@@ -1,3 +1,4 @@
+/* eslint-disable  react-hooks/exhaustive-deps */ 
 import { filter } from "lodash";
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from "react";
@@ -28,9 +29,6 @@ import Iconify from "../../components/UI/iconify";
 import Scrollbar from "../../components/UI/scrollbar";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
-// mock
-// import USERLIST from "../../api/listAccount";
-import api from "./config";
 import { Link } from "react-router-dom";
 
 import Dialog from "@mui/material/Dialog";
@@ -41,15 +39,19 @@ import DialogTitle from "@mui/material/DialogTitle";
 
 import { useDispatch, useSelector } from "react-redux";
 import { getAllUser } from "../../store/user/asyncAction";
+import { apiDeleteUser } from "../../api/user";
+import Swal from "sweetalert2";
+import {LoadingData} from '../../components/UI/loading'
+import path from "../../utils/path";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "HoVaTen", label: "Name", alignRight: false },
-  { id: "Username", label: "Username", alignRight: false },
-  { id: "SDT", label: "Phone", alignRight: false },
+  { id: "HoVaTen", label: "Họ và tên", alignRight: false },
   { id: "Email", label: "Email", alignRight: false },
-  { id: "GioiTinh", label: "Gender", alignRight: false },
+  { id: "SDT", label: "Số điện thoại", alignRight: false },
+  { id: "Role", label: "Quyền", alignRight: false },
+  { id: "NgayTao", label: "Ngày tạo", alignRight: false },
   { id: "" },
 ];
 
@@ -88,7 +90,10 @@ function applySortFilter(array, comparator, query) {
 }
 
 const Account = () => {
-  const dispatch = useDispatch();
+
+  const { allUser, statusUser } = useSelector( state => state.user);
+
+  const dispatch = useDispatch()
 
   const [open, setOpen] = useState(null);
 
@@ -104,7 +109,7 @@ const Account = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listAcc, setListAcc] = useState([]);
+  const [listAcc, setListAcc] = useState(allUser ? allUser : []);
 
   const [userSelected, setUserSelected] = useState("");
 
@@ -112,8 +117,8 @@ const Account = () => {
 
   const [deleted, setDeleted] = useState(false);
 
-  const handleOpenMenu = (event, Username) => {
-    setUserSelected(Username);
+  const handleOpenMenu = (event, Email) => {
+    setUserSelected(Email);
     setOpen(event.currentTarget);
   };
 
@@ -195,43 +200,38 @@ const Account = () => {
     setOpen(false);
   };
 
-  const handleDelete = (event, selectedAcc) => {
+  const handleDelete = async (event, selectedAcc) => {
     if (event) {
-      api
-        .deleteUser(selectedAcc)
-        .then((res) => {
-          if (res.status === 200) {
-            setOpenDialog(false);
-            setDeleted(true);
-            setOpen(false);
-            console.log("res delete ", res);
-          }
-        })
-        .catch((err) => {
-          console.log("error delete ", err);
-        });
+      const response = await apiDeleteUser(selectedAcc)
+      if(response.success) {
+        setOpenDialog(false);
+        setDeleted(true);
+        setOpen(false);
+        console.log('res delete', response)
+        Swal.fire("Thành công", "Xóa tài khoản thành công", "success")
+      } else {
+        setOpenDialog(false);
+        setDeleted(false);
+        setOpen(false);
+        Swal.fire("Thất bại", response.mes, "error");
+      }
     }
   };
 
-  // const { allUser } = useSelector();
-
-  // console.log("user ", allUser);
-
   useEffect(() => {
-    dispatch(getAllUser());
-    // api
-    //   .listAccount()
-    //   .then((res) => {
-    //     if (res.status === 200) {
-    //       console.log(res.data);
-    //       setListAcc(res.data.user);
-    //       setDeleted(false);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log("error: ", err);
-    //   });
-  }, [deleted]);
+    dispatch(getAllUser())
+    .then(res => {
+      console.log('res ', res)
+      setListAcc(res.payload)
+    })
+    .catch(err => {
+      console.log('err ', err)
+    })
+  }, [dispatch, deleted]);
+
+  if(statusUser === "pending") {
+    return <LoadingData />
+  }
 
   return (
     <>
@@ -243,7 +243,7 @@ const Account = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Account
+            Tài khoản
           </Typography>
           <Link to="/dashboard/account/create">
             <Button
@@ -251,7 +251,7 @@ const Account = () => {
               startIcon={<Iconify icon="eva:plus-fill" />}
               className="bg-green-600"
             >
-              New Account
+              Thêm Tài khoản
             </Button>
           </Link>
         </Stack>
@@ -280,14 +280,16 @@ const Account = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { id, Username, HoVaTen, SDT, Email, GioiTinh } =
+                      const { _id, HoVaTen, Email, SDT, Role, createdAt } =
                         row;
                       const selectedUser = selected.indexOf(HoVaTen) !== -1;
+                      const arrayCreate = createdAt.slice(0, 10).split('-')
+                      const NgayTao = arrayCreate[2] + '/' + arrayCreate[1] + '/' + arrayCreate[0]
 
                       return (
                         <TableRow
                           hover
-                          key={id}
+                          key={_id}
                           tabIndex={-1}
                           role="checkbox"
                           selected={selectedUser}
@@ -299,40 +301,23 @@ const Account = () => {
                             />
                           </TableCell>
 
-                          {/* <TableCell component="th" scope="row" padding="none">
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={2}
-                            >
-                              <Avatar alt={name} src={photoURL} />
-                              <Typography variant="subtitle2" noWrap>
-                                {HoVaTen}
-                              </Typography>
-                            </Stack>
-                          </TableCell> */}
-
                           <TableCell align="left">{HoVaTen}</TableCell>
-
-                          <TableCell align="left">{Username}</TableCell>
-
-                          <TableCell align="left">{SDT}</TableCell>
 
                           <TableCell align="left">{Email}</TableCell>
 
-                          <TableCell align="left">
-                            {GioiTinh ? "Nam" : "Nữ"}
-                          </TableCell>
+                          <TableCell align="left">{SDT}</TableCell>
 
-                          {/* <TableCell align="left">
-                              <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                            </TableCell> */}
+                          <TableCell align="left">{Role}</TableCell>
+
+                          <TableCell align="left">
+                            {NgayTao}
+                          </TableCell>
 
                           <TableCell align="right">
                             <IconButton
                               size="large"
                               color="inherit"
-                              onClick={(e) => handleOpenMenu(e, Username)}
+                              onClick={(e) => handleOpenMenu(e, Email)}
                             >
                               <Iconify icon={"eva:more-vertical-fill"} />
                             </IconButton>
@@ -407,7 +392,7 @@ const Account = () => {
         }}
       >
         <Link
-          to={`/dashboard/account/update/${userSelected}`}
+          to={`${path.ACCOUNT_UPDATE}/${userSelected}`}
           className="no-underline"
         >
           <MenuItem>

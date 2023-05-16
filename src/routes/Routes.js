@@ -60,6 +60,14 @@ const Routers = () => {
           ),
         },
         {
+          path: "account/update/:Email",
+          element: (
+            <PrivateRoute>
+              <CreateAccount type = "Edit" />
+            </PrivateRoute>
+          ),
+        },
+        {
           path: "loaiphong",
           element: (
             <PrivateRoute>
@@ -75,6 +83,14 @@ const Routers = () => {
             </PrivateRoute>
           ),
         },
+        {
+          path: "loaiphong/update/:TenLoaiPhong",
+          element: (
+            <PrivateRoute>
+              <CreateLP type="Edit" />
+            </PrivateRoute>
+          ),
+        },
       ],
     },
     {
@@ -86,12 +102,7 @@ const Routers = () => {
       children: [
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: "404", element: <Page404 /> },
-        { path: "*", element: <Navigate to="/404" /> },
       ],
-    },
-    {
-      path: "*",
-      element: <Navigate to="/404" replace />,
     },
   ]);
 

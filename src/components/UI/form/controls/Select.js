@@ -10,11 +10,10 @@ import { useState, useEffect } from "react";
 
 export default function Select(props) {
   const { name, label, value, error = null, options } = props;
-  const [valueData, setValueData] = useState(value);
-  console.log("value ", value);
+  const [valueData, setValueData] = useState("user");
   useEffect(() => {
-    setValueData(props.value);
-  }, [props.value]);
+    setValueData(value);
+  }, [value]);
 
   return (
     <FormControl variant="outlined" fullWidth {...(error && { error: true })}>

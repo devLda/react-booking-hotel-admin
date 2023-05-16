@@ -3,20 +3,11 @@
 import { Card, Typography } from "@mui/material";
 
 import { Grid } from "@mui/material";
-import { Input, Select, Button, DatePicker } from "../../components/UI/form";
-import api from "./config";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { Input, Button } from "../../components/UI/form";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { object, string, number, date } from "yup";
-
-const genderItems = [
-  { id: "Female", title: "Nữ" },
-  { id: "Male", title: "Nam" },
-];
-
-const phoneRegExp =
-  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+import { object, string } from "yup";
 
 const userSchema = object({
   TenLoaiPhong: string().required("Tên loại phòng là trường bắt buộc"),
@@ -25,9 +16,11 @@ const userSchema = object({
 
 const Create = (props) => {
   const { type } = props;
-  const { id } = useParams();
+  const { TenLoaiPhong } = useParams();
   const [value, setValue] = useState({});
   const [error, setError] = useState({});
+
+  const files = useRef()
 
   const getValue = () => {
     const allInput = document.querySelectorAll("input");
@@ -51,71 +44,72 @@ const Create = (props) => {
   const handlePost = () => {
     const data = getValue();
 
-    data.IDLoaiPhong = 1000 * Math.random() + "da";
-
-    // console.log("data ", data);
-
-    (async () => {
-      const validationResult = await userSchema
-        .validate(data, { abortEarly: false })
-        .then((res) => {
-          console.log("res ", res);
-          setError({});
-          if (Object.keys(data).length > 0) {
-            api
-              .addLP(data)
-              .then((res) => {
-                if (res.status === 200) {
-                  console.log("res data ", res);
-                  // window.location.href = "/dashboard/loaiphong";
-                }
-              })
-              .catch((err) => {
-                console.log("error ", err);
-              });
-          }
-        })
-        .catch((err) => {
-          return err;
-        });
-      let err = {};
-      for (let i in validationResult.inner) {
-        if (validationResult.inner[i].path) {
-          err[validationResult.inner[i].path] =
-            validationResult.inner[i].message;
-        }
-      }
-      setError(err);
-    })();
+    // (async () => {
+    //   const validationResult = await userSchema
+    //     .validate(data, { abortEarly: false })
+    //     .then((res) => {
+    //       console.log("res ", res);
+    //       setError({});
+    //       if (Object.keys(data).length > 0) {
+    //         // api
+    //         //   .addLP(data)
+    //         //   .then((res) => {
+    //         //     if (res.status === 200) {
+    //         //       console.log("res data ", res);
+    //         //       // window.location.href = "/dashboard/loaiphong";
+    //         //     }
+    //         //   })
+    //         //   .catch((err) => {
+    //         //     console.log("error ", err);
+    //         //   });
+    //       }
+    //     })
+    //     .catch((err) => {
+    //       return err;
+    //     });
+    //   let err = {};
+    //   for (let i in validationResult.inner) {
+    //     if (validationResult.inner[i].path) {
+    //       err[validationResult.inner[i].path] =
+    //         validationResult.inner[i].message;
+    //     }
+    //   }
+    //   setError(err);
+    // })();
   };
 
   const handlePut = (e) => {
     let data = getValue();
 
     if (data) {
-      api
-        .updateUser(data, id)
-        .then((res) => {
-          if (res.status === 200) {
-            window.location.href = "/dashboard/loaiphong";
-          }
-        })
-        .catch((err) => {
-          console.log("error ", err);
-        });
+      // api
+      //   .updateUser(data, id)
+      //   .then((res) => {
+      //     if (res.status === 200) {
+      //       window.location.href = "/dashboard/loaiphong";
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.log("error ", err);
+      //   });
     }
   };
 
+  const ChangeImage = (e) => {
+    let file = e
+    console.log('file ', file)
+  }
+
   useEffect(() => {
     if (type === "Edit") {
-      api
-        .getUser({ TenLoaiPhong: id })
-        .then((res) => {
-          setValue(res.data[0]);
-        })
-        .catch((err) => {
-          console.log("err ", err);
-        });
+      // api
+      //   .getUser({ TenLoaiPhong: id })
+      //   .then((res) => {
+      //     setValue(res.data[0]);
+      //   })
+      //   .catch((err) => {
+      //     console.log("err ", err);
+      //   });
     }
   }, []);
 
@@ -161,7 +155,7 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6}>
             <label>Chọn file ảnh</label>
-            <input type="file" name="File"></input>
+            <input type="file" name="image" onChange={ChangeImage}></input>
           </Grid>
         </Grid>
         <Button

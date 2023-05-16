@@ -8,6 +8,7 @@ export const userSlice = createSlice({
     isLoggedIn: false,
     token: null,
     allUser: null,
+    statusUser: 'pending'
   },
   reducers: {
     login: (state, action) => {
@@ -26,19 +27,18 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(action.getAllUser.pending, (state) => {
       state.isLoading = true;
-      state.statusPhong = "pending";
+      state.statusUser = "pending";
     });
 
     builder.addCase(action.getAllUser.fulfilled, (state, action) => {
-      console.log("action ", action);
       state.isLoading = false;
-      state.statusPhong = "resolved";
+      state.statusUser = "resolved";
       state.allUser = action.payload;
     });
 
     builder.addCase(action.getAllUser.rejected, (state, action) => {
       state.isLoading = false;
-      state.statusPhong = "rejected";
+      state.statusUser = "rejected";
       state.errorMessage = action.payload.message;
     });
   },

@@ -28,7 +28,7 @@ import Scrollbar from "../../components/UI/scrollbar";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
 // mock
-import USERLIST from "../../api/listAccount";
+// import USERLIST from "../../api/listAccount";
 
 // ----------------------------------------------------------------------
 
@@ -39,6 +39,8 @@ const TABLE_HEAD = [
   { id: "status", label: "Status", alignRight: false },
   { id: "" },
 ];
+
+const USERLIST = []
 
 // ----------------------------------------------------------------------
 

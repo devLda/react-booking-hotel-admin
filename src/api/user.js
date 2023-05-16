@@ -19,3 +19,29 @@ export const apiAllUser = () =>
     url: "/user",
     method: "get",
   });
+
+export const apiGetUser = (Email) =>
+  axios({
+    url: `/user/get/${Email}`,
+    method: "get",
+  });
+
+export const apiCreateUser = (data) =>
+  axios({
+    url: "/user/create",
+    method: "post",
+    data,
+  });
+
+export const apiUpdateUser = (Email, data) =>
+  axios({
+    url: `/user/update/${Email}`,
+    method: "put",
+    data,
+  });
+
+export const apiDeleteUser = (Email) =>
+  axios({
+    url: `/user/delete/${Email}`,
+    method: "delete",
+  });

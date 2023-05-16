@@ -3,6 +3,7 @@ import storage from "redux-persist/lib/storage";
 import { persistReducer, persistStore } from "redux-persist";
 
 import userSlice from "./user/userSlice";
+import LPSlice from "./loaiphong/userSlice";
 
 const commonConfig = {
   storage,
@@ -17,6 +18,7 @@ const userConfig = {
 export const store = configureStore({
   reducer: {
     user: persistReducer(userConfig, userSlice),
+    loaiphong: LPSlice
   },
 });
 

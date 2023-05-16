@@ -1,50 +1,51 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable  no-useless-escape */
 
 import { Card, Typography } from "@mui/material";
 
 import { Grid } from "@mui/material";
-import { Input, Select, Button, DatePicker } from "../../components/UI/form";
-import api from "./config";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { Input, Select, Button} from "../../components/UI/form";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { object, string, number, date } from "yup";
+import { apiCreateUser, apiGetUser, apiUpdateUser } from "../../api/user";
 
-const genderItems = [
-  { id: "Female", title: "Nữ" },
-  { id: "Male", title: "Nam" },
+import { object, string } from "yup";
+import Swal from "sweetalert2";
+import path from "../../utils/path";
+
+const optionItems = [
+  { id: "admin", title: "admin" },
+  { id: "user", title: "user" },
 ];
 
-const phoneRegExp =
-  /^((\\+[1-9]{1,4}[ \\-]*)|(\\([0-9]{2,3}\\)[ \\-]*)|([0-9]{2,4})[ \\-]*)*?[0-9]{3,4}?[ \\-]*[0-9]{3,4}?$/;
+const phoneRegExp = /(84|0[3|5|7|8|9])+([0-9]{8})\b/g;
+const passRegex =
+/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/ 
 
 const userSchema = object({
-  Username: string().required("Username là trường bắt buộc"),
-  // Password: string()
-  //   .required("Mật khẩu là trường bắt buộc")
-  //   .matches(
-  //     /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})/,
-  //     "Mật khẩu phải chứa tối thiểu 8 ký tự và có ít nhất 1 ký tự viết hoa, 1 ký tự viết thường, 1 ký tự đặc biệt và 1 số"
-  //   ),
+  Email: string()
+    .required("Email là trường bắt buộc")
+    .email("Email phải chứa ký tự '@' và dấu '.'"),
+  Password: string()
+    .required("Mật khẩu là trường bắt buộc")
+    .matches(
+      passRegex,
+      "Mật khẩu phải chứa tối thiểu 8 ký tự và có ít nhất 1 ký tự viết hoa, 1 ký tự viết thường, 1 ký tự đặc biệt và 1 số"
+    ),
   HoVaTen: string().required("Họ và tên là trường bắt buộc"),
   SDT: string()
     .required("Số điện thoại là trường bắt buộc")
-    .matches(phoneRegExp, "Không đúng định dạng số điện thoại"),
-  Email: string()
-    .required("Email là trường bắt buộc")
-    .email("Không đúng định dạng email"),
-  GioiTinh: string().nullable(),
-  CCCD: number().nullable(),
-  NgaySinh: date()
-    .default(() => new Date())
-    .nullable(),
+    .matches(phoneRegExp, "Số điện thoại gồm 10 số có nhập chữ số 0 ở đầu"), 
 });
 
 const Create = (props) => {
   const { type } = props;
-  const { id } = useParams();
+  const { Email } = useParams();
   const [value, setValue] = useState({});
   const [error, setError] = useState({});
+
+  const navigate = useNavigate()
 
   const getValue = () => {
     const allInput = document.querySelectorAll("input");
@@ -65,7 +66,17 @@ const Create = (props) => {
     return data;
   };
 
-  const handlePost = () => {
+  const createAcc = async (dataCre) => {
+    const response = await apiCreateUser(dataCre)
+    if(response.success) {
+      console.log('res ', response)
+      Swal.fire("Thành công", response.mes, "success").then(() => {
+        navigate(`/${path.ACCOUNT}`);
+      });
+    } else Swal.fire("Thất bại", response.mes, "error");
+  }
+
+  const handlePost = async () => {
     let data = getValue();
 
     (async () => {
@@ -74,17 +85,8 @@ const Create = (props) => {
         .then((res) => {
           console.log("res ", res);
           setError({});
-          if (Object.keys(res).length > 0) {
-            api
-              .addUser(data)
-              .then((res) => {
-                if (res.status === 200) {
-                  window.location.href = "/dashboard/account";
-                }
-              })
-              .catch((err) => {
-                console.log("error ", err);
-              });
+          if (Object.keys(data).length > 0) {
+            createAcc(data)
           }
         })
         .catch((err) => {
@@ -104,30 +106,82 @@ const Create = (props) => {
   const handlePut = (e) => {
     let data = getValue();
 
-    if (data) {
-      api
-        .updateUser(data, id)
-        .then((res) => {
-          if (res.status === 200) {
-            window.location.href = "/dashboard/account";
-          }
-        })
-        .catch((err) => {
-          console.log("error ", err);
-        });
+    let equal = deepEqual(data, defaultValue.current)
+    if (!equal) {
+      apiUpdateUser(data.Email, data)
+      .then(res => {
+        console.log('res ', res)
+        if(res.success)
+        {
+          Swal.fire("Thành công", "Cập nhật tài khoản thành công", "success")
+          .then(() => {
+            navigate(`/${path.ACCOUNT}`);
+          })
+        }
+        else Swal.fire("Thất bại", res.mes, "error")
+      })
+      .catch(err => {
+        console.log('err ', err)
+      })
+      // api
+      //   .updateUser(data, id)
+      //   .then((res) => {
+      //     if (res.status === 200) {
+      //       window.location.href = "/dashboard/account";
+      //     }
+      //   })
+      //   .catch((err) => {
+      //     console.log("error ", err);
+      //   });
+    }
+    else{
+      Swal.fire("Thành công", "Cập nhật tài khoản thành công", "success")
     }
   };
 
+  function deepEqual(obj1, obj2) {
+    // If both objects are the same instance, they are equal
+    if (obj1 === obj2) {
+      return true;
+    }
+  
+    // Check if the objects are of the same type and have the same number of properties
+    if (typeof obj1 !== 'object' || typeof obj2 !== 'object' || obj1 === null || obj2 === null || Object.keys(obj1).length !== Object.keys(obj2).length) {
+      return false;
+    }
+  
+    // Recursively compare each property and value
+    for (let prop in obj1) {
+      if (!obj2.hasOwnProperty(prop) || !deepEqual(obj1[prop], obj2[prop])) {
+        return false;
+      }
+    }
+  
+    return true;
+  }
+
+  const defaultValue = useRef()
+
   useEffect(() => {
     if (type === "Edit") {
-      api
-        .getUser({ Username: id })
-        .then((res) => {
-          setValue(res.data[0]);
-        })
-        .catch((err) => {
-          console.log("err ", err);
-        });
+      apiGetUser(Email)
+      .then(res => {
+        // console.log('res ', res)
+        const {createdAt, updatedAt, __v, ...valueRef} = res.mes
+        defaultValue.current = valueRef
+        setValue(res.mes)
+      })
+      .catch(err => {
+        console.log('err ', err)
+      })
+      // api
+      //   .getUser({ Username: id })
+      //   .then((res) => {
+      //     setValue(res.data[0]);
+      //   })
+      //   .catch((err) => {
+      //     console.log("err ", err);
+      //   });
     }
   }, []);
 
@@ -149,20 +203,29 @@ const Create = (props) => {
           }}
           variant="h3"
         >
-          Create a new account
+          { type === "Edit" ? "Cập nhật tài khoản" : "Tạo tài khoản mới"}
         </Typography>
       </Card>
       <Card>
         <Grid container spacing={2} padding={2}>
           <Grid item md={6}>
             <Input
-              error={error.Username}
-              disable={value.Username ? true : false}
-              name="Username"
-              label="Username: "
-              value={value.Username ? value.Username : ""}
+              disable = {value.Email ? true : false}
+              error={error.Email}
+              name="Email"
+              label="Email: "
+              value={value.Email ? value.Email : ""}
             />
           </Grid>
+          { type !== "Edit" && <Grid item md={6}>
+            <Input
+              error={error.Password}
+              name="Password"
+              label="Password: "
+              type="password"
+              value={value.Password ? value.Password : ""}
+            />
+          </Grid>}
           <Grid item md={6}>
             <Input
               error={error.HoVaTen}
@@ -180,38 +243,17 @@ const Create = (props) => {
             />
           </Grid>
           <Grid item md={6}>
-            <Input
-              error={error.Email}
-              name="Email"
-              label="Email: "
-              value={value.Email ? value.Email : ""}
-            />
-          </Grid>
-          <Grid item md={6}>
             <Select
-              label="Giới tính "
-              name="GioiTinh"
-              options={genderItems}
+              label="Quyền"
+              name="Role"
+              options={optionItems}
               value={
-                value.GioiTinh
-                  ? "Male"
-                  : value.GioiTinh === false
-                  ? "Female"
+                value.Role === "admin"
+                  ? "admin"
+                  : value.Role === "user"
+                  ? "user"
                   : null
               }
-            />
-          </Grid>
-          <Grid item md={6}>
-            <Input
-              name="CCCD"
-              label="CCCD: "
-              value={value.CCCD ? value.CCCD : ""}
-            />
-          </Grid>
-          <Grid item md={6}>
-            <DatePicker
-              label="Ngày sinh"
-              valueDefault={value.NgaySinh ? value.NgaySinh : null}
             />
           </Grid>
         </Grid>
@@ -220,7 +262,7 @@ const Create = (props) => {
             my: 2,
             mx: 2,
           }}
-          text={type === "Edit" ? "Update" : "Add"}
+          text={type === "Edit" ? "Cập nhật" : "Thêm mới"}
           onClick={(e) => {
             if (type === "Edit") {
               handlePut(e);
