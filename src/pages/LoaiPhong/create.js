@@ -4,12 +4,13 @@ import { Card, Typography } from "@mui/material";
 
 import { Grid } from "@mui/material";
 import { Input, Button } from "../../components/UI/form";
-import { useEffect, useLayoutEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { object, string } from "yup";
-import { apiAddLP } from "../../api";
+import { apiAddLP, apiGetLP, apiUpdateLP } from "../../api";
 import Swal from "sweetalert2";
+import path from "../../utils/path";
 
 const userSchema = object({
   TenLoaiPhong: string().required("Tên loại phòng là trường bắt buộc"),
@@ -23,6 +24,10 @@ const Create = (props) => {
   const [error, setError] = useState({});
 
   const [imgPreview, setImgPreview] = useState([]);
+
+  const navigate = useNavigate();
+
+  const defaultValue = useRef();
 
   const getValue = () => {
     const allInput = document.querySelectorAll("input");
@@ -41,19 +46,24 @@ const Create = (props) => {
     }
 
     const textarea = document.querySelector("textarea");
-    data['MoTa'] = textarea.value
+    data["MoTa"] = textarea.value;
     return data;
   };
 
   const addLoaiPhong = async (dataAdd) => {
     const response = await apiAddLP(dataAdd);
-    console.log(response);
+    if (response.success) {
+      console.log("res ", response);
+      Swal.fire("Thành công", "Tạo loại phòng thành công", "success").then(
+        () => {
+          navigate(`/${path.LOAIPHONG}`);
+        }
+      );
+    } else Swal.fire("Thất bại", response.mes, "error");
   };
 
   const handlePost = () => {
     const data = getValue();
-
-    console.log(data)
 
     data.image = imgPreview;
 
@@ -81,47 +91,91 @@ const Create = (props) => {
     })();
   };
 
+  function deepEqual(obj1, obj2) {
+    // If both objects are the same instance, they are equal
+    if (obj1 === obj2) {
+      return true;
+    }
+
+    // Check if the objects are of the same type and have the same number of properties
+    if (
+      typeof obj1 !== "object" ||
+      typeof obj2 !== "object" ||
+      obj1 === null ||
+      obj2 === null ||
+      Object.keys(obj1).length !== Object.keys(obj2).length
+    ) {
+      return false;
+    }
+
+    // Recursively compare each property and value
+    for (let prop in obj1) {
+      if (!obj2.hasOwnProperty(prop) || !deepEqual(obj1[prop], obj2[prop])) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   const handlePut = (e) => {
     let data = getValue();
 
-    if (data) {
-      // api
-      //   .updateUser(data, id)
-      //   .then((res) => {
-      //     if (res.status === 200) {
-      //       window.location.href = "/dashboard/loaiphong";
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     console.log("error ", err);
-      //   });
+    data.image = img;
+
+    console.log(data);
+
+    let equal = deepEqual(data, defaultValue.current);
+
+    if (!equal) {
+      apiUpdateLP(data.TenLoaiPhong, data)
+        .then((res) => {
+          console.log("res ", res);
+          if (res.success) {
+            Swal.fire(
+              "Thành công",
+              "Cập nhật loại phòng thành công",
+              "success"
+            ).then(() => {
+              navigate(`/${path.LOAIPHONG}`);
+            });
+          } else Swal.fire("Thất bại", res.mes, "error");
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
+    } else {
+      Swal.fire("Thành công", "Cập nhật tài khoản thành công", "success");
     }
   };
 
+  const [img, setImg] = useState({});
+
   const ChangeImage = (e) => {
-    let files = e.target.files;
-    if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
-    else {
-      if (files.length > 3) {
-        Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
-        // files.slice(0, 3).forEach((element) => {
-        //   setFileToBase(element);
-        // });
-        console.log(files);
-      }
+    let files = e.target.files[0];
+    setImg(files);
+    // if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
+    // else {
+    //   if (files.length > 3) {
+    //     Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
+    //     // files.slice(0, 3).forEach((element) => {
+    //     //   setFileToBase(element);
+    //     // });
+    //     console.log(files);
+    //   }
 
-      if (files.length >= 2 && files.length <= 3) {
-        for (let file = 0; file < files.length; file++) {
-          setImgPreview([]);
-          setFileToBase(files[file]);
-        }
-      }
+    //   if (files.length >= 2 && files.length <= 3) {
+    //     for (let file = 0; file < files.length; file++) {
+    //       setImgPreview([]);
+    //       setFileToBase(files[file]);
+    //     }
+    //   }
 
-      if (files.length === 1) {
-        setImgPreview([]);
-        setFileToBase(files[0]);
-      }
-    }
+    //   if (files.length === 1) {
+    //     setImgPreview([]);
+    //     setFileToBase(files[0]);
+    //   }
+    // }
     // setFileToBase(file);
     // setImgPreview(file);
   };
@@ -137,14 +191,16 @@ const Create = (props) => {
 
   useEffect(() => {
     if (type === "Edit") {
-      // api
-      //   .getUser({ TenLoaiPhong: id })
-      //   .then((res) => {
-      //     setValue(res.data[0]);
-      //   })
-      //   .catch((err) => {
-      //     console.log("err ", err);
-      //   });
+      apiGetLP(TenLoaiPhong)
+        .then((res) => {
+          console.log("res ", res);
+          const { createdAt, updatedAt, __v, ...valueRef } = res.mes;
+          defaultValue.current = valueRef;
+          setValue(res.mes);
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
     }
   }, []);
 
@@ -168,7 +224,7 @@ const Create = (props) => {
           }}
           variant="h3"
         >
-          Tạo loại phòng mới
+          {type === "Edit" ? "Cập nhật loại phòng" : "Tạo loại phòng mới"}
         </Typography>
       </Card>
       <Card>
@@ -192,14 +248,23 @@ const Create = (props) => {
             />
           </Grid>
           <Grid item md={12}>
-            <p><label for="MoTa">Nhập mô tả</label></p>
-            <textarea id="MoTa" className="p-3 border-2 border-solid border-slate-300" name="MoTa" rows={4} cols={50} ></textarea>
-          </Grid> 
+            <p>
+              <label for="MoTa">Nhập mô tả</label>
+            </p>
+            <textarea
+              id="MoTa"
+              className="p-3 border-2 border-solid border-slate-300"
+              name="MoTa"
+              rows={4}
+              cols={50}
+            ></textarea>
+          </Grid>
           <Grid item md={12}>
             <p>Chọn file ảnh</p>
             <input
               type="file"
               name="image"
+              data-maxFileSize="2"
               onChange={ChangeImage}
             ></input>
             {/* {imgPreview === 1 && (

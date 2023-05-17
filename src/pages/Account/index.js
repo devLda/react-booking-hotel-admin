@@ -1,4 +1,4 @@
-/* eslint-disable  react-hooks/exhaustive-deps */ 
+/* eslint-disable  react-hooks/exhaustive-deps */
 import { filter } from "lodash";
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from "react";
@@ -41,7 +41,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllUser } from "../../store/user/asyncAction";
 import { apiDeleteUser } from "../../api/user";
 import Swal from "sweetalert2";
-import {LoadingData} from '../../components/UI/loading'
+import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
 
 // ----------------------------------------------------------------------
@@ -90,10 +90,9 @@ function applySortFilter(array, comparator, query) {
 }
 
 const Account = () => {
+  const { allUser, statusUser } = useSelector((state) => state.user);
 
-  const { allUser, statusUser } = useSelector( state => state.user);
-
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const [open, setOpen] = useState(null);
 
@@ -202,13 +201,13 @@ const Account = () => {
 
   const handleDelete = async (event, selectedAcc) => {
     if (event) {
-      const response = await apiDeleteUser(selectedAcc)
-      if(response.success) {
+      const response = await apiDeleteUser(selectedAcc);
+      if (response.success) {
         setOpenDialog(false);
         setDeleted(true);
         setOpen(false);
-        console.log('res delete', response)
-        Swal.fire("Thành công", "Xóa tài khoản thành công", "success")
+        console.log("res delete", response);
+        Swal.fire("Thành công", "Xóa tài khoản thành công", "success");
       } else {
         setOpenDialog(false);
         setDeleted(false);
@@ -220,26 +219,27 @@ const Account = () => {
 
   useEffect(() => {
     dispatch(getAllUser())
-    .then(res => {
-      console.log('res ', res)
-      if(res.payload.mes === "AccessToken không hợp lệ")
-      {
-        Swal.fire("Thông báo", "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại", "info")
-        .then(() => {
-          window.location.href = '/login'
-        })
-      }
-      else{
-        setListAcc(res.payload)
-      }
-    })
-    .catch(err => {
-      console.log('err ', err)
-    })
+      .then((res) => {
+        console.log("res ", res);
+        if (res.payload.mes === "AccessToken không hợp lệ") {
+          Swal.fire(
+            "Thông báo",
+            "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại",
+            "info"
+          ).then(() => {
+            window.location.href = "/login";
+          });
+        } else {
+          setListAcc(res.payload);
+        }
+      })
+      .catch((err) => {
+        console.log("err ", err);
+      });
   }, [dispatch, deleted]);
 
-  if(statusUser === "pending") {
-    return <LoadingData />
+  if (statusUser === "pending") {
+    return <LoadingData />;
   }
 
   return (
@@ -289,11 +289,15 @@ const Account = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { _id, HoVaTen, Email, SDT, Role, createdAt } =
-                        row;
+                      const { _id, HoVaTen, Email, SDT, Role, createdAt } = row;
                       const selectedUser = selected.indexOf(HoVaTen) !== -1;
-                      const arrayCreate = createdAt.slice(0, 10).split('-')
-                      const NgayTao = arrayCreate[2] + '/' + arrayCreate[1] + '/' + arrayCreate[0]
+                      const arrayCreate = createdAt.slice(0, 10).split("-");
+                      const NgayTao =
+                        arrayCreate[2] +
+                        "/" +
+                        arrayCreate[1] +
+                        "/" +
+                        arrayCreate[0];
 
                       return (
                         <TableRow
@@ -318,9 +322,7 @@ const Account = () => {
 
                           <TableCell align="left">{Role}</TableCell>
 
-                          <TableCell align="left">
-                            {NgayTao}
-                          </TableCell>
+                          <TableCell align="left">{NgayTao}</TableCell>
 
                           <TableCell align="right">
                             <IconButton
@@ -406,7 +408,7 @@ const Account = () => {
         >
           <MenuItem>
             <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
-            Edit
+            Sửa
           </MenuItem>
         </Link>
 
@@ -416,7 +418,7 @@ const Account = () => {
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
-          Delete
+          Xoá
         </MenuItem>
       </Popover>
 

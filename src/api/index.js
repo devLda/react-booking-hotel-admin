@@ -7,4 +7,11 @@ export {
   apiLogout,
   apiUpdateUser,
 } from "./user";
-export { apiAllLP, apiAddLP } from "./loaiphong";
+
+export {
+  apiAllLP,
+  apiAddLP,
+  apiGetLP,
+  apiUpdateLP,
+  apiDeleteLP,
+} from "./loaiphong";

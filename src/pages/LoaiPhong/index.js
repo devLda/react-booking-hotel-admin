@@ -40,12 +40,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllLP } from "../../store/loaiphong/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
+import Swal from "sweetalert2";
+import { apiDeleteLP } from "../../api";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
   { id: "TenLoaiPhong", label: "Name", alignRight: false },
   { id: "MoTa", label: "Mô Tả", alignRight: false },
+  { id: "TienNghi", label: "Tiện nghi", alignRight: false },
   { id: "Image", label: "Image", alignRight: false },
   { id: "" },
 ];
@@ -78,8 +81,7 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) =>
-        _user.TenLoaiPhong.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (LP) => LP.TenLoaiPhong.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -104,21 +106,21 @@ const LoaiPhong = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listAcc, setListAcc] = useState([]);
+  const [listLP, setListLP] = useState([]);
 
-  const [userSelected, setUserSelected] = useState("");
+  const [LPSelected, setLPSelected] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
 
   const [deleted, setDeleted] = useState(false);
 
-  const handleOpenMenu = (event, MoTa) => {
-    setUserSelected(MoTa);
+  const handleOpenMenu = (event, TenLoaiPhong) => {
+    setLPSelected(TenLoaiPhong);
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setUserSelected("");
+    setLPSelected("");
     setOpen(null);
   };
 
@@ -131,7 +133,7 @@ const LoaiPhong = () => {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // const newSelecteds = USERLIST.map((n) => n.name);
-      const newSelecteds = listAcc.map((n) => n.TenLoaiPhong);
+      const newSelecteds = listLP.map((n) => n.TenLoaiPhong);
       setSelected(newSelecteds);
       return;
     }
@@ -172,11 +174,11 @@ const LoaiPhong = () => {
 
   const emptyRows =
     // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listAcc.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listLP.length) : 0;
 
   const filteredUsers = applySortFilter(
     // USERLIST,
-    listAcc,
+    listLP,
     getComparator(order, orderBy),
     filterName
   );
@@ -195,21 +197,21 @@ const LoaiPhong = () => {
     setOpen(false);
   };
 
-  const handleDelete = (event, selectedAcc) => {
+  const handleDelete = async (event, selectedAcc) => {
     if (event) {
-      // api
-      //   .deleteUser(selectedAcc)
-      //   .then((res) => {
-      //     if (res.status === 200) {
-      //       setOpenDialog(false);
-      //       setDeleted(true);
-      //       setOpen(false);
-      //       console.log("res delete ", res);
-      //     }
-      //   })
-      //   .catch((err) => {
-      //     console.log("error delete ", err);
-      //   });
+      const response = await apiDeleteLP(selectedAcc);
+      if (response.success) {
+        setOpenDialog(false);
+        setDeleted(true);
+        setOpen(false);
+        console.log("res delete", response);
+        Swal.fire("Thành công", "Xóa loại phòng thành công", "success");
+      } else {
+        setOpenDialog(false);
+        setDeleted(false);
+        setOpen(false);
+        Swal.fire("Thất bại", response.mes, "error");
+      }
     }
   };
 
@@ -217,6 +219,9 @@ const LoaiPhong = () => {
     dispatch(getAllLP())
       .then((res) => {
         console.log("res ", res);
+        if (res.meta.requestStatus === "fulfilled") {
+          setListLP(res.payload);
+        }
       })
       .catch((err) => {
         console.log("err ", err);
@@ -265,7 +270,7 @@ const LoaiPhong = () => {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   // rowCount={USERLIST.length}
-                  rowCount={listAcc.length}
+                  rowCount={listLP.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -274,7 +279,13 @@ const LoaiPhong = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { IDLoaiPhong, MoTa, TenLoaiPhong, images } = row;
+                      const {
+                        IDLoaiPhong,
+                        MoTa,
+                        TenLoaiPhong,
+                        TienNghi,
+                        images,
+                      } = row;
                       const selectedUser =
                         selected.indexOf(TenLoaiPhong) !== -1;
 
@@ -313,6 +324,10 @@ const LoaiPhong = () => {
                           <TableCell align="left">{MoTa}</TableCell>
 
                           <TableCell align="left">
+                            {TienNghi.join(",")}
+                          </TableCell>
+
+                          <TableCell align="left">
                             <img
                               src={images[0]}
                               className="w-20 h-20"
@@ -328,7 +343,7 @@ const LoaiPhong = () => {
                             <IconButton
                               size="large"
                               color="inherit"
-                              onClick={(e) => handleOpenMenu(e, MoTa)}
+                              onClick={(e) => handleOpenMenu(e, TenLoaiPhong)}
                             >
                               <Iconify icon={"eva:more-vertical-fill"} />
                             </IconButton>
@@ -375,7 +390,7 @@ const LoaiPhong = () => {
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
             // count={USERLIST.length}
-            count={listAcc.length}
+            count={listLP.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -403,22 +418,22 @@ const LoaiPhong = () => {
         }}
       >
         <Link
-          to={`/dashboard/loaiphong/update/${userSelected}`}
+          to={`${path.LOAIPHONG_UPDATE}/${LPSelected}`}
           className="no-underline"
         >
           <MenuItem>
             <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
-            Edit
+            Sửa
           </MenuItem>
         </Link>
 
         <MenuItem
           sx={{ color: "error.main" }}
-          data-set={userSelected}
+          data-set={LPSelected}
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
-          Delete
+          Xoá
         </MenuItem>
       </Popover>
 
@@ -432,12 +447,12 @@ const LoaiPhong = () => {
           <DialogTitle id="alert-dialog-title">Xóa tài khoản</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa tài khoản ${userSelected} không?`}
+              {`Bạn có muốn xóa tài khoản ${LPSelected} không?`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Không</Button>
-            <Button onClick={(e) => handleDelete(e, userSelected)} autoFocus>
+            <Button onClick={(e) => handleDelete(e, LPSelected)} autoFocus>
               Có
             </Button>
           </DialogActions>
