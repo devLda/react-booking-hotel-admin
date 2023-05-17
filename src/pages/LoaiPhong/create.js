@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { object, string } from "yup";
-import { apiAddLP, apiGetLP, apiUpdateLP } from "../../api";
+import { apiAddLP, apiGetLP, apiUpdateLP, apiUploadImg } from "../../api";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
 
@@ -118,70 +118,86 @@ const Create = (props) => {
     return true;
   }
 
-  const handlePut = (e) => {
-    let data = getValue();
-
-    data.image = img;
-
+  const handlePut = async (e) => {
+    const data = getValue();
+    data.images = imgPreview[0];
     console.log(data);
 
-    let equal = deepEqual(data, defaultValue.current);
+    // await apiUpdateLP(data.TenLoaiPhong, data)
+    //   .then((res) => {
+    //     console.log("res 1", res);
+    //     if (res.success) {
+    //       UploadImg(data.TenLoaiPhong, data.images);
+    //       // Swal.fire(
+    //       //   "Thành công",
+    //       //   "Cập nhật loại phòng thành công",
+    //       //   "success"
+    //       // ).then(() => {
+    //       //   navigate(`/${path.LOAIPHONG}`);
+    //       // });
+    //     } else Swal.fire("Thất bại", res.mes, "error");
+    //   })
+    //   .catch((err) => {
+    //     console.log("err ", err);
+    //   });
+  };
 
-    if (!equal) {
-      apiUpdateLP(data.TenLoaiPhong, data)
-        .then((res) => {
-          console.log("res ", res);
-          if (res.success) {
-            Swal.fire(
-              "Thành công",
-              "Cập nhật loại phòng thành công",
-              "success"
-            ).then(() => {
-              navigate(`/${path.LOAIPHONG}`);
-            });
-          } else Swal.fire("Thất bại", res.mes, "error");
-        })
-        .catch((err) => {
-          console.log("err ", err);
-        });
-    } else {
-      Swal.fire("Thành công", "Cập nhật tài khoản thành công", "success");
+  const UploadImg = async (TenLoaiPhong, images) => {
+    const response = await apiUploadImg(TenLoaiPhong, images);
+    console.log("res 2 ", response);
+  };
+
+  const ChangeImage = (e) => {
+    let files = e.target.files;
+
+    if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
+    else {
+      if (files.length > 3) {
+        Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
+        let count = 0;
+        for (let file = 0; file < 3; file++) {
+          if (files[file].size > 100000) {
+            ++count;
+            continue;
+          }
+          setImgPreview([]);
+          setFileToBase(files[file]);
+        }
+        if (count > 0) {
+          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+        }
+        console.log(files);
+      }
+
+      if (files.length >= 2 && files.length <= 3) {
+        let count = 0;
+        for (let file = 0; file < files.length; file++) {
+          if (files[file].size > 100000) {
+            ++count;
+            continue;
+          }
+          setImgPreview([]);
+          setFileToBase(files[file]);
+        }
+
+        if (count > 0) {
+          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+        }
+      }
+
+      if (files.length === 1) {
+        if (files[0].size < 100000) {
+          setImgPreview([]);
+          setFileToBase(files[0]);
+        } else {
+          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+        }
+      }
     }
   };
 
-  const [img, setImg] = useState({});
-
-  const ChangeImage = (e) => {
-    let files = e.target.files[0];
-    setImg(files);
-    // if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
-    // else {
-    //   if (files.length > 3) {
-    //     Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
-    //     // files.slice(0, 3).forEach((element) => {
-    //     //   setFileToBase(element);
-    //     // });
-    //     console.log(files);
-    //   }
-
-    //   if (files.length >= 2 && files.length <= 3) {
-    //     for (let file = 0; file < files.length; file++) {
-    //       setImgPreview([]);
-    //       setFileToBase(files[file]);
-    //     }
-    //   }
-
-    //   if (files.length === 1) {
-    //     setImgPreview([]);
-    //     setFileToBase(files[0]);
-    //   }
-    // }
-    // setFileToBase(file);
-    // setImgPreview(file);
-  };
-
   const setFileToBase = (file) => {
-    console.log("file ", file);
+    console.log("file ", file.size);
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onloadend = () => {
@@ -206,7 +222,10 @@ const Create = (props) => {
 
   useEffect(() => {
     return () => {
-      imgPreview && URL.revokeObjectURL(imgPreview);
+      imgPreview &&
+        imgPreview.forEach((ele) => {
+          URL.revokeObjectURL(ele);
+        });
     };
   }, [imgPreview]);
 
@@ -263,8 +282,8 @@ const Create = (props) => {
             <p>Chọn file ảnh</p>
             <input
               type="file"
-              name="image"
-              data-maxFileSize="2"
+              name="images"
+              multiple="true"
               onChange={ChangeImage}
             ></input>
             {/* {imgPreview === 1 && (

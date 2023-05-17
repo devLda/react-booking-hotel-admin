@@ -14,4 +14,5 @@ export {
   apiGetLP,
   apiUpdateLP,
   apiDeleteLP,
+  apiUploadImg,
 } from "./loaiphong";
