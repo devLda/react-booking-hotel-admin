@@ -222,7 +222,16 @@ const Account = () => {
     dispatch(getAllUser())
     .then(res => {
       console.log('res ', res)
-      setListAcc(res.payload)
+      if(res.payload.mes === "AccessToken không hợp lệ")
+      {
+        Swal.fire("Thông báo", "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại", "info")
+        .then(() => {
+          window.location.href = '/login'
+        })
+      }
+      else{
+        setListAcc(res.payload)
+      }
     })
     .catch(err => {
       console.log('err ', err)

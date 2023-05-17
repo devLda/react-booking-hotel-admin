@@ -2,16 +2,22 @@ import axios from "../axios";
 
 export const apiLogin = (data) =>
   axios({
-    url: "/user/login",
+    url: "/account/loginAdmin",
     method: "post",
     data,
   });
 
 export const apiLogout = () =>
   axios({
-    url: "/user/logout",
+    url: "/account/logout",
     method: "get",
     withCredentials: true,
+  });
+
+export const getAccessToken = () =>
+  axios({
+    url: `/account/accesstoken`,
+    method: "get",
   });
 
 export const apiAllUser = () =>

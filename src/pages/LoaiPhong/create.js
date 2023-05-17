@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 
 const userSchema = object({
   TenLoaiPhong: string().required("Tên loại phòng là trường bắt buộc"),
-  MoTa: string().required("Mô tả là trường bắt buộc"),
+  TienNghi: string().required("Tiện nghi là trường bắt buộc"),
 });
 
 const Create = (props) => {
@@ -40,6 +40,8 @@ const Create = (props) => {
       }
     }
 
+    const textarea = document.querySelector("textarea");
+    data['MoTa'] = textarea.value
     return data;
   };
 
@@ -50,6 +52,8 @@ const Create = (props) => {
 
   const handlePost = () => {
     const data = getValue();
+
+    console.log(data)
 
     data.image = imgPreview;
 
@@ -180,18 +184,22 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6}>
             <Input
-              error={error.MoTa}
-              name="MoTa"
-              label="Mô tả: "
-              value={value.MoTa ? value.MoTa : ""}
+              error={error.TienNghi}
+              name="TienNghi"
+              label="Tiện nghi: "
+              helperText="Nhập tiện nghi cách nhau bằng dấu ','"
+              value={value.TienNghi ? value.TienNghi : ""}
             />
           </Grid>
+          <Grid item md={12}>
+            <p><label for="MoTa">Nhập mô tả</label></p>
+            <textarea id="MoTa" className="p-3 border-2 border-solid border-slate-300" name="MoTa" rows={4} cols={50} ></textarea>
+          </Grid> 
           <Grid item md={12}>
             <p>Chọn file ảnh</p>
             <input
               type="file"
               name="image"
-              multiple="true"
               onChange={ChangeImage}
             ></input>
             {/* {imgPreview === 1 && (

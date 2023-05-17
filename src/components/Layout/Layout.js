@@ -1,9 +1,12 @@
-import { useState} from 'react'
-import { Outlet } from 'react-router-dom';
+import { useEffect, useState} from 'react'
+import { Outlet, useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import Header from '../Header/Header';
 import Nav from '../Nav/Nav';
+import { getAccessToken } from '../../api/user';
+import { LoadingData } from '../UI/loading';
+import Swal from 'sweetalert2';
 
 const APP_BAR_MOBILE = 64;
 const APP_BAR_DESKTOP = 92;
@@ -30,6 +33,8 @@ const Main = styled('div')(({ theme }) => ({
 const Layout = () => {
 
   const [open, setOpen] = useState(false);
+
+  
   
   return (
     <StyledRoot>

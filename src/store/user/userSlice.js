@@ -5,6 +5,7 @@ import * as action from "./asyncAction";
 export const userSlice = createSlice({
   name: "user",
   initialState: {
+    isLoading: true,
     isLoggedIn: false,
     token: null,
     allUser: null,
@@ -39,7 +40,7 @@ export const userSlice = createSlice({
     builder.addCase(action.getAllUser.rejected, (state, action) => {
       state.isLoading = false;
       state.statusUser = "rejected";
-      state.errorMessage = action.payload.message;
+      state.errorMessage = action.payload.mes;
     });
   },
 });
