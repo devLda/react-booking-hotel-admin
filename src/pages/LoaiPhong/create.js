@@ -178,53 +178,55 @@ const Create = (props) => {
     }
   };
 
-  const ChangeImage = (e) => {
+  const ChangeImage = async (e) => {
     let files = e.target.files;
+    console.log('file ', files)
+    const response = await apiUploadImg({images: files[0]})
+    console.log('res ', response)
+    // if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
+    // else {
+    //   if (files.length > 3) {
+    //     Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
+    //     let count = 0;
+    //     for (let file = 0; file < 3; file++) {
+    //       if (files[file].size > 100000) {
+    //         ++count;
+    //         continue;
+    //       }
+    //       setImgPreview([]);
+    //       setFileToBase(files[file]);
+    //     }
+    //     if (count > 0) {
+    //       Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+    //     }
+    //     console.log(files);
+    //   }
 
-    if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
-    else {
-      if (files.length > 3) {
-        Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
-        let count = 0;
-        for (let file = 0; file < 3; file++) {
-          if (files[file].size > 100000) {
-            ++count;
-            continue;
-          }
-          setImgPreview([]);
-          setFileToBase(files[file]);
-        }
-        if (count > 0) {
-          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-        }
-        console.log(files);
-      }
+    //   if (files.length >= 2 && files.length <= 3) {
+    //     let count = 0;
+    //     for (let file = 0; file < files.length; file++) {
+    //       if (files[file].size > 100000) {
+    //         ++count;
+    //         continue;
+    //       }
+    //       setImgPreview([]);
+    //       setFileToBase(files[file]);
+    //     }
 
-      if (files.length >= 2 && files.length <= 3) {
-        let count = 0;
-        for (let file = 0; file < files.length; file++) {
-          if (files[file].size > 100000) {
-            ++count;
-            continue;
-          }
-          setImgPreview([]);
-          setFileToBase(files[file]);
-        }
+    //     if (count > 0) {
+    //       Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+    //     }
+    //   }
 
-        if (count > 0) {
-          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-        }
-      }
-
-      if (files.length === 1) {
-        if (files[0].size < 100000) {
-          setImgPreview([]);
-          setFileToBase(files[0]);
-        } else {
-          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-        }
-      }
-    }
+    //   if (files.length === 1) {
+    //     if (files[0].size < 100000) {
+    //       setImgPreview([]);
+    //       setFileToBase(files[0]);
+    //     } else {
+    //       Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+    //     }
+    //   }
+    // }
   };
 
   const setFileToBase = (file) => {

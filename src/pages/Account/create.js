@@ -106,6 +106,8 @@ const Create = (props) => {
   const handlePut = (e) => {
     let data = getValue();
 
+    console.log(data)
+
     let equal = deepEqual(data, defaultValue.current)
     if (!equal) {
       apiUpdateUser(data.Email, data)
