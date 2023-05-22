@@ -187,8 +187,9 @@ const LoaiPhong = () => {
 
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
+    console.log("target", e.target.dataset.set);
     if (e.target.dataset.set) {
-      if (e.target.innerText === "Delete") setOpenDialog(true);
+      if (e.target.innerText === "Xoá") setOpenDialog(true);
     }
   };
 
@@ -205,7 +206,7 @@ const LoaiPhong = () => {
         setDeleted(true);
         setOpen(false);
         console.log("res delete", response);
-        Swal.fire("Thành công", "Xóa loại phòng thành công", "success");
+        Swal.fire("Thành công", response.mes, "success");
       } else {
         setOpenDialog(false);
         setDeleted(false);
@@ -244,7 +245,7 @@ const LoaiPhong = () => {
           <Typography variant="h4" gutterBottom>
             Loại Phòng
           </Typography>
-          <Link to={`${path.LOAIPHONG_CREATE}`}>
+          <Link to={`/${path.LOAIPHONG_CREATE}`}>
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
@@ -260,6 +261,7 @@ const LoaiPhong = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
+            setValue={setOpenDialog}
           />
 
           <Scrollbar>
@@ -305,19 +307,6 @@ const LoaiPhong = () => {
                               }
                             />
                           </TableCell>
-
-                          {/* <TableCell component="th" scope="row" padding="none">
-                            <Stack
-                              direction="row"
-                              alignItems="center"
-                              spacing={2}
-                            >
-                              <Avatar alt={name} src={photoURL} />
-                              <Typography variant="subtitle2" noWrap>
-                                {TenLoaiPhong}
-                              </Typography>
-                            </Stack>
-                          </TableCell> */}
 
                           <TableCell align="left">{TenLoaiPhong}</TableCell>
 
@@ -418,7 +407,7 @@ const LoaiPhong = () => {
         }}
       >
         <Link
-          to={`${path.LOAIPHONG_UPDATE}/${LPSelected}`}
+          to={`/${path.LOAIPHONG_UPDATE}/${LPSelected}`}
           className="no-underline"
         >
           <MenuItem>
@@ -444,10 +433,10 @@ const LoaiPhong = () => {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle id="alert-dialog-title">Xóa tài khoản</DialogTitle>
+          <DialogTitle id="alert-dialog-title">Xóa loại phòng</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa tài khoản ${LPSelected} không?`}
+              {`Bạn có muốn xóa loại phòng có tên ${LPSelected} không?`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>

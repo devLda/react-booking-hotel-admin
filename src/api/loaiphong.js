@@ -32,9 +32,9 @@ export const apiDeleteLP = (TenLoaiPhong) =>
     method: "delete",
   });
 
-export const apiUploadImg = (TenLoaiPhong, images) =>
+export const apiUploadImg = (TenLoaiPhong, data) =>
   axios({
-    url: `/loaiphong/uploadimage/${TenLoaiPhong}`,
+    url: `/loaiphong/uploadimage`,
     method: "post",
-    images: images,
+    data,
   });

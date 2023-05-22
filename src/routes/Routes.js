@@ -8,9 +8,15 @@ import Layout from "../components/Layout/Layout";
 import Reservation from "../pages/Reservation";
 import Account from "../pages/Account";
 import LoaiPhong from "../pages/LoaiPhong";
+import Phong from "../pages/Phong";
 import CreateAccount from "../pages/Account/create";
 import CreateLP from "../pages/LoaiPhong/create";
+import CreateDP from "../pages/DatPhong/create";
+import CreateHD from "../pages/HoaDon/create";
+import CreatePhong from "../pages/Phong/create";
 import PrivateRoute from "./PrivateRoute";
+import DatPhong from "../pages/DatPhong";
+import HoaDon from "../pages/HoaDon";
 
 const Routers = () => {
   const routes = useRoutes([
@@ -88,6 +94,78 @@ const Routers = () => {
           element: (
             <PrivateRoute>
               <CreateLP type="Edit" />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "phong",
+          element: (
+            <PrivateRoute>
+              <Phong />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "phong/create",
+          element: (
+            <PrivateRoute>
+              <CreatePhong />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "phong/update/:_id",
+          element: (
+            <PrivateRoute>
+              <CreatePhong type="Edit" />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "datphong",
+          element: (
+            <PrivateRoute>
+              <DatPhong />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "datphong/create",
+          element: (
+            <PrivateRoute>
+              <CreateDP />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "datphong/update/:_id",
+          element: (
+            <PrivateRoute>
+              <CreateDP type="Edit" />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "hoadon",
+          element: (
+            <PrivateRoute>
+              <HoaDon />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "hoadon/create",
+          element: (
+            <PrivateRoute>
+              <CreateHD />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "hoadon/update/:_id",
+          element: (
+            <PrivateRoute>
+              <CreateHD type="Edit" />
             </PrivateRoute>
           ),
         },

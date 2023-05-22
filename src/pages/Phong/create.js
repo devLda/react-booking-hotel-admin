@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { object, string } from "yup";
-import { apiAddLP, apiGetLP, apiUpdateLP, apiUploadImg } from "../../api";
+import { apiAddPhong, apiGetPhong, apiUpdatePhong } from "../../api";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
 import axios from "axios";
@@ -20,7 +20,7 @@ const userSchema = object({
 
 const Create = (props) => {
   const { type } = props;
-  const { TenLoaiPhong } = useParams();
+  const { _id } = useParams();
   const [value, setValue] = useState({});
   const [error, setError] = useState({});
 
@@ -52,16 +52,16 @@ const Create = (props) => {
     return data;
   };
 
-  const addLoaiPhong = async (dataAdd) => {
-    const response = await apiAddLP(dataAdd);
+  const addPhong = async (dataAdd) => {
+    const response = await apiAddPhong(dataAdd);
     if (response.success) {
       console.log("res ", response);
-      UploadImg(response.mes.TenLoaiPhong, imgPreview, true);
+      UploadImg(response.mes._id, imgPreview, true);
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
   const updateLoaiPhong = async (dataUpdate) => {
-    const response = await apiUpdateLP(dataUpdate.TenLoaiPhong, dataUpdate);
+    const response = await apiUpdatePhong(dataUpdate.TenLoaiPhong, dataUpdate);
     if (response.success) {
       console.log("res ", response);
       UploadImg(response.mes.TenLoaiPhong, imgPreview, false);
@@ -80,7 +80,7 @@ const Create = (props) => {
           console.log("res ", res);
           setError({});
           if (Object.keys(data).length > 0) {
-            addLoaiPhong(data);
+            addPhong(data);
           }
         })
         .catch((err) => {
@@ -151,21 +151,19 @@ const Create = (props) => {
     })();
   };
 
-  const UploadImg = async (TenLoaiPhong, images, isCre) => {
+  const UploadImg = async (_id, images, isCre) => {
     if (images.length > 0) {
       for (let i = 0; i < images.length; i++) {
         axios
-          .post(`${path.URL_API}/loaiphong/uploadimage`, {
+          .post(`${path.URL_API}/phong/uploadimage`, {
             image: images[i],
-            TenLoaiPhong: TenLoaiPhong,
+            _id: _id,
             isCre: isCre,
           })
           .then((res) => {
             Swal.fire(
               "Thành công",
-              isCre
-                ? "Tạo loại phòng thành công"
-                : "Cập nhật loại phòng thành công",
+              isCre ? "Tạo phòng thành công" : "Cập nhật phòng thành công",
               "success"
             ).then(() => {
               navigate(`/${path.LOAIPHONG}`);
@@ -238,7 +236,7 @@ const Create = (props) => {
 
   useEffect(() => {
     if (type === "Edit") {
-      apiGetLP(TenLoaiPhong)
+      apiGetPhong(_id)
         .then((res) => {
           console.log("res ", res);
           const { createdAt, updatedAt, __v, ...valueRef } = res.mes;
@@ -274,7 +272,7 @@ const Create = (props) => {
           }}
           variant="h3"
         >
-          {type === "Edit" ? "Cập nhật loại phòng" : "Tạo loại phòng mới"}
+          {type === "Edit" ? "Cập nhật phòng" : "Tạo phòng mới"}
         </Typography>
       </Card>
       <Card>
@@ -290,24 +288,43 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6}>
             <Input
-              error={error.TienNghi}
-              name="TienNghi"
-              label="Tiện nghi: "
-              helperText="Nhập tiện nghi cách nhau bằng dấu ','"
-              value={value.TienNghi ? value.TienNghi : ""}
+              error={error.SoPhong}
+              name="SoPhong"
+              label="Số phòng: "
+              value={value.SoPhong ? value.SoPhong : ""}
             />
           </Grid>
-          <Grid item md={12}>
-            <p>
-              <label for="MoTa">Nhập mô tả</label>
-            </p>
-            <textarea
-              id="MoTa"
-              className="p-3 border-2 border-solid border-slate-300"
-              name="MoTa"
-              rows={4}
-              cols={50}
-            ></textarea>
+          <Grid item md={6}>
+            <Input
+              error={error.Tang}
+              name="Tang"
+              label="Tầng: "
+              value={value.Tang ? value.Tang : ""}
+            />
+          </Grid>
+          <Grid item md={6}>
+            <Input
+              error={error.SoNguoi}
+              name="SoNguoi"
+              label="Số người: "
+              value={value.SoNguoi ? value.SoNguoi : ""}
+            />
+          </Grid>
+          <Grid item md={6}>
+            <Input
+              error={error.DienTich}
+              name="DienTich"
+              label="Diện tích: "
+              value={value.DienTich ? value.DienTich : ""}
+            />
+          </Grid>
+          <Grid item md={6}>
+            <Input
+              error={error.GiaPhong}
+              name="GiaPhong"
+              label="Giá phòng: "
+              value={value.GiaPhong ? value.GiaPhong : ""}
+            />
           </Grid>
           <Grid item md={12}>
             <p>Chọn file ảnh</p>
@@ -317,9 +334,6 @@ const Create = (props) => {
               multiple="true"
               onChange={ChangeImage}
             ></input>
-            {/* {imgPreview === 1 && (
-              <img className="w-40" src={imgPreview} alt="Preview" />
-            )} */}
             <div className="my-5">
               {imgPreview?.length > 0 &&
                 imgPreview.map((item) => (

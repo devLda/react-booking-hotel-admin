@@ -1,19 +1,27 @@
 // @mui
 // import PropTypes from 'prop-types';
 // import { alpha, styled } from '@mui/material/styles';
-import { Card, Typography } from '@mui/material';
+import { Card, Typography } from "@mui/material";
 
 // utils
-import { fCurrency, fPercent } from '../../Utils/formatNumber';
+import { fCurrency, fPercent } from "../../Utils/formatNumber";
 
-const AppWidgetSummary = ({ header, total, increase, title, color = 'primary', sx, ...other }) => {
+const AppWidgetSummary = ({
+  header,
+  total,
+  increase,
+  title,
+  color = "primary",
+  sx,
+  ...other
+}) => {
   return (
     <Card
       sx={{
         py: 5,
         px: 4,
         boxShadow: 0,
-        textAlign: 'left',
+        textAlign: "left",
         color: (theme) => theme.palette[color].darker,
         bgcolor: (theme) => theme.palette[color].lighter,
         ...sx,
@@ -23,26 +31,28 @@ const AppWidgetSummary = ({ header, total, increase, title, color = 'primary', s
       <Typography variant="h4">{header}</Typography>
 
       <Typography variant="h3">
-        {fCurrency(total)} 
-        <Typography 
-          sx = {{
-            display: 'inline',
-            color: '#7BB31A'
+        {total}
+        <Typography
+          sx={{
+            display: "inline",
+            color: "#7BB31A",
           }}
-        >+ {fPercent(increase)}</Typography> 
-      </Typography> 
+        >
+          + {fPercent(increase)}
+        </Typography>
+      </Typography>
 
-      <Typography 
-      variant="subtitle2" 
-      sx={{ 
-        opacity: 0.3,
-        color: '#111111'
-      }}
+      <Typography
+        variant="subtitle2"
+        sx={{
+          opacity: 0.3,
+          color: "#111111",
+        }}
       >
         {title}
       </Typography>
     </Card>
-  )
-}
+  );
+};
 
-export default AppWidgetSummary
+export default AppWidgetSummary;

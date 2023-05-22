@@ -19,28 +19,28 @@ const navConfig = [
   },
   {
     title: "Đơn đặt",
-    path: "/dashboard/reservation",
+    path: "/dashboard/datphong",
     icon: icon(ic_cart),
   },
   {
     title: "Hoá đơn",
-    path: "/dashboard/invoice",
+    path: "/dashboard/hoadon",
     icon: icon(ic_blog),
   },
   {
-    title: "Báo cáo",
-    path: "/dashboard/report",
+    title: "Phòng",
+    path: "/dashboard/phong",
     icon: icon(ic_analytics),
-  },
-  {
-    title: "Tài khoản",
-    path: "/dashboard/account",
-    icon: icon(ic_user),
   },
   {
     title: "Loại phòng",
     path: "/dashboard/loaiphong",
     icon: icon(ic_lock),
+  },
+  {
+    title: "Tài khoản",
+    path: "/dashboard/account",
+    icon: icon(ic_user),
   },
 ];
 

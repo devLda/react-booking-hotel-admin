@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { apiAllLP } from "../../api";
+import { apiMultiDataPhong } from "../../api";
 
-export const getAllLP = createAsyncThunk(
-  "admin/loaiphong",
+export const getAllPhong = createAsyncThunk(
+  "admin/phong",
   async (data, { rejectWithValue }) => {
-    const response = await apiAllLP();
+    const response = await apiMultiDataPhong();
     if (!response.success) return rejectWithValue(response);
     return response.data;
   }

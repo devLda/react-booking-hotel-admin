@@ -16,3 +16,24 @@ export {
   apiDeleteLP,
   apiUploadImg,
 } from "./loaiphong";
+
+export {
+  apiMultiDataPhong,
+  apiAllPhong,
+  apiAddPhong,
+  apiGetPhong,
+  apiUpdatePhong,
+  apiDeletePhong,
+} from "./phong";
+
+export {
+  apiMultiDataDP,
+  apiAllDP,
+  apiAddDP,
+  apiGetDP,
+  apiUpdateDP,
+  apiDeleteDP,
+  apiCountDP,
+} from "./datphong";
+
+export { apiMultiDataHD } from "./hoadon";

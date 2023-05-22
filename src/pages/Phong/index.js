@@ -1,4 +1,3 @@
-/* eslint-disable  react-hooks/exhaustive-deps */
 import { filter } from "lodash";
 // import { sentenceCase } from 'change-case';
 import { useEffect, useState } from "react";
@@ -29,6 +28,7 @@ import Iconify from "../../components/UI/iconify";
 import Scrollbar from "../../components/UI/scrollbar";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
+
 import { Link } from "react-router-dom";
 
 import Dialog from "@mui/material/Dialog";
@@ -36,22 +36,23 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUser } from "../../store/user/asyncAction";
-import { apiDeleteUser } from "../../api/user";
-import Swal from "sweetalert2";
+import { getAllPhong } from "../../store/phong/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
+import Swal from "sweetalert2";
+import { apiDeleteLP } from "../../api";
 
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "HoVaTen", label: "Họ và tên", alignRight: false },
-  { id: "Email", label: "Email", alignRight: false },
-  { id: "SDT", label: "Số điện thoại", alignRight: false },
-  { id: "Role", label: "Quyền", alignRight: false },
-  { id: "NgayTao", label: "Ngày tạo", alignRight: false },
+  { id: "TenLoaiPhong", label: "Tên Loại Phòng", alignRight: false },
+  { id: "MaPhong", label: "Số Phòng", alignRight: false },
+  { id: "Tang", label: "Tầng", alignRight: false },
+  { id: "SoNguoi", label: "Số người tối đa", alignRight: false },
+  { id: "DienTich", label: "Diện tích", alignRight: false },
+  { id: "GiaPhong", label: "Giá phòng", alignRight: false },
+  { id: "Image", label: "Hình ảnh", alignRight: false },
   { id: "" },
 ];
 
@@ -83,14 +84,16 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) => _user.HoVaTen.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (LP) =>
+        LP.LoaiPhong.TenLoaiPhong.toLowerCase().indexOf(query.toLowerCase()) !==
+        -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
 }
 
-const Account = () => {
-  const { allUser, statusUser } = useSelector((state) => state.user);
+const Phong = () => {
+  const { isLoading } = useSelector((state) => state.phong);
 
   const dispatch = useDispatch();
 
@@ -102,27 +105,27 @@ const Account = () => {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState("HoVaTen");
+  const [orderBy, setOrderBy] = useState("TenLoaiPhong");
 
   const [filterName, setFilterName] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listAcc, setListAcc] = useState(allUser ? allUser : []);
+  const [listPhong, setListPhong] = useState([]);
 
-  const [userSelected, setUserSelected] = useState("");
+  const [phongSelected, setPhongSelected] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
 
   const [deleted, setDeleted] = useState(false);
 
-  const handleOpenMenu = (event, Email) => {
-    setUserSelected(Email);
+  const handleOpenMenu = (event, TenLoaiPhong) => {
+    setPhongSelected(TenLoaiPhong);
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setUserSelected("");
+    setPhongSelected("");
     setOpen(null);
   };
 
@@ -135,7 +138,7 @@ const Account = () => {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // const newSelecteds = USERLIST.map((n) => n.name);
-      const newSelecteds = listAcc.map((n) => n.HoVaTen);
+      const newSelecteds = listPhong.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
@@ -176,21 +179,22 @@ const Account = () => {
 
   const emptyRows =
     // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listAcc.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listPhong.length) : 0;
 
-  const filteredUsers = applySortFilter(
+  const filteredPhong = applySortFilter(
     // USERLIST,
-    listAcc,
+    listPhong,
     getComparator(order, orderBy),
     filterName
   );
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredPhong.length && !!filterName;
 
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
+    console.log("target", e.target.dataset.set);
     if (e.target.dataset.set) {
-      if (e.target.innerText === "Delete") setOpenDialog(true);
+      if (e.target.innerText === "Xoá") setOpenDialog(true);
     }
   };
 
@@ -201,13 +205,13 @@ const Account = () => {
 
   const handleDelete = async (event, selectedAcc) => {
     if (event) {
-      const response = await apiDeleteUser(selectedAcc);
+      const response = await apiDeleteLP(selectedAcc);
       if (response.success) {
         setOpenDialog(false);
         setDeleted(true);
         setOpen(false);
         console.log("res delete", response);
-        Swal.fire("Thành công", "Xóa tài khoản thành công", "success");
+        Swal.fire("Thành công", response.mes, "success");
       } else {
         setOpenDialog(false);
         setDeleted(false);
@@ -218,19 +222,11 @@ const Account = () => {
   };
 
   useEffect(() => {
-    dispatch(getAllUser())
+    dispatch(getAllPhong())
       .then((res) => {
         console.log("res ", res);
-        if (res.payload.mes === "AccessToken không hợp lệ") {
-          Swal.fire(
-            "Thông báo",
-            "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại",
-            "info"
-          ).then(() => {
-            window.location.href = "/login";
-          });
-        } else {
-          setListAcc(res.payload);
+        if (res.meta.requestStatus === "fulfilled") {
+          setListPhong(res.payload);
         }
       })
       .catch((err) => {
@@ -238,7 +234,7 @@ const Account = () => {
       });
   }, [dispatch, deleted]);
 
-  if (statusUser === "pending") {
+  if (isLoading) {
     return <LoadingData />;
   }
 
@@ -252,15 +248,15 @@ const Account = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Tài khoản
+            Phòng
           </Typography>
-          <Link to="/dashboard/account/create">
+          <Link to={`/${path.PHONG_CREATE}`}>
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
               className="bg-green-600"
             >
-              Thêm Tài khoản
+              Thêm Phòng
             </Button>
           </Link>
         </Stack>
@@ -270,6 +266,7 @@ const Account = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
+            setValue={setOpenDialog}
           />
 
           <Scrollbar>
@@ -280,24 +277,26 @@ const Account = () => {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   // rowCount={USERLIST.length}
-                  rowCount={listAcc.length}
+                  rowCount={listPhong.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers
+                  {filteredPhong
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { _id, HoVaTen, Email, SDT, Role, createdAt } = row;
-                      const selectedUser = selected.indexOf(HoVaTen) !== -1;
-                      const arrayCreate = createdAt.slice(0, 10).split("-");
-                      const NgayTao =
-                        arrayCreate[2] +
-                        "/" +
-                        arrayCreate[1] +
-                        "/" +
-                        arrayCreate[0];
+                      const {
+                        _id,
+                        MaPhong,
+                        LoaiPhong,
+                        Tang,
+                        SoNguoi,
+                        DienTich,
+                        GiaPhong,
+                        images,
+                      } = row;
+                      const selectedUser = selected.indexOf(_id) !== -1;
 
                       return (
                         <TableRow
@@ -310,25 +309,41 @@ const Account = () => {
                           <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
-                              onChange={(event) => handleClick(event, HoVaTen)}
+                              onChange={(event) => handleClick(event, _id)}
                             />
                           </TableCell>
 
-                          <TableCell align="left">{HoVaTen}</TableCell>
+                          <TableCell align="left">
+                            {LoaiPhong.TenLoaiPhong}
+                          </TableCell>
 
-                          <TableCell align="left">{Email}</TableCell>
+                          <TableCell align="left">{MaPhong}</TableCell>
 
-                          <TableCell align="left">{SDT}</TableCell>
+                          <TableCell align="left">{Tang}</TableCell>
 
-                          <TableCell align="left">{Role}</TableCell>
+                          <TableCell align="left">{SoNguoi}</TableCell>
 
-                          <TableCell align="left">{NgayTao}</TableCell>
+                          <TableCell align="left">{DienTich}</TableCell>
+
+                          <TableCell align="left">{GiaPhong}</TableCell>
+
+                          <TableCell align="left">
+                            <img
+                              src={images[0]}
+                              className="w-20 h-20"
+                              alt={LoaiPhong.TenLoaiPhong}
+                            />
+                          </TableCell>
+
+                          {/* <TableCell align="left">
+                              <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
+                            </TableCell> */}
 
                           <TableCell align="right">
                             <IconButton
                               size="large"
                               color="inherit"
-                              onClick={(e) => handleOpenMenu(e, Email)}
+                              onClick={(e) => handleOpenMenu(e, _id)}
                             >
                               <Iconify icon={"eva:more-vertical-fill"} />
                             </IconButton>
@@ -375,7 +390,7 @@ const Account = () => {
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
             // count={USERLIST.length}
-            count={listAcc.length}
+            count={listPhong.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -403,7 +418,7 @@ const Account = () => {
         }}
       >
         <Link
-          to={`/${path.ACCOUNT_UPDATE}/${userSelected}`}
+          to={`/${path.LOAIPHONG_UPDATE}/${phongSelected}`}
           className="no-underline"
         >
           <MenuItem>
@@ -414,7 +429,7 @@ const Account = () => {
 
         <MenuItem
           sx={{ color: "error.main" }}
-          data-set={userSelected}
+          data-set={phongSelected}
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
@@ -429,15 +444,15 @@ const Account = () => {
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
         >
-          <DialogTitle id="alert-dialog-title">Xóa tài khoản</DialogTitle>
+          <DialogTitle id="alert-dialog-title">Xóa loại phòng</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa tài khoản ${userSelected} không?`}
+              {`Bạn có muốn xóa loại phòng có tên ${phongSelected} không?`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Không</Button>
-            <Button onClick={(e) => handleDelete(e, userSelected)} autoFocus>
+            <Button onClick={(e) => handleDelete(e, phongSelected)} autoFocus>
               Có
             </Button>
           </DialogActions>
@@ -447,4 +462,4 @@ const Account = () => {
   );
 };
 
-export default Account;
+export default Phong;

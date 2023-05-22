@@ -2,26 +2,25 @@
 import { createSlice } from "@reduxjs/toolkit";
 import * as action from "./asyncAction";
 
-export const LPSlice = createSlice({
-  name: "user",
+export const phongSlice = createSlice({
+  name: "phong",
   initialState: {
     isLoading: false,
     data: null,
   },
-  reducers: {
-  },
+  reducers: {},
   // Code logic xử lý async action
   extraReducers: (builder) => {
-    builder.addCase(action.getAllLP.pending, (state) => {
+    builder.addCase(action.getAllPhong.pending, (state) => {
       state.isLoading = true;
     });
 
-    builder.addCase(action.getAllLP.fulfilled, (state, action) => {
+    builder.addCase(action.getAllPhong.fulfilled, (state, action) => {
       state.isLoading = false;
       state.data = action.payload;
     });
 
-    builder.addCase(action.getAllLP.rejected, (state, action) => {
+    builder.addCase(action.getAllPhong.rejected, (state, action) => {
       state.isLoading = false;
       state.errorMessage = action.payload.message;
     });
@@ -29,6 +28,6 @@ export const LPSlice = createSlice({
 });
 
 // // Action creators are generated for each case reducer function
-export const {  } = LPSlice.actions;
+export const {} = phongSlice.actions;
 
-export default LPSlice.reducer;
+export default phongSlice.reducer;
