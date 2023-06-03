@@ -8,7 +8,6 @@ import {
   Stack,
   Paper,
   // Avatar,
-  Button,
   Popover,
   Checkbox,
   TableRow,
@@ -30,18 +29,10 @@ import Scrollbar from "../../components/UI/scrollbar";
 import { ListHead, ListToolbar } from "../../components/UI/table";
 
 import { Link } from "react-router-dom";
-
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllHD } from "../../store/hoadon/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
-import Swal from "sweetalert2";
-// import { apiDeleteDP } from "../../api";
 
 // ----------------------------------------------------------------------
 
@@ -117,8 +108,6 @@ const HoaDon = () => {
   const [phongSelected, setPhongSelected] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
-
-  const [deleted, setDeleted] = useState(false);
 
   const handleOpenMenu = (event, TenLoaiPhong) => {
     setPhongSelected(TenLoaiPhong);
@@ -204,25 +193,6 @@ const HoaDon = () => {
     setOpen(false);
   };
 
-  const handleDelete = async (event, selectedAcc) => {
-    console.log(event);
-    // if (event) {
-    //   const response = await apiDeleteDP(selectedAcc);
-    //   if (response.success) {
-    //     setOpenDialog(false);
-    //     setDeleted(true);
-    //     setOpen(false);
-    //     console.log("res delete", response);
-    //     Swal.fire("Thành công", response.mes, "success");
-    //   } else {
-    //     setOpenDialog(false);
-    //     setDeleted(false);
-    //     setOpen(false);
-    //     Swal.fire("Thất bại", response.mes, "error");
-    //   }
-    // }
-  };
-
   useEffect(() => {
     dispatch(getAllHD())
       .then((res) => {
@@ -234,7 +204,7 @@ const HoaDon = () => {
       .catch((err) => {
         console.log("err ", err);
       });
-  }, [dispatch, deleted]);
+  }, [dispatch]);
 
   if (isLoading) {
     return <LoadingData />;
@@ -327,28 +297,36 @@ const HoaDon = () => {
                             />
                           </TableCell>
 
-                          <TableCell align="left">{ThongTinKH.TenKH}</TableCell>
+                          <TableCell align="left">
+                            {ThongTinKH?.TenKH}
+                          </TableCell>
 
-                          <TableCell align="left">{ThongTinKH.Email}</TableCell>
+                          <TableCell align="left">
+                            {ThongTinKH?.Email}
+                          </TableCell>
 
-                          <TableCell align="left">{ThongTinKH.SDT}</TableCell>
+                          <TableCell align="left">{ThongTinKH?.SDT}</TableCell>
 
-                          <TableCell
-                            className="w-24 overflow-hidden block"
-                            align="left"
-                          >
-                            {DatPhong._id}
+                          <TableCell>
+                            <p
+                              className="w-24 overflow-hidden"
+                              align="left"
+                            >
+                              {DatPhong._id}
+                            </p>
                           </TableCell>
 
                           <TableCell align="left">
                             {GiaoDich[GiaoDich?.length - 1].DaThanhToan}
                           </TableCell>
 
-                          <TableCell
-                            className="w-24 overflow-hidden block"
-                            align="left"
-                          >
+                          <TableCell >
+                            <p
+                              className="w-24 overflow-hidden"
+                              align="left"
+                            >
                             {GiaoDich[GiaoDich?.length - 1].MaGD}
+                            </p>
                           </TableCell>
 
                           <TableCell align="left">
@@ -457,31 +435,9 @@ const HoaDon = () => {
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
-          Xoá
+          Thêm dịch vụ
         </MenuItem>
       </Popover>
-
-      {openDialog && (
-        <Dialog
-          open={openDialog}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">Xóa loại phòng</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa loại phòng có tên ${phongSelected} không?`}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Không</Button>
-            <Button onClick={(e) => handleDelete(e, phongSelected)} autoFocus>
-              Có
-            </Button>
-          </DialogActions>
-        </Dialog>
-      )}
     </>
   );
 };
