@@ -11,13 +11,13 @@ import { useNavigate } from "react-router-dom";
 import path from "../../utils/path";
 import { apiCountDP } from "../../api";
 import { LoadingData } from "../../components/UI/loading";
-import { getAllUser } from "../../store/user/asyncAction";
-import { useDispatch } from "react-redux";
-import Swal from "sweetalert2";
+// import { getAllUser } from "../../store/user/asyncAction";
+// import { useDispatch } from "react-redux";
+// import Swal from "sweetalert2";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [statical, setStatical] = useState({});
 
   const isLogged = JSON.parse(localStorage.getItem("persist:admin/login"));
@@ -79,7 +79,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={12} md={3}>
           <AppWidgetSummary
             header="Tổng thu nhập"
-            total={statical?.total[0].total_tongtien + " $"}
+            total={statical?.total[0]?.total_tongtien + " $"}
             increase={2.5}
             title="so với tháng trước"
           />
@@ -108,7 +108,7 @@ const Dashboard = () => {
         <Grid item xs={12} sm={12} md={3}>
           <AppWidgetSummary
             header="Thu nhập tháng"
-            total={statical?.totalthang[0].total_tongtien + " $"}
+            total={statical?.totalthang[0]?.total_tongtien + " $"}
             increase={2.5}
             title="so với tháng trước"
             color="error"

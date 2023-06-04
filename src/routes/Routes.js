@@ -17,6 +17,7 @@ import CreatePhong from "../pages/Phong/create";
 import PrivateRoute from "./PrivateRoute";
 import DatPhong from "../pages/DatPhong";
 import HoaDon from "../pages/HoaDon";
+import ThongKe from "../pages/ThongKe";
 
 const Routers = () => {
   const routes = useRoutes([
@@ -166,6 +167,14 @@ const Routers = () => {
           element: (
             <PrivateRoute>
               <CreateHD type="Edit" />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "thongke",
+          element: (
+            <PrivateRoute>
+              <ThongKe />
             </PrivateRoute>
           ),
         },

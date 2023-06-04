@@ -42,6 +42,11 @@ const navConfig = [
     path: "/dashboard/account",
     icon: icon(ic_user),
   },
+  {
+    title: "Thống kê",
+    path: "/dashboard/thongke",
+    icon: icon(ic_user),
+  },
 ];
 
 export default navConfig;
