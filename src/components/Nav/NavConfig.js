@@ -38,6 +38,11 @@ const navConfig = [
     icon: icon(ic_lock),
   },
   {
+    title: "Dịch vụ",
+    path: "/dashboard/dichvu",
+    icon: icon(ic_lock),
+  },
+  {
     title: "Tài khoản",
     path: "/dashboard/account",
     icon: icon(ic_user),

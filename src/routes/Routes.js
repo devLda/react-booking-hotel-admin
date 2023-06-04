@@ -13,11 +13,13 @@ import CreateAccount from "../pages/Account/create";
 import CreateLP from "../pages/LoaiPhong/create";
 import CreateDP from "../pages/DatPhong/create";
 import CreateHD from "../pages/HoaDon/create";
+import CreateDV from "../pages/DichVu/create";
 import CreatePhong from "../pages/Phong/create";
 import PrivateRoute from "./PrivateRoute";
 import DatPhong from "../pages/DatPhong";
 import HoaDon from "../pages/HoaDon";
 import ThongKe from "../pages/ThongKe";
+import DichVu from "../pages/DichVu";
 
 const Routers = () => {
   const routes = useRoutes([
@@ -175,6 +177,30 @@ const Routers = () => {
           element: (
             <PrivateRoute>
               <ThongKe />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "dichvu",
+          element: (
+            <PrivateRoute>
+              <DichVu />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "dichvu/create",
+          element: (
+            <PrivateRoute>
+              <CreateDV />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "dichvu/update/:TenDichVu",
+          element: (
+            <PrivateRoute>
+              <CreateDV type="Edit" />
             </PrivateRoute>
           ),
         },
