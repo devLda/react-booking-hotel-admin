@@ -97,32 +97,32 @@ const Create = (props) => {
     })();
   };
 
-  function deepEqual(obj1, obj2) {
-    // If both objects are the same instance, they are equal
-    if (obj1 === obj2) {
-      return true;
-    }
+  // function deepEqual(obj1, obj2) {
+  //   // If both objects are the same instance, they are equal
+  //   if (obj1 === obj2) {
+  //     return true;
+  //   }
 
-    // Check if the objects are of the same type and have the same number of properties
-    if (
-      typeof obj1 !== "object" ||
-      typeof obj2 !== "object" ||
-      obj1 === null ||
-      obj2 === null ||
-      Object.keys(obj1).length !== Object.keys(obj2).length
-    ) {
-      return false;
-    }
+  //   // Check if the objects are of the same type and have the same number of properties
+  //   if (
+  //     typeof obj1 !== "object" ||
+  //     typeof obj2 !== "object" ||
+  //     obj1 === null ||
+  //     obj2 === null ||
+  //     Object.keys(obj1).length !== Object.keys(obj2).length
+  //   ) {
+  //     return false;
+  //   }
 
-    // Recursively compare each property and value
-    for (let prop in obj1) {
-      if (!obj2.hasOwnProperty(prop) || !deepEqual(obj1[prop], obj2[prop])) {
-        return false;
-      }
-    }
+  //   // Recursively compare each property and value
+  //   for (let prop in obj1) {
+  //     if (!obj2.hasOwnProperty(prop) || !deepEqual(obj1[prop], obj2[prop])) {
+  //       return false;
+  //     }
+  //   }
 
-    return true;
-  }
+  //   return true;
+  // }
 
   const handlePut = (e) => {
     const data = getValue();
@@ -229,14 +229,14 @@ const Create = (props) => {
     // }
   };
 
-  const setFileToBase = (file) => {
-    console.log("file ", file.size);
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      setImgPreview((pre) => [...pre, reader.result]);
-    };
-  };
+  // const setFileToBase = (file) => {
+  //   console.log("file ", file.size);
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(file);
+  //   reader.onloadend = () => {
+  //     setImgPreview((pre) => [...pre, reader.result]);
+  //   };
+  // };
 
   useEffect(() => {
     if (type === "Edit") {

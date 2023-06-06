@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from "redux-persist";
 
 import userSlice from "./user/userSlice";
 import LPSlice from "./loaiphong/LPSlice";
+import DVSlice from "./dichvu/DVSlice";
 import DPSlice from "./datphong/DPSlice";
 import phongSlice from "./phong/phongSlice";
 
@@ -21,6 +22,7 @@ export const store = configureStore({
   reducer: {
     user: persistReducer(userConfig, userSlice),
     loaiphong: LPSlice,
+    dichvu: DVSlice,
     phong: phongSlice,
     datphong: DPSlice,
   },

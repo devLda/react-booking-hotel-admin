@@ -107,8 +107,6 @@ const HoaDon = () => {
 
   const [phongSelected, setPhongSelected] = useState("");
 
-  const [openDialog, setOpenDialog] = useState(false);
-
   const handleOpenMenu = (event, TenLoaiPhong) => {
     setPhongSelected(TenLoaiPhong);
     setOpen(event.currentTarget);
@@ -183,14 +181,6 @@ const HoaDon = () => {
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
     console.log("target", e.target.dataset.set);
-    if (e.target.dataset.set) {
-      if (e.target.innerText === "Xoá") setOpenDialog(true);
-    }
-  };
-
-  const handleClose = () => {
-    setOpenDialog(false);
-    setOpen(false);
   };
 
   useEffect(() => {
@@ -238,7 +228,7 @@ const HoaDon = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
-            setValue={setOpenDialog}
+            // setValue={setOpenDialog}
           />
 
           <Scrollbar>

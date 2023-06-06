@@ -38,8 +38,8 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 
 import { useDispatch, useSelector } from "react-redux";
-import { getAllUser } from "../../store/user/asyncAction";
-import { apiDeleteUser } from "../../api/user";
+import { getAllDV } from "../../store/dichvu/asyncAction";
+import { apiDeleteDV } from "../../api";
 import Swal from "sweetalert2";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
@@ -90,7 +90,7 @@ function applySortFilter(array, comparator, query) {
 }
 
 const DichVu = () => {
-  const { allUser, statusUser } = useSelector((state) => state.user);
+  const dichvu = useSelector((state) => state.dichvu);
 
   const dispatch = useDispatch();
 
@@ -102,13 +102,13 @@ const DichVu = () => {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState("HoVaTen");
+  const [orderBy, setOrderBy] = useState("TenDichVu");
 
   const [filterName, setFilterName] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listAcc, setListAcc] = useState(allUser ? allUser : []);
+  const [listAcc, setListAcc] = useState(dichvu.data ? dichvu.data : []);
 
   const [userSelected, setUserSelected] = useState("");
 
@@ -201,7 +201,7 @@ const DichVu = () => {
 
   const handleDelete = async (event, selectedAcc) => {
     if (event) {
-      const response = await apiDeleteUser(selectedAcc);
+      const response = await apiDeleteDV(selectedAcc);
       if (response.success) {
         setOpenDialog(false);
         setDeleted(true);
@@ -218,7 +218,7 @@ const DichVu = () => {
   };
 
   useEffect(() => {
-    dispatch(getAllUser())
+    dispatch(getAllDV())
       .then((res) => {
         console.log("res ", res);
         if (res.payload.mes === "AccessToken không hợp lệ") {
@@ -238,7 +238,7 @@ const DichVu = () => {
       });
   }, [dispatch, deleted]);
 
-  if (statusUser === "pending") {
+  if (dichvu.isLoading === true) {
     return <LoadingData />;
   }
 
@@ -254,7 +254,7 @@ const DichVu = () => {
           <Typography variant="h4" gutterBottom>
             Dịch vụ
           </Typography>
-          <Link to="/dashboard/account/create">
+          <Link to="/dashboard/dichvu/create">
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}

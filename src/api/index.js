@@ -27,6 +27,14 @@ export {
 } from "./phong";
 
 export {
+  apiAddDV,
+  apiAllDV,
+  apiDeleteDV,
+  apiGetDV,
+  apiUpdateDV
+} from "./dichvu";
+
+export {
   apiMultiDataDP,
   apiAllDP,
   apiAddDP,
