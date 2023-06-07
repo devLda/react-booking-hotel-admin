@@ -47,11 +47,9 @@ import path from "../../utils/path";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "HoVaTen", label: "Họ và tên", alignRight: false },
-  { id: "Email", label: "Email", alignRight: false },
-  { id: "SDT", label: "Số điện thoại", alignRight: false },
-  { id: "Role", label: "Quyền", alignRight: false },
-  { id: "NgayTao", label: "Ngày tạo", alignRight: false },
+  { id: "MaDichVu", label: "Mã dịch vụ", alignRight: false },
+  { id: "TenDichVu", label: "Tên dịch vụ", alignRight: false },
+  { id: "GiaDichVu", label: "Giá dịch vụ", alignRight: false },
   { id: "" },
 ];
 
@@ -83,7 +81,7 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_user) => _user.HoVaTen.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_dichvu) => _dichvu.TenDichVu.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -108,21 +106,21 @@ const DichVu = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listAcc, setListAcc] = useState(dichvu.data ? dichvu.data : []);
+  const [listDV, setListDV] = useState(dichvu.data ? dichvu.data : []);
 
-  const [userSelected, setUserSelected] = useState("");
+  const [DVSelect, setDVSelected] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
 
   const [deleted, setDeleted] = useState(false);
 
-  const handleOpenMenu = (event, Email) => {
-    setUserSelected(Email);
+  const handleOpenMenu = (event, MaDichVu) => {
+    setDVSelected(MaDichVu);
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setUserSelected("");
+    setDVSelected("");
     setOpen(null);
   };
 
@@ -135,7 +133,7 @@ const DichVu = () => {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // const newSelecteds = USERLIST.map((n) => n.name);
-      const newSelecteds = listAcc.map((n) => n.HoVaTen);
+      const newSelecteds = listDV.map((n) => n.MaDichVu);
       setSelected(newSelecteds);
       return;
     }
@@ -176,21 +174,21 @@ const DichVu = () => {
 
   const emptyRows =
     // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listAcc.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listDV.length) : 0;
 
-  const filteredUsers = applySortFilter(
+  const filteredDV = applySortFilter(
     // USERLIST,
-    listAcc,
+    listDV,
     getComparator(order, orderBy),
     filterName
   );
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredDV.length && !!filterName;
 
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
-    if (e.target.dataset.set) {
-      if (e.target.innerText === "Delete") setOpenDialog(true);
+    if (e.target.innerText === "Xóa") {
+      setOpenDialog(true);
     }
   };
 
@@ -199,15 +197,15 @@ const DichVu = () => {
     setOpen(false);
   };
 
-  const handleDelete = async (event, selectedAcc) => {
+  const handleDelete = async (event, selectedDV) => {
     if (event) {
-      const response = await apiDeleteDV(selectedAcc);
+      const response = await apiDeleteDV(selectedDV);
       if (response.success) {
         setOpenDialog(false);
         setDeleted(true);
         setOpen(false);
         console.log("res delete", response);
-        Swal.fire("Thành công", "Xóa tài khoản thành công", "success");
+        Swal.fire("Thành công", response.mes, "success");
       } else {
         setOpenDialog(false);
         setDeleted(false);
@@ -230,7 +228,7 @@ const DichVu = () => {
             window.location.href = "/login";
           });
         } else {
-          setListAcc(res.payload);
+          setListDV(res.payload);
         }
       })
       .catch((err) => {
@@ -280,24 +278,21 @@ const DichVu = () => {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   // rowCount={USERLIST.length}
-                  rowCount={listAcc.length}
+                  rowCount={listDV.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
                 />
                 <TableBody>
-                  {filteredUsers
+                  {filteredDV
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { _id, HoVaTen, Email, SDT, Role, createdAt } = row;
-                      const selectedUser = selected.indexOf(HoVaTen) !== -1;
-                      const arrayCreate = createdAt.slice(0, 10).split("-");
-                      const NgayTao =
-                        arrayCreate[2] +
-                        "/" +
-                        arrayCreate[1] +
-                        "/" +
-                        arrayCreate[0];
+                      const { _id, 
+                        MaDichVu, TenDichVu, GiaDichVu
+                        // HoVaTen, Email, SDT, Role, createdAt 
+                      } = row;
+                      const selectedDV = selected.indexOf(MaDichVu) !== -1;
+                      
 
                       return (
                         <TableRow
@@ -305,30 +300,26 @@ const DichVu = () => {
                           key={_id}
                           tabIndex={-1}
                           role="checkbox"
-                          selected={selectedUser}
+                          selected={selectedDV}
                         >
                           <TableCell padding="checkbox">
                             <Checkbox
-                              checked={selectedUser}
-                              onChange={(event) => handleClick(event, HoVaTen)}
+                              checked={selectedDV}
+                              onChange={(event) => handleClick(event, MaDichVu)}
                             />
                           </TableCell>
 
-                          <TableCell align="left">{HoVaTen}</TableCell>
+                          <TableCell align="left">{MaDichVu}</TableCell>
 
-                          <TableCell align="left">{Email}</TableCell>
+                          <TableCell align="left">{TenDichVu}</TableCell>
 
-                          <TableCell align="left">{SDT}</TableCell>
-
-                          <TableCell align="left">{Role}</TableCell>
-
-                          <TableCell align="left">{NgayTao}</TableCell>
+                          <TableCell align="left">{GiaDichVu}</TableCell>
 
                           <TableCell align="right">
                             <IconButton
                               size="large"
                               color="inherit"
-                              onClick={(e) => handleOpenMenu(e, Email)}
+                              onClick={(e) => handleOpenMenu(e, MaDichVu)}
                             >
                               <Iconify icon={"eva:more-vertical-fill"} />
                             </IconButton>
@@ -353,14 +344,13 @@ const DichVu = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> Thử kiểm tra lại từ khóa tìm kiếm, nhập tên dịch vụ cần tìm
                           </Typography>
                         </Paper>
                       </TableCell>
@@ -375,7 +365,7 @@ const DichVu = () => {
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
             // count={USERLIST.length}
-            count={listAcc.length}
+            count={listDV.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -403,7 +393,7 @@ const DichVu = () => {
         }}
       >
         <Link
-          to={`/${path.ACCOUNT_UPDATE}/${userSelected}`}
+          to={`/${path.DICHVU_UPDATE}/${DVSelect}`}
           className="no-underline"
         >
           <MenuItem>
@@ -414,11 +404,11 @@ const DichVu = () => {
 
         <MenuItem
           sx={{ color: "error.main" }}
-          data-set={userSelected}
+          data-set={DVSelect}
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
-          Xoá
+          Xóa
         </MenuItem>
       </Popover>
 
@@ -432,12 +422,12 @@ const DichVu = () => {
           <DialogTitle id="alert-dialog-title">Xóa tài khoản</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa tài khoản ${userSelected} không?`}
+              {`Bạn có muốn xóa tài khoản ${DVSelect} không?`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Không</Button>
-            <Button onClick={(e) => handleDelete(e, userSelected)} autoFocus>
+            <Button onClick={(e) => handleDelete(e, DVSelect)} autoFocus>
               Có
             </Button>
           </DialogActions>

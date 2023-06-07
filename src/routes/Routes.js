@@ -197,7 +197,7 @@ const Routers = () => {
           ),
         },
         {
-          path: "dichvu/update/:TenDichVu",
+          path: "dichvu/update/:MaDichVu",
           element: (
             <PrivateRoute>
               <CreateDV type="Edit" />

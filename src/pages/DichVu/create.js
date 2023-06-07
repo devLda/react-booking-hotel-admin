@@ -8,7 +8,7 @@ import { Input, Button } from "../../components/UI/form";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { apiCreateUser, apiGetUser, apiUpdateUser } from "../../api/user";
+import { apiAddDV, apiGetDV, apiUpdateDV } from "../../api";
 
 import { object, string, number } from "yup";
 import Swal from "sweetalert2";
@@ -25,7 +25,7 @@ const userSchema = object({
 
 const Create = (props) => {
   const { type } = props;
-  const { Email } = useParams();
+  const { MaDichVu } = useParams();
   const [value, setValue] = useState({});
   const [error, setError] = useState({});
 
@@ -45,10 +45,11 @@ const Create = (props) => {
   };
 
   const createDV = async (dataCre) => {
-    const response = await apiCreateUser(dataCre);
+    console.log('data', dataCre)
+    const response = await apiAddDV(dataCre);
     if (response.success) {
       console.log("res ", response);
-      Swal.fire("Thành công", response.mes, "success").then(() => {
+      Swal.fire("Thành công", "Thêm mới dịch vụ thành công", "success").then(() => {
         navigate(`/${path.DICHVU}`);
       });
     } else Swal.fire("Thất bại", response.mes, "error");
@@ -66,7 +67,7 @@ const Create = (props) => {
           console.log("res ", res);
           setError({});
           if (Object.keys(data).length > 0) {
-            // createDV(data)
+            createDV(data)
           }
         })
         .catch((err) => {
@@ -90,7 +91,7 @@ const Create = (props) => {
 
     let equal = deepEqual(data, defaultValue.current);
     if (!equal) {
-      apiUpdateUser(data.Email, data)
+      apiUpdateDV(data.MaDichVu, data)
         .then((res) => {
           console.log("res ", res);
           if (res.success) {
@@ -152,24 +153,14 @@ const Create = (props) => {
 
   useEffect(() => {
     if (type === "Edit") {
-      apiGetUser(Email)
+      apiGetDV(MaDichVu)
         .then((res) => {
           // console.log('res ', res)
-          const { createdAt, updatedAt, __v, ...valueRef } = res.mes;
-          defaultValue.current = valueRef;
-          setValue(res.mes);
+          setValue(res.data);
         })
         .catch((err) => {
           console.log("err ", err);
         });
-      // api
-      //   .getUser({ Username: id })
-      //   .then((res) => {
-      //     setValue(res.data[0]);
-      //   })
-      //   .catch((err) => {
-      //     console.log("err ", err);
-      //   });
     }
   }, []);
 
@@ -201,7 +192,7 @@ const Create = (props) => {
               disable={value.MaDichVu ? true : false}
               error={error.MaDichVu}
               name="MaDichVu"
-              label="Mã dịch vụ: "
+              label="Mã dịch vụ"
               value={value.MaDichVu ? value.MaDichVu : ""}
             />
           </Grid>
@@ -209,7 +200,7 @@ const Create = (props) => {
             <Input
               error={error.TenDichVu}
               name="TenDichVu"
-              label="Tên dịch vụ: "
+              label="Tên dịch vụ"
               value={value.TenDichVu ? value.TenDichVu : ""}
             />
           </Grid>
@@ -217,7 +208,7 @@ const Create = (props) => {
             <Input
               error={error.GiaDichVu}
               name="GiaDichVu"
-              label="Giá dịch vụ: "
+              label="Giá dịch vụ"
               type="number"
               min="0"
               value={value.GiaDichVu ? value.GiaDichVu : ""}
