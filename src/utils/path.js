@@ -5,6 +5,7 @@ const path = {
   DASHBOARD: "dashboard",
   ACCOUNT: "dashboard/account",
   ACCOUNT_UPDATE: "dashboard/account/update",
+  CHITIETHD: "dashboard/chitiethd",
   DICHVU: "dashboard/dichvu",
   DICHVU_CREATE: "dashboard/dichvu/create",
   DICHVU_UPDATE: "dashboard/dichvu/update",

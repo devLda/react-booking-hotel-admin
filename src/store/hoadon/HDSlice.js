@@ -2,11 +2,11 @@
 import { createSlice } from "@reduxjs/toolkit";
 import * as action from "./asyncAction";
 
-export const phongSlice = createSlice({
+export const HDSlice = createSlice({
   name: "hoadon",
   initialState: {
     isLoading: false,
-    data: null,
+    hoadon: null,
   },
   reducers: {},
   // Code logic xử lý async action
@@ -17,7 +17,7 @@ export const phongSlice = createSlice({
 
     builder.addCase(action.getAllHD.fulfilled, (state, action) => {
       state.isLoading = false;
-      state.data = action.payload.data;
+      state.hoadon = action.payload;
     });
 
     builder.addCase(action.getAllHD.rejected, (state, action) => {
@@ -28,6 +28,6 @@ export const phongSlice = createSlice({
 });
 
 // // Action creators are generated for each case reducer function
-export const {} = phongSlice.actions;
+export const {} = HDSlice.actions;
 
-export default phongSlice.reducer;
+export default HDSlice.reducer;

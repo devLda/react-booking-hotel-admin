@@ -41,9 +41,9 @@ const TABLE_HEAD = [
   { id: "Email", label: "Email", alignRight: false },
   { id: "SDT", label: "Số điện thoại", alignRight: false },
   { id: "DatPhong", label: "Mã đặt phòng", alignRight: false },
-  { id: "DaThanhToan", label: "Đã thanh toán", alignRight: false },
-  { id: "MaGD", label: "Mã Giao Dịch", alignRight: false },
-  { id: "NgayThanhToan", label: "Thời gian thanh toán", alignRight: false },
+  // { id: "DaThanhToan", label: "Đã thanh toán", alignRight: false },
+  // { id: "MaGD", label: "Mã Giao Dịch", alignRight: false },
+  // { id: "NgayThanhToan", label: "Thời gian thanh toán", alignRight: false },
   { id: "TongTien", label: "Tổng tiền", alignRight: false },
   { id: "TrangThai", label: "Trạng thái", alignRight: false },
   { id: "" },
@@ -52,6 +52,17 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
+  if(orderBy === "TenKH" || orderBy === "Email" || orderBy === "SDT"){
+    if (b.ThongTinKH[orderBy] < a.ThongTinKH[orderBy]) {
+      return -1;
+    }
+    if (b.ThongTinKH[orderBy] > a.ThongTinKH[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -77,8 +88,8 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (LP) =>
-        LP.ThongTinKH.TenKH.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (HoaDonSort) =>
+        HoaDonSort.ThongTinKH.TenKH.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -97,7 +108,7 @@ const HoaDon = () => {
 
   const [selected, setSelected] = useState([]);
 
-  const [orderBy, setOrderBy] = useState("TenKhachHang");
+  const [orderBy, setOrderBy] = useState("TenKH");
 
   const [filterName, setFilterName] = useState("");
 
@@ -210,7 +221,7 @@ const HoaDon = () => {
           mb={5}
         >
           <Typography variant="h4" gutterBottom>
-            Đơn Đặt Phòng
+            Hóa đơn
           </Typography>
           {/* <Link to={`/${path.PHONG_CREATE}`}>
             <Button
@@ -252,7 +263,6 @@ const HoaDon = () => {
                         _id,
                         ThongTinKH,
                         DatPhong,
-                        GiaoDich,
                         TongTien,
                         TrangThai,
 
@@ -288,7 +298,9 @@ const HoaDon = () => {
                           </TableCell>
 
                           <TableCell align="left">
-                            {ThongTinKH?.TenKH}
+                            <Link to={`/${path.CHITIETHD}/${_id}`}>
+                              {ThongTinKH?.TenKH}
+                            </Link>
                           </TableCell>
 
                           <TableCell align="left">
@@ -306,7 +318,7 @@ const HoaDon = () => {
                             </p>
                           </TableCell>
 
-                          <TableCell align="left">
+                          {/* <TableCell align="left">
                             {GiaoDich[GiaoDich?.length - 1].DaThanhToan}
                           </TableCell>
 
@@ -321,7 +333,7 @@ const HoaDon = () => {
 
                           <TableCell align="left">
                             {GiaoDich[GiaoDich?.length - 1].NgayThanhToan}
-                          </TableCell>
+                          </TableCell> */}
 
                           <TableCell align="left">{TongTien}</TableCell>
 

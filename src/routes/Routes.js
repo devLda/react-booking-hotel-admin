@@ -20,6 +20,7 @@ import DatPhong from "../pages/DatPhong";
 import HoaDon from "../pages/HoaDon";
 import ThongKe from "../pages/ThongKe";
 import DichVu from "../pages/DichVu";
+import ChiTiet from "../pages/HoaDon/chitiet";
 
 const Routers = () => {
   const routes = useRoutes([
@@ -153,6 +154,14 @@ const Routers = () => {
           element: (
             <PrivateRoute>
               <HoaDon />
+            </PrivateRoute>
+          ),
+        },
+        {
+          path: "chitiethd/:id",
+          element: (
+            <PrivateRoute>
+              <ChiTiet />
             </PrivateRoute>
           ),
         },

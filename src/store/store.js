@@ -6,6 +6,7 @@ import userSlice from "./user/userSlice";
 import LPSlice from "./loaiphong/LPSlice";
 import DVSlice from "./dichvu/DVSlice";
 import DPSlice from "./datphong/DPSlice";
+import HDSlice from "./hoadon/HDSlice";
 import phongSlice from "./phong/phongSlice";
 
 const commonConfig = {
@@ -25,6 +26,7 @@ export const store = configureStore({
     dichvu: DVSlice,
     phong: phongSlice,
     datphong: DPSlice,
+    hoadon: HDSlice,
   },
 });
 
