@@ -5,3 +5,9 @@ export const apiMultiDataHD = () =>
     url: "/hoadon/multidata",
     method: "get",
   });
+
+export const apiStaticDV = () =>
+  axios({
+    url: "/hoadon/staticdv",
+    method: "get",
+  });

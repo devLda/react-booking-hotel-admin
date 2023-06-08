@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import moment from "moment";
 import {
   Box,
@@ -8,7 +8,12 @@ import {
   Select,
   MenuItem,
 } from "@mui/material";
-import { apiAllPhong } from "../../api";
+
+import { useTheme } from "@mui/material/styles";
+
+import { apiStaticDV, apiStaticPhong } from "../../api";
+
+import { AppCurrentVisits } from "../../components/UI/dashboard";
 
 const optionItems = [
   { id: "TongThuNhap", title: "Tổng thu nhập tháng" },
@@ -17,71 +22,41 @@ const optionItems = [
 ];
 
 const ThongKe = () => {
+  const theme = useTheme();
+
+  const [listTK, setListTK] = useState([]);
+
   const [thongKe, setThongKe] = useState("");
 
   const [phong, setPhong] = useState([]);
+
+  const [open, setOpen] = useState(false);
 
   const handleChange = (event) => {
     setThongKe(event.target.value);
   };
 
-  const allPhong = async () => {
-    const response = await apiAllPhong();
-    if (response.success) {
-      setPhong(response.data);
-    }
-  };
-
-  const filterPhong = (phongs) => {
-    const tempRoom = [];
-
-    const today = new Date();
-    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const year = today.getFullYear() + "";
-    const month =
-      today.getMonth() < 10
-        ? "0" + (today.getMonth() + 1)
-        : "" + (today.getMonth() + 1);
-    const fday =
-      firstDay.getDate() < 10
-        ? "0" + firstDay.getDate()
-        : "" + firstDay.getDate();
-    const lday =
-      lastDay.getDate() < 10 ? "0" + lastDay.getDate() : "" + lastDay.getDate();
-    const start = `${fday}-${month}-${year}`;
-    const end = `${lday}-${month}-${year}`;
-
-    for (const item of phongs) {
-      let count = 0;
-      if (item.LichDat.length > 0) {
-        for (const booking of item.LichDat) {
-          if (
-            moment(booking.NgayBatDau, "DD-MM-YYYY").isBetween(
-              moment(start, "DD-MM-YYYY"),
-              moment(end, "DD-MM-YYYY")
-            )
-          ) {
-            count++;
-          }
-        }
-      }
-
-      if (count > 0) {
-        tempRoom.push({
-          count: count,
-          MaPhong: item.MaPhong,
-        });
-      }
-    }
-
-    console.log("temp ", tempRoom);
-  };
-
   useEffect(() => {
     if (thongKe === "Top5Phong") {
-      allPhong();
-      filterPhong(phong);
+      apiStaticPhong()
+        .then((res) => {
+          console.log("res ", res);
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
+      setOpen(true);
+    }
+
+    if (thongKe === "Top5DichVu") {
+      apiStaticDV()
+        .then((res) => {
+          console.log("res ", res);
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
+      setOpen(true);
     }
   }, [thongKe]);
 
@@ -106,6 +81,25 @@ const ThongKe = () => {
             </Select>
           </FormControl>
         </Box>
+
+        {open && (
+          <Box
+            sx={{
+              mt: 4,
+            }}
+          >
+            <AppCurrentVisits
+              title="Current Visits"
+              chartData={listTK}
+              chartColors={[
+                theme.palette.primary.main,
+                theme.palette.info.main,
+                theme.palette.warning.main,
+                theme.palette.error.main,
+              ]}
+            />
+          </Box>
+        )}
       </Container>
     </>
   );

@@ -1,22 +1,29 @@
-import { Box, Card, Typography } from "@mui/material";
-import React, { useRef } from "react";
+import { Container, Box, Card, Typography, Button } from "@mui/material";
+import React, { useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+
+import path from "../../utils/path";
 
 const ChiTiet = () => {
   const { id } = useParams();
   const { hoadon } = useSelector((state) => state.hoadon);
+  const navigate = useNavigate();
 
+  const [daTra, setDaTra] = useState(0);
   const CTHD = useRef(
-    hoadon.filter((hd) => hd?._id?.toString() === id.toString())[0]
+    hoadon?.filter((hd) => hd?._id?.toString() === id.toString())[0]
   );
 
   console.log(CTHD.current);
+
   return (
-    <>
+    <Container>
       <Card
         sx={{
           mb: 5,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Typography
@@ -28,6 +35,15 @@ const ChiTiet = () => {
         >
           {"Chi tiết hóa đơn"}
         </Typography>
+
+        <Button
+          sx={{ fontSize: "28px" }}
+          onClick={(e) => {
+            navigate(`/${path.HOADON}`);
+          }}
+        >
+          &rarr;
+        </Button>
       </Card>
 
       <Card
@@ -39,11 +55,11 @@ const ChiTiet = () => {
           sx={{
             mx: 2,
             mb: 0,
-            mt: 4
+            mt: 4,
           }}
           variant="h5"
         >
-          {`Mã hóa đơn: ${CTHD.current._id}`}
+          {`Mã hóa đơn: ${CTHD.current?._id}`}
         </Typography>
 
         <Box
@@ -76,8 +92,92 @@ const ChiTiet = () => {
             </Typography>
           </Box>
         </Box>
+
+        <Box
+          sx={{
+            my: 2,
+            mx: 2,
+          }}
+        >
+          <Typography
+            sx={{
+              mt: 4,
+              mb: 2,
+            }}
+            variant="h5"
+          >
+            {`Thông tin khách hàng`}
+          </Typography>
+          <Box
+            sx={{
+              mx: 2,
+            }}
+          >
+            <Typography>
+              <b>Mã khách hàng:</b> {CTHD.current?.ThongTinKH?._id}
+            </Typography>
+            <Typography>
+              <b>Tên khách hàng:</b> {CTHD.current?.ThongTinKH?.TenKH}
+            </Typography>
+            <Typography>
+              <b>Email:</b> {CTHD.current?.ThongTinKH?.Email}
+            </Typography>
+            <Typography>
+              <b>Số điện thoại:</b> {CTHD.current?.ThongTinKH?.SDT}
+            </Typography>
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            my: 2,
+            mx: 2,
+          }}
+        >
+          <Typography
+            sx={{
+              mt: 4,
+              mb: 2,
+            }}
+            variant="h5"
+          >
+            {`Thông tin giao dịch`}
+          </Typography>
+
+          <Box
+            sx={{
+              mx: 2,
+            }}
+          >
+            <Typography>
+              <b>Đã đặt cọc</b>
+            </Typography>
+            <Typography>
+              <b>Mã giao dịch:</b> {CTHD.current?.GiaoDich[0]?.MaGD}
+            </Typography>
+            <Typography>
+              <b>Ngày thanh toán:</b> {CTHD.current?.GiaoDich[0]?.NgayThanhToan}
+            </Typography>
+            <Typography>
+              <b>Số tiền:</b> {CTHD.current?.GiaoDich[0]?.DaThanhToan}
+            </Typography>
+            <Typography>
+              <b>Chưa thanh toán:</b>{" "}
+              {parseFloat(CTHD.current?.TongTien) -
+                parseFloat(CTHD.current?.GiaoDich[0]?.DaThanhToan)}
+            </Typography>
+          </Box>
+
+          <Typography
+            sx={{
+              mx: 2,
+            }}
+          >
+            <b>Tổng thanh toán:</b> {CTHD.current?.TongTien}
+          </Typography>
+        </Box>
       </Card>
-    </>
+    </Container>
   );
 };
 

@@ -81,7 +81,8 @@ function applySortFilter(array, comparator, query) {
   if (query) {
     return filter(
       array,
-      (_dichvu) => _dichvu.TenDichVu.toLowerCase().indexOf(query.toLowerCase()) !== -1
+      (_dichvu) =>
+        _dichvu.TenDichVu.toLowerCase().indexOf(query.toLowerCase()) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -287,12 +288,14 @@ const DichVu = () => {
                   {filteredDV
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const { _id, 
-                        MaDichVu, TenDichVu, GiaDichVu
-                        // HoVaTen, Email, SDT, Role, createdAt 
+                      const {
+                        _id,
+                        MaDichVu,
+                        TenDichVu,
+                        GiaDichVu,
+                        // HoVaTen, Email, SDT, Role, createdAt
                       } = row;
                       const selectedDV = selected.indexOf(MaDichVu) !== -1;
-                      
 
                       return (
                         <TableRow
@@ -350,7 +353,8 @@ const DichVu = () => {
                           <Typography variant="body2">
                             Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Thử kiểm tra lại từ khóa tìm kiếm, nhập tên dịch vụ cần tìm
+                            <br /> Thử kiểm tra lại từ khóa tìm kiếm, nhập tên
+                            dịch vụ cần tìm
                           </Typography>
                         </Paper>
                       </TableCell>

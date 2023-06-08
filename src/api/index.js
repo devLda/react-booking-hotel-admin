@@ -24,6 +24,7 @@ export {
   apiGetPhong,
   apiUpdatePhong,
   apiDeletePhong,
+  apiStaticPhong,
 } from "./phong";
 
 export {
@@ -31,7 +32,7 @@ export {
   apiAllDV,
   apiDeleteDV,
   apiGetDV,
-  apiUpdateDV
+  apiUpdateDV,
 } from "./dichvu";
 
 export {
@@ -44,4 +45,4 @@ export {
   apiCountDP,
 } from "./datphong";
 
-export { apiMultiDataHD } from "./hoadon";
+export { apiMultiDataHD, apiStaticDV } from "./hoadon";

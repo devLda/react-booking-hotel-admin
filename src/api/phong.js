@@ -37,3 +37,9 @@ export const apiDeletePhong = (_id) =>
     url: `/phong/delete/${_id}`,
     method: "delete",
   });
+
+export const apiStaticPhong = () =>
+  axios({
+    url: `/phong/static`,
+    method: "get",
+  });
