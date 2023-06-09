@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // @mui
 import { alpha } from "@mui/material/styles";
 import {
@@ -14,7 +14,7 @@ import {
 // account
 import avata from "../../assets/images/avatars/avatar_default.jpg";
 import { useDispatch, useSelector } from "react-redux";
-import { apiLogout } from "../../api/user";
+import { Auth, apiLogout } from "../../api";
 import { logout } from "../../store/user/userSlice";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
@@ -27,14 +27,14 @@ const MENU_OPTIONS = [
     label: "Home",
     icon: "eva:home-fill",
   },
-  {
-    label: "Profile",
-    icon: "eva:person-fill",
-  },
-  {
-    label: "Settings",
-    icon: "eva:settings-2-fill",
-  },
+  // {
+  //   label: "Profile",
+  //   icon: "eva:person-fill",
+  // },
+  // {
+  //   label: "Settings",
+  //   icon: "eva:settings-2-fill",
+  // },
 ];
 
 // ----------------------------------------------------------------------
@@ -55,6 +55,11 @@ const AccountPopover = () => {
     setOpen(null);
   };
 
+  const handleHome = () => {
+    setOpen(null)
+    navigate(`/${path.DASHBOARD}`)
+  }
+
   const handleLogout = async () => {
     const response = await apiLogout();
     if (response.success) {
@@ -70,6 +75,25 @@ const AccountPopover = () => {
       });
     } else Swal.fire("Thất bại", "Đã xảy ra lỗi!", "error");
   };
+
+  useEffect(() => {
+    Auth()
+      .then((res) => {
+        console.log("res ", res);
+        if (res.payload.mes === "AccessToken không hợp lệ") {
+          Swal.fire(
+            "Thông báo",
+            "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại",
+            "info"
+          ).then(() => {
+            window.location.href = "/login";
+          });
+        } 
+      })
+      .catch((err) => {
+        console.log("err ", err);
+      });
+  }, []);
 
   return (
     <>
@@ -125,7 +149,7 @@ const AccountPopover = () => {
 
         <Stack sx={{ p: 1 }}>
           {MENU_OPTIONS.map((option) => (
-            <MenuItem key={option.label} onClick={handleClose}>
+            <MenuItem key={option.label} onClick={handleHome}>
               {option.label}
             </MenuItem>
           ))}

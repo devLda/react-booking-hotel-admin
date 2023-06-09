@@ -49,7 +49,7 @@ const Header = (onOpenNav) => {
           <Iconify icon="eva:menu-2-fill" />
         </IconButton>
 
-        <Searchbar />
+        {/* <Searchbar /> */}
         <Box sx={{ flexGrow: 1 }} />
 
         <Stack
@@ -60,8 +60,8 @@ const Header = (onOpenNav) => {
             sm: 1,
           }}
         >
-          <LanguagePopover />
-          <NotificationsPopover />
+          {/* <LanguagePopover /> */}
+          {/* <NotificationsPopover /> */}
           <AccountPopover />
         </Stack>
       </StyledToolbar>

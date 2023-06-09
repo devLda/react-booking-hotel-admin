@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import ReactApexChart from "react-apexcharts";
 // @mui
 import { useTheme, styled } from "@mui/material/styles";
-import { Card, CardHeader } from "@mui/material";
+import { Card, CardHeader, Typography } from "@mui/material";
 // utils
 
 import { fNumber } from "../../Utils/formatNumber";
@@ -42,6 +42,7 @@ AppCurrentVisits.propTypes = {
 
 export default function AppCurrentVisits({
   title,
+  total,
   subheader,
   chartColors,
   chartData,
@@ -76,6 +77,10 @@ export default function AppCurrentVisits({
   return (
     <Card {...other}>
       <CardHeader title={title} subheader={subheader} />
+
+      <Typography sx={{ mx: 3, my: 2, fontSize: "20px" }}>
+        <b>Tổng số:</b> {total ? total : 0}
+      </Typography>
 
       <StyledChartWrapper dir="ltr">
         <ReactApexChart

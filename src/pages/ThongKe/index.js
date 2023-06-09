@@ -1,5 +1,4 @@
-import { useEffect, useLayoutEffect, useState } from "react";
-import moment from "moment";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -11,13 +10,16 @@ import {
 
 import { useTheme } from "@mui/material/styles";
 
-import { apiStaticDV, apiStaticPhong } from "../../api";
+import { apiStaticDV, apiStaticPhong, apiStaticTong } from "../../api";
 
-import { AppCurrentVisits } from "../../components/UI/dashboard";
+import {
+  AppCurrentVisits,
+  AppConversionRates,
+} from "../../components/UI/dashboard";
 
 const optionItems = [
-  { id: "TongThuNhap", title: "Tổng thu nhập tháng" },
   { id: "Top5Phong", title: "Top 5 phòng được đặt nhiều nhất tháng" },
+  { id: "TongThuNhap", title: "Tổng thu nhập 3 tháng gần nhất" },
   { id: "Top5DichVu", title: "Top 5 dịch vụ được đặt nhiều nhất tháng" },
 ];
 
@@ -28,7 +30,9 @@ const ThongKe = () => {
 
   const [thongKe, setThongKe] = useState("");
 
-  const [phong, setPhong] = useState([]);
+  const [title, setTitle] = useState("");
+
+  const [tong, setTong] = useState(0);
 
   const [open, setOpen] = useState(false);
 
@@ -41,6 +45,30 @@ const ThongKe = () => {
       apiStaticPhong()
         .then((res) => {
           console.log("res ", res);
+          const data = res.sort((a, b) => {
+            if (a.value < b.value) return 1;
+            if (a.value > b.value) return -1;
+            return 0;
+          });
+          const data1 = data.slice(0, 5);
+          const data2 = data.slice(5);
+
+          const tongTK = data.reduce((value, cur) => {
+            value += cur.value;
+            return value;
+          }, 0);
+          const valueKhac = data2.reduce((value, cur) => {
+            value += cur.value;
+            return value;
+          }, 0);
+          data1.push({
+            label: "Khác",
+            value: valueKhac,
+          });
+
+          setTitle("Top 5 phòng được đặt nhiều nhất tháng");
+          setTong(tongTK);
+          setListTK(data1);
         })
         .catch((err) => {
           console.log("err ", err);
@@ -52,11 +80,52 @@ const ThongKe = () => {
       apiStaticDV()
         .then((res) => {
           console.log("res ", res);
+          const data = res.sort((a, b) => {
+            if (a.value < b.value) return 1;
+            if (a.value > b.value) return -1;
+            return 0;
+          });
+          const data1 = data.slice(0, 5);
+          const data2 = data.slice(5);
+
+          const tongTK = data.reduce((value, cur) => {
+            value += cur.value;
+            return value;
+          }, 0);
+          const valueKhac = data2.reduce((value, cur) => {
+            value += cur.value;
+            return value;
+          }, 0);
+          data1.push({
+            label: "Khác",
+            value: valueKhac,
+          });
+
+          setTitle("Top 5 dịch vụ được đặt nhiều nhất tháng");
+          setTong(tongTK);
+          setListTK(data1);
         })
         .catch((err) => {
           console.log("err ", err);
         });
       setOpen(true);
+    }
+
+    if (thongKe === "TongThuNhap") {
+      apiStaticTong()
+        .then((res) => {
+          console.log("res ", res);
+          setTitle("Thu nhập 3 tháng gần nhất");
+          setOpen(true);
+          setListTK(res);
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
+    }
+
+    if (thongKe === "") {
+      setOpen(false);
     }
   }, [thongKe]);
 
@@ -82,14 +151,15 @@ const ThongKe = () => {
           </FormControl>
         </Box>
 
-        {open && (
+        {open && title !== "Thu nhập 3 tháng gần nhất" && (
           <Box
             sx={{
               mt: 4,
             }}
           >
             <AppCurrentVisits
-              title="Current Visits"
+              title={title}
+              total={tong}
               chartData={listTK}
               chartColors={[
                 theme.palette.primary.main,
@@ -98,6 +168,15 @@ const ThongKe = () => {
                 theme.palette.error.main,
               ]}
             />
+          </Box>
+        )}
+        {open && title === "Thu nhập 3 tháng gần nhất" && (
+          <Box
+            sx={{
+              mt: 4,
+            }}
+          >
+            <AppConversionRates title={title} chartData={listTK} />
           </Box>
         )}
       </Container>

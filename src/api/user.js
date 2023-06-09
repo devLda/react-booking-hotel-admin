@@ -14,6 +14,12 @@ export const apiLogout = () =>
     withCredentials: true,
   });
 
+  export const Auth = () =>
+  axios({
+    url: `/account/auth`,
+    method: "get",
+  });
+
 export const getAccessToken = () =>
   axios({
     url: `/account/accesstoken`,

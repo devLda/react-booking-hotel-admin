@@ -2,6 +2,7 @@ export {
   apiAllUser,
   apiDeleteUser,
   apiLogin,
+  Auth,
   apiCreateUser,
   apiGetUser,
   apiLogout,
@@ -45,4 +46,4 @@ export {
   apiCountDP,
 } from "./datphong";
 
-export { apiMultiDataHD, apiStaticDV } from "./hoadon";
+export { apiMultiDataHD, apiStaticDV, apiStaticTong } from "./hoadon";

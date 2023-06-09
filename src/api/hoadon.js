@@ -11,3 +11,9 @@ export const apiStaticDV = () =>
     url: "/hoadon/staticdv",
     method: "get",
   });
+
+  export const apiStaticTong = () =>
+  axios({
+    url: "/hoadon/statictong",
+    method: "get",
+  });
