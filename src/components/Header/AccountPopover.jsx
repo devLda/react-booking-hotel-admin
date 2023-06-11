@@ -56,9 +56,9 @@ const AccountPopover = () => {
   };
 
   const handleHome = () => {
-    setOpen(null)
-    navigate(`/${path.DASHBOARD}`)
-  }
+    setOpen(null);
+    navigate(`/${path.DASHBOARD}`);
+  };
 
   const handleLogout = async () => {
     const response = await apiLogout();
@@ -80,7 +80,7 @@ const AccountPopover = () => {
     Auth()
       .then((res) => {
         console.log("res ", res);
-        if (res.payload.mes === "AccessToken không hợp lệ") {
+        if (res.mes === "AccessToken không hợp lệ") {
           Swal.fire(
             "Thông báo",
             "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại",
@@ -88,12 +88,12 @@ const AccountPopover = () => {
           ).then(() => {
             window.location.href = "/login";
           });
-        } 
+        }
       })
       .catch((err) => {
         console.log("err ", err);
       });
-  }, []);
+  }, [dispatch]);
 
   return (
     <>

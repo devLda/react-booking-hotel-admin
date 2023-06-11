@@ -5,17 +5,48 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import path from "../../utils/path";
 
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+import Swal from "sweetalert2";
+import { apiUpdateTTHD } from "../../api";
+
 const ChiTiet = () => {
   const { id } = useParams();
   const { hoadon } = useSelector((state) => state.hoadon);
   const navigate = useNavigate();
 
-  const [daTra, setDaTra] = useState(0);
+  const [openDialog, setOpenDialog] = useState(false);
+
   const CTHD = useRef(
     hoadon?.filter((hd) => hd?._id?.toString() === id.toString())[0]
   );
 
   console.log(CTHD.current);
+
+  const handleSubmit = async (id) => {
+    const response = await apiUpdateTTHD(id);
+
+    if (response.success) {
+      setOpenDialog(false);
+      Swal.fire(
+        "Thành công",
+        "Hoá đơn đã được xác nhận thanh toán",
+        "success"
+      ).then(() => {
+        navigate(`/${path.HOADON}`);
+      });
+    } else {
+      setOpenDialog(false);
+      Swal.fire("Thất bại", "Đã xảy ra lỗi", "error");
+    }
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+  };
 
   return (
     <Container>
@@ -147,24 +178,37 @@ const ChiTiet = () => {
           <Box
             sx={{
               mx: 2,
+              position: "relative",
             }}
           >
             <Typography>
-              <b>Đã đặt cọc</b>
+              {CTHD.current?.TrangThai === "Đã thanh toán" ? (
+                <b>Đã thanh toán</b>
+              ) : (
+                <b>Đã đặt cọc</b>
+              )}
             </Typography>
             <Typography>
               <b>Mã giao dịch:</b> {CTHD.current?.GiaoDich[0]?.MaGD}
             </Typography>
             <Typography>
-              <b>Ngày thanh toán:</b> {CTHD.current?.GiaoDich[0]?.NgayThanhToan}
+              <b>Ngày thanh toán:</b>{" "}
+              {CTHD.current?.TrangThai === "Đã thanh toán"
+                ? CTHD.current?.DatPhong?.NgayKetThuc
+                : CTHD.current?.GiaoDich[0]?.NgayThanhToan}
             </Typography>
             <Typography>
-              <b>Số tiền:</b> {CTHD.current?.GiaoDich[0]?.DaThanhToan}
+              <b>Số tiền:</b>{" "}
+              {CTHD.current?.TrangThai === "Đã thanh toán"
+                ? CTHD.current?.TongTien
+                : CTHD.current?.GiaoDich[0]?.DaThanhToan}
             </Typography>
             <Typography>
               <b>Chưa thanh toán:</b>{" "}
-              {parseFloat(CTHD.current?.TongTien) -
-                parseFloat(CTHD.current?.GiaoDich[0]?.DaThanhToan)}
+              {CTHD.current?.TrangThai === "Đã thanh toán"
+                ? 0
+                : parseFloat(CTHD.current?.TongTien) -
+                  parseFloat(CTHD.current?.GiaoDich[0]?.DaThanhToan)}
             </Typography>
           </Box>
 
@@ -173,9 +217,56 @@ const ChiTiet = () => {
               mx: 2,
             }}
           >
-            <b>Tổng thanh toán:</b> {CTHD.current?.TongTien}
+            <b>Tổng tiền hoá đơn:</b> {CTHD.current?.TongTien}
           </Typography>
+
+          {CTHD.current?.TrangThai === "Đã đặt cọc" && (
+            <Button
+              sx={{
+                px: 2,
+                py: 2,
+                m: 3,
+                position: "absolute",
+                bottom: 0,
+                right: 0,
+              }}
+              onClick={() => {
+                setOpenDialog(true);
+              }}
+            >
+              Xác nhận đã thanh toán
+            </Button>
+          )}
         </Box>
+
+        {openDialog && (
+          <Dialog
+            open={openDialog}
+            onClose={handleClose}
+            aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description"
+          >
+            <DialogTitle id="alert-dialog-title">
+              Xác nhận thanh toán
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText id="alert-dialog-description">
+                {`Bạn xác nhận hoá đơn ${CTHD.current?._id} đã thanh toán?`}
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Không</Button>
+              <Button
+                onClick={() => {
+                  handleSubmit(CTHD.current?._id);
+                }}
+                autoFocus
+              >
+                Có
+              </Button>
+            </DialogActions>
+          </Dialog>
+        )}
       </Card>
     </Container>
   );

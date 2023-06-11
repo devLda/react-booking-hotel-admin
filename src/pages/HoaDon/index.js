@@ -37,6 +37,7 @@ import path from "../../utils/path";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
+  { id: "_id", label: "Mã hoá đơn", alignRight: false },
   { id: "TenKH", label: "Tên khách hàng", alignRight: false },
   { id: "Email", label: "Email", alignRight: false },
   { id: "SDT", label: "Số điện thoại", alignRight: false },
@@ -52,7 +53,7 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
-  if(orderBy === "TenKH" || orderBy === "Email" || orderBy === "SDT"){
+  if (orderBy === "TenKH" || orderBy === "Email" || orderBy === "SDT") {
     if (b.ThongTinKH[orderBy] < a.ThongTinKH[orderBy]) {
       return -1;
     }
@@ -61,7 +62,6 @@ function descendingComparator(a, b, orderBy) {
     }
     return 0;
   }
-
 
   if (b[orderBy] < a[orderBy]) {
     return -1;
@@ -89,7 +89,9 @@ function applySortFilter(array, comparator, query) {
     return filter(
       array,
       (HoaDonSort) =>
-        HoaDonSort.ThongTinKH.TenKH.toLowerCase().indexOf(query.toLowerCase()) !== -1
+        HoaDonSort.ThongTinKH.TenKH.toLowerCase().indexOf(
+          query.toLowerCase()
+        ) !== -1
     );
   }
   return stabilizedThis.map((el) => el[0]);
@@ -299,6 +301,12 @@ const HoaDon = () => {
 
                           <TableCell align="left">
                             <Link to={`/${path.CHITIETHD}/${_id}`}>
+                              {ThongTinKH?._id}
+                            </Link>
+                          </TableCell>
+
+                          <TableCell align="left">
+                            <Link to={`/${path.CHITIETHD}/${_id}`}>
                               {ThongTinKH?.TenKH}
                             </Link>
                           </TableCell>
@@ -310,10 +318,7 @@ const HoaDon = () => {
                           <TableCell align="left">{ThongTinKH?.SDT}</TableCell>
 
                           <TableCell>
-                            <p
-                              className="w-24 overflow-hidden"
-                              align="left"
-                            >
+                            <p className="w-24 overflow-hidden" align="left">
                               {DatPhong._id}
                             </p>
                           </TableCell>

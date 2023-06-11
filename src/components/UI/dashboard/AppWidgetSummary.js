@@ -4,7 +4,7 @@
 import { Card, Typography } from "@mui/material";
 
 // utils
-import { fCurrency, fPercent } from "../../Utils/formatNumber";
+import { fPercent } from "../../Utils/formatNumber";
 
 const AppWidgetSummary = ({
   header,
@@ -35,10 +35,10 @@ const AppWidgetSummary = ({
         <Typography
           sx={{
             display: "inline",
-            color: "#7BB31A",
+            color: ` ${color === "error" ? "red" : "#7BB31A"} `,
           }}
         >
-          + {fPercent(increase)}
+          {fPercent(increase)}
         </Typography>
       </Typography>
 

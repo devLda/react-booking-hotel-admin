@@ -46,4 +46,9 @@ export {
   apiCountDP,
 } from "./datphong";
 
-export { apiMultiDataHD, apiStaticDV, apiStaticTong } from "./hoadon";
+export {
+  apiMultiDataHD,
+  apiStaticDV,
+  apiStaticTong,
+  apiUpdateTTHD,
+} from "./hoadon";

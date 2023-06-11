@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import path from "../../utils/path";
 import { apiCountDP } from "../../api";
 import { LoadingData } from "../../components/UI/loading";
+import moment from "moment";
 // import { getAllUser } from "../../store/user/asyncAction";
 // import { useDispatch } from "react-redux";
 // import Swal from "sweetalert2";
@@ -60,19 +61,20 @@ const Dashboard = () => {
   if (Object.keys(statical).length === 0) {
     return <LoadingData />;
   }
+  const orderline = [];
 
-  const temp = statical.orderline.map((ele) => {
+  const title = statical?.orderline?.map((ele) => {
+    orderline.push(ele.createdAt);
     return `${ele.ThongTinKH.TenKH} đã đặt phòng ${ele.Phong.MaPhong}`;
   });
 
-  const orderline = temp.slice(-5);
-
-  console.log("order ", orderline);
+  const chartLabel = statical?.chartLabel;
+  const chartValue = statical?.chartValue;
 
   return (
     <Container maxWidth="xl">
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Overview
+        Tổng quan
       </Typography>
 
       <Grid container spacing={3}>
@@ -80,8 +82,6 @@ const Dashboard = () => {
           <AppWidgetSummary
             header="Tổng thu nhập"
             total={statical?.total[0]?.total_tongtien + " $"}
-            increase={2.5}
-            title="so với tháng trước"
           />
         </Grid>
 
@@ -89,8 +89,6 @@ const Dashboard = () => {
           <AppWidgetSummary
             header="Đơn đặt tháng"
             total={statical?.donthang + " đơn"}
-            increase={2.5}
-            title="so với tháng trước"
             color="warning"
           />
         </Grid>
@@ -99,18 +97,18 @@ const Dashboard = () => {
           <AppWidgetSummary
             header="Tổng khách hàng"
             total={statical?.khthang + " khách"}
-            increase={2.5}
-            title="so với tháng trước"
             color="info"
           />
         </Grid>
 
         <Grid item xs={12} sm={12} md={3}>
           <AppWidgetSummary
-            header="Thu nhập tháng"
-            total={statical?.totalthang[0]?.total_tongtien + " $"}
-            increase={2.5}
-            title="so với tháng trước"
+            header="Thu nhập ngày"
+            total={
+              statical?.totalthang[0]?.total_tongtien
+                ? statical?.totalthang[0]?.total_tongtien
+                : 0 + " $"
+            }
             color="error"
           />
         </Grid>
@@ -118,38 +116,14 @@ const Dashboard = () => {
         <Grid item xs={12} md={6} lg={8}>
           <AppWebsiteVisits
             title="Lượt khách đặt phòng"
-            subheader="(+43%) so với tháng trước"
-            chartLabels={[
-              "06/01/2022",
-              "07/01/2022",
-              "08/01/2022",
-              "09/01/2022",
-              "10/01/2022",
-              "11/01/2022",
-              "12/01/2022",
-              "01/01/2023",
-              "02/01/2023",
-              "03/01/2023",
-              "04/01/2023",
-            ]}
+            subheader="7 ngày gần nhất"
+            chartLabels={chartLabel}
             chartData={[
               {
-                name: "Khách truy cập",
-                type: "line",
-                fill: "solid",
-                data: [44, 55, 41, 67, 45, 43, 64, 52, 59, 36, 45],
-              },
-              {
-                name: "Khách đăng ký tài khoản",
-                type: "area",
-                fill: "gradient",
-                data: [30, 25, 28, 30, 22, 35, 21, 41, 56, 27, 43],
-              },
-              {
-                name: "Khách đặt phòng",
+                name: "Đơn đặt",
                 type: "column",
                 fill: "solid",
-                data: [16, 15, 17, 14, 15, 12, 12, 16, 14, 15, 20],
+                data: chartValue,
               },
             ]}
           />
@@ -160,9 +134,9 @@ const Dashboard = () => {
             title="Mốc thời gian đặt phòng"
             list={[...Array(5)].map((_, index) => ({
               // id: faker.datatype.uuid(),
-              title: orderline[index],
+              title: title[index],
               type: `order${index + 1}`,
-              time: new Date(),
+              time: new moment(orderline[index]),
             }))}
           />
         </Grid>
