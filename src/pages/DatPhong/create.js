@@ -272,7 +272,7 @@ const Create = (props) => {
           }}
           variant="h3"
         >
-          {type === "Edit" ? "Cập nhật phòng" : "Tạo phòng mới"}
+          {type === "Edit" ? "Cập nhật đơn đặt phòng" : "Tạo đơn đặt phòng mới"}
         </Typography>
       </Card>
       <Card>
@@ -325,25 +325,6 @@ const Create = (props) => {
               label="Giá phòng: "
               value={value.GiaPhong ? value.GiaPhong : ""}
             />
-          </Grid>
-          <Grid item md={12}>
-            <p>Chọn file ảnh</p>
-            <input
-              type="file"
-              name="images"
-              multiple="true"
-              onChange={ChangeImage}
-            ></input>
-            <div className="my-5">
-              {imgPreview?.length > 0 &&
-                imgPreview.map((item) => (
-                  <img
-                    className="w-40 inline-block mx-5"
-                    src={item}
-                    alt="Preview"
-                  />
-                ))}
-            </div>
           </Grid>
         </Grid>
         <Button

@@ -110,21 +110,21 @@ const DatPhong = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listPhong, setListPhong] = useState([]);
+  const [listDP, setListDP] = useState([]);
 
-  const [phongSelected, setPhongSelected] = useState("");
+  const [DPSelected, setDPSelected] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
 
   const [deleted, setDeleted] = useState(false);
 
   const handleOpenMenu = (event, TenLoaiPhong) => {
-    setPhongSelected(TenLoaiPhong);
+    setDPSelected(TenLoaiPhong);
     setOpen(event.currentTarget);
   };
 
   const handleCloseMenu = () => {
-    setPhongSelected("");
+    setDPSelected("");
     setOpen(null);
   };
 
@@ -137,7 +137,7 @@ const DatPhong = () => {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // const newSelecteds = USERLIST.map((n) => n.name);
-      const newSelecteds = listPhong.map((n) => n._id);
+      const newSelecteds = listDP.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
@@ -178,11 +178,11 @@ const DatPhong = () => {
 
   const emptyRows =
     // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listPhong.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listDP.length) : 0;
 
   const filteredPhong = applySortFilter(
     // USERLIST,
-    listPhong,
+    listDP,
     getComparator(order, orderBy),
     filterName
   );
@@ -225,7 +225,7 @@ const DatPhong = () => {
       .then((res) => {
         console.log("res ", res);
         if (res.meta.requestStatus === "fulfilled") {
-          setListPhong(res.payload);
+          setListDP(res.payload);
         }
       })
       .catch((err) => {
@@ -249,7 +249,7 @@ const DatPhong = () => {
           <Typography variant="h4" gutterBottom>
             Đơn Đặt Phòng
           </Typography>
-          {/* <Link to={`/${path.PHONG_CREATE}`}>
+          <Link to={`/${path.DATPHONG_CREATE}`}>
             <Button
               variant="contained"
               startIcon={<Iconify icon="eva:plus-fill" />}
@@ -257,7 +257,7 @@ const DatPhong = () => {
             >
               Thêm Đơn Đặt
             </Button>
-          </Link> */}
+          </Link>
         </Stack>
 
         <Card>
@@ -276,7 +276,7 @@ const DatPhong = () => {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   // rowCount={USERLIST.length}
-                  rowCount={listPhong.length}
+                  rowCount={listDP.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
@@ -292,13 +292,6 @@ const DatPhong = () => {
                         NgayBatDau,
                         NgayKetThuc,
                         TrangThai,
-
-                        // LoaiPhong,
-                        // Tang,
-                        // SoNguoi,
-                        // DienTich,
-                        // GiaPhong,
-                        // images,
                       } = row;
                       const selectedUser = selected.indexOf(_id) !== -1;
 
@@ -336,13 +329,15 @@ const DatPhong = () => {
                             </TableCell> */}
 
                           <TableCell align="right">
-                            <IconButton
-                              size="large"
-                              color="inherit"
-                              onClick={(e) => handleOpenMenu(e, _id)}
-                            >
-                              <Iconify icon={"eva:more-vertical-fill"} />
-                            </IconButton>
+                            {TrangThai === "Đã đặt" && (
+                              <IconButton
+                                size="large"
+                                color="inherit"
+                                onClick={(e) => handleOpenMenu(e, _id)}
+                              >
+                                <Iconify icon={"eva:more-vertical-fill"} />
+                              </IconButton>
+                            )}
                           </TableCell>
                         </TableRow>
                       );
@@ -386,7 +381,7 @@ const DatPhong = () => {
             rowsPerPageOptions={[5, 10, 25]}
             component="div"
             // count={USERLIST.length}
-            count={listPhong.length}
+            count={listDP.length}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
@@ -414,22 +409,22 @@ const DatPhong = () => {
         }}
       >
         <Link
-          to={`/${path.LOAIPHONG_UPDATE}/${phongSelected}`}
+          to={`/${path.DATPHONG_UPDATE}/${DPSelected}`}
           className="no-underline"
         >
           <MenuItem>
             <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
-            Sửa
+            Sửa đơn
           </MenuItem>
         </Link>
 
         <MenuItem
           sx={{ color: "error.main" }}
-          data-set={phongSelected}
+          data-set={DPSelected}
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
-          Xoá
+          Huỷ đơn
         </MenuItem>
       </Popover>
 
@@ -443,12 +438,12 @@ const DatPhong = () => {
           <DialogTitle id="alert-dialog-title">Xóa loại phòng</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa loại phòng có tên ${phongSelected} không?`}
+              {`Bạn có muốn xóa loại phòng có tên ${DPSelected} không?`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Không</Button>
-            <Button onClick={(e) => handleDelete(e, phongSelected)} autoFocus>
+            <Button onClick={(e) => handleDelete(e, DPSelected)} autoFocus>
               Có
             </Button>
           </DialogActions>
