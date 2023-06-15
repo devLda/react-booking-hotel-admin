@@ -40,6 +40,7 @@ export {
   apiMultiDataDP,
   apiAllDP,
   apiAddDP,
+  apiCreateDP,
   apiGetDP,
   apiUpdateDP,
   apiDeleteDP,

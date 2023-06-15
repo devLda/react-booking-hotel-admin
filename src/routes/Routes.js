@@ -133,7 +133,7 @@ const Routers = () => {
           ),
         },
         {
-          path: "datphong/update/:_id",
+          path: "datphong/update/:id",
           element: (
             <PrivateRoute>
               <CreateDP type="Edit" />

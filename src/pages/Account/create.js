@@ -185,7 +185,7 @@ const Create = (props) => {
       //     console.log("err ", err);
       //   });
     }
-  }, []);
+  }, [type]);
 
   useLayoutEffect(() => {
     console.log("re-render");
@@ -207,7 +207,17 @@ const Create = (props) => {
         >
           { type === "Edit" ? "Cập nhật tài khoản" : "Tạo tài khoản mới"}
         </Typography>
+
+        <Button
+          sx={{ fontSize: "28px" }}
+          onClick={(e) => {
+            navigate(`/${path.ACCOUNT}`);
+          }}
+        >
+          &rarr;
+        </Button>
       </Card>
+
       <Card>
         <Grid container spacing={2} padding={2}>
           <Grid item md={6}>

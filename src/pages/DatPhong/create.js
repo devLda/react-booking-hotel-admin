@@ -1,30 +1,55 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import { Card, Typography } from "@mui/material";
-
-import { Grid } from "@mui/material";
-import { Input, Button } from "../../components/UI/form";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import { object, string } from "yup";
-import { apiAddPhong, apiGetPhong, apiUpdatePhong } from "../../api";
+import { Card, Typography, Grid } from "@mui/material";
+
+import { Input, Button, Select } from "../../components/UI/form";
+
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import { format } from "date-fns";
+import moment from "moment";
+
+import { apiCreateDP, apiAllPhong, apiGetDP } from "../../api";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
-import axios from "axios";
+import { object, string } from "yup";
 
 const userSchema = object({
-  TenLoaiPhong: string().required("Tên loại phòng là trường bắt buộc"),
-  TienNghi: string().required("Tiện nghi là trường bắt buộc"),
+  Phong: string().required("Phòng là trường bắt buộc"),
+  TenKH: string().required("Tên khách hàng là trường bắt buộc"),
+  SDT: string().required("Số điện thoại là trường bắt buộc"),
+  Email: string().required("Email là trường bắt buộc"),
 });
 
 const Create = (props) => {
+  const dateRef = useRef();
+
   const { type } = props;
-  const { _id } = useParams();
+  const { id } = useParams();
   const [value, setValue] = useState({});
   const [error, setError] = useState({});
 
-  const [imgPreview, setImgPreview] = useState([]);
+  const [phong, setPhong] = useState([]);
+
+  const [option, setOption] = useState([]);
+
+  const [optionSel, setOptionSel] = useState([]);
+
+  const [openDate, setOpenDate] = useState(false);
+
+  const [dates, setDates] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+
+  const [lichDat, setLichDat] = useState([]);
 
   const navigate = useNavigate();
 
@@ -35,58 +60,65 @@ const Create = (props) => {
     const data = {};
     for (let item in allInput) {
       if (allInput[item].value) {
-        let date = "";
+        // let date = "";
         if (allInput[item].type === "file") continue;
-        if (allInput[item].value.includes("/")) {
-          let dayData = allInput[item].value.split("/");
-          date = dayData[2] + "-" + dayData[1] + "-" + dayData[0];
-          data["NgaySinh"] = date;
-          continue;
-        }
+        // if (allInput[item].value.includes("/")) {
+        //   let dayData = allInput[item].value.split("/");
+        //   date = dayData[2] + "-" + dayData[1] + "-" + dayData[0];
+        //   data["NgaySinh"] = date;
+        //   continue;
+        // }
         data[`${allInput[item].name}`] = allInput[item].value;
       }
     }
-
-    const textarea = document.querySelector("textarea");
-    data["MoTa"] = textarea.value;
+    console.log("daa ", data);
     return data;
   };
 
-  const addPhong = async (dataAdd) => {
-    const response = await apiAddPhong(dataAdd);
+  const addDP = async (dataAdd) => {
+    const response = await apiCreateDP(dataAdd);
     if (response.success) {
       console.log("res ", response);
-      UploadImg(response.mes._id, imgPreview, true);
+      Swal.fire("Thành công", response.mes, "success").then(() => {
+        navigate(`/${path.DATPHONG}`);
+      });
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
   const updateLoaiPhong = async (dataUpdate) => {
-    const response = await apiUpdatePhong(dataUpdate.TenLoaiPhong, dataUpdate);
-    if (response.success) {
-      console.log("res ", response);
-      UploadImg(response.mes.TenLoaiPhong, imgPreview, false);
-    } else Swal.fire("Thất bại", response.mes, "error");
+    // const response = await apiUpdatePhong(dataUpdate.TenLoaiPhong, dataUpdate);
+    // if (response.success) {
+    //   console.log("res ", response);
+    // } else Swal.fire("Thất bại", response.mes, "error");
+    console.log("up ");
   };
 
   const handlePost = () => {
     const data = getValue();
 
-    // data.image = imgPreview;
+    console.log("dates ", dates);
 
     (async () => {
       const validationResult = await userSchema
         .validate(data, { abortEarly: false })
         .then((res) => {
-          console.log("res ", res);
           setError({});
-          if (Object.keys(data).length > 0) {
-            addPhong(data);
+          if (Object.keys(res).length > 0) {
+            res.NgayBatDau = moment(dates[0].startDate).format("DD-MM-YYYY");
+            res.NgayKetThuc = moment(dates[0].endDate).format("DD-MM-YYYY");
+            res.TongNgay = moment(dates[0].endDate).diff(
+              moment(dates[0].startDate),
+              "days"
+            );
+            console.log("res ", res);
+            addDP(res);
           }
         })
         .catch((err) => {
           return err;
         });
       let err = {};
+      console.log("errl ", validationResult);
       for (let i in validationResult.inner) {
         if (validationResult.inner[i].path) {
           err[validationResult.inner[i].path] =
@@ -151,112 +183,108 @@ const Create = (props) => {
     })();
   };
 
-  const UploadImg = async (_id, images, isCre) => {
-    if (images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
-        axios
-          .post(`${path.URL_API}/phong/uploadimage`, {
-            image: images[i],
-            _id: _id,
-            isCre: isCre,
-          })
-          .then((res) => {
-            Swal.fire(
-              "Thành công",
-              isCre ? "Tạo phòng thành công" : "Cập nhật phòng thành công",
-              "success"
-            ).then(() => {
-              navigate(`/${path.LOAIPHONG}`);
-            });
-          })
-          .catch((err) => {
-            Swal.fire("Thất bại", err.message, "error");
+  var getDaysBetweenDates = function (startDate, endDate) {
+    var now = moment(startDate, "DD-MM-YYYY"),
+      dates = [];
+    var end = moment(endDate, "DD-MM-YYYY");
+
+    while (now.isSameOrBefore(end)) {
+      dates.push(now.format("YYYY-MM-DD"));
+      now.add(1, "days");
+    }
+    return dates;
+  };
+
+  const getToday = () => {
+    const now = new Date();
+    const year = now.getFullYear() + "";
+    const month =
+      now.getMonth() < 10
+        ? "0" + (now.getMonth() + 1)
+        : "" + (now.getMonth() + 1);
+    const date = now.getDate() < 10 ? "0" + now.getDate() : "" + now.getDate();
+    return `${date}-${month}-${year}`;
+  };
+
+  const getLichDat = (LichDat) => {
+    const today = getToday();
+    setLichDat([]);
+    if (LichDat.length > 0) {
+      LichDat.forEach((item) => {
+        if (
+          moment(today, "DD-MM-YYYY").isBefore(
+            moment(item?.NgayBatDau, "DD-MM-YYYY")
+          )
+        ) {
+          var dateList = getDaysBetweenDates(
+            item?.NgayBatDau,
+            item?.NgayKetThuc
+          );
+          console.log("dl ", dateList);
+          dateList.forEach((item) => {
+            if (!lichDat.toString().includes(new Date(item).toString())) {
+              setLichDat((pre) => {
+                const date = new Date(item);
+                return [...pre, date];
+              });
+            }
           });
-      }
+        }
+      });
     }
   };
-
-  const ChangeImage = (e) => {
-    let files = e.target.files;
-
-    if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
-    else {
-      if (files.length > 3) {
-        Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
-        let count = 0;
-        for (let file = 0; file < 3; file++) {
-          if (files[file].size > 100000) {
-            ++count;
-            continue;
-          }
-          setImgPreview([]);
-          setFileToBase(files[file]);
-        }
-        if (count > 0) {
-          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-        }
-        console.log(files);
-      }
-
-      if (files.length >= 2 && files.length <= 3) {
-        let count = 0;
-        for (let file = 0; file < files.length; file++) {
-          if (files[file].size > 100000) {
-            ++count;
-            continue;
-          }
-          setImgPreview([]);
-          setFileToBase(files[file]);
-        }
-
-        if (count > 0) {
-          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-        }
-      }
-
-      if (files.length === 1) {
-        if (files[0].size < 100000) {
-          setImgPreview([]);
-          setFileToBase(files[0]);
-        } else {
-          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-        }
-      }
-    }
-  };
-
-  const setFileToBase = (file) => {
-    console.log("file ", file.size);
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      setImgPreview((pre) => [...pre, reader.result]);
-    };
-  };
-
   useEffect(() => {
-    if (type === "Edit") {
-      apiGetPhong(_id)
-        .then((res) => {
-          console.log("res ", res);
-          const { createdAt, updatedAt, __v, ...valueRef } = res.mes;
-          defaultValue.current = valueRef;
-          setValue(res.mes);
-        })
-        .catch((err) => {
-          console.log("err ", err);
+    apiAllPhong()
+      .then((res) => {
+        console.log("resp ", res);
+        const opt = res.data.map((item) => {
+          return {
+            id: item._id,
+            title: item.MaPhong,
+          };
         });
-    }
+        setOption(opt);
+        setPhong(res.data);
+      })
+      .catch((err) => console.log("errp ", err));
   }, []);
 
   useEffect(() => {
+    function handleClickOutside(event) {
+      if (dateRef.current && !dateRef.current.contains(event.target)) {
+        setOpenDate(false);
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
-      imgPreview &&
-        imgPreview.forEach((ele) => {
-          URL.revokeObjectURL(ele);
-        });
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [imgPreview]);
+  }, [dateRef, dates]);
+
+  useEffect(() => {
+    const lich = phong?.filter(
+      (item) => item?._id?.toString() === optionSel?.toString()
+    );
+    getLichDat(lich?.length > 0 ? lich[0].LichDat : []);
+  }, [optionSel]);
+
+  useEffect(() => {
+    if (type === "Edit") {
+      apiGetDP(id)
+      .then(res => {
+        console.log('res ', res)
+        // const {createdAt, updatedAt, __v, ...valueRef} = res.mes
+        // defaultValue.current = valueRef
+        // setValue(res.mes)
+      })
+      .catch(err => {
+        console.log('err ', err)
+      })
+    }
+  }, [type]);
 
   return (
     <>
@@ -274,59 +302,85 @@ const Create = (props) => {
         >
           {type === "Edit" ? "Cập nhật đơn đặt phòng" : "Tạo đơn đặt phòng mới"}
         </Typography>
+
+        <Button
+          sx={{ fontSize: "28px" }}
+          onClick={(e) => {
+            navigate(`/${path.DATPHONG}`);
+          }}
+        >
+          &rarr;
+        </Button>
       </Card>
       <Card>
-        <Grid container spacing={2} padding={2}>
-          <Grid item md={6}>
-            <Input
-              error={error.TenLoaiPhong}
-              disable={value.TenLoaiPhong ? true : false}
-              name="TenLoaiPhong"
-              label="Tên loại phòng: "
-              value={value.TenLoaiPhong ? value.TenLoaiPhong : ""}
+        <Grid container spacing={2} paddingTop={4} paddingX={2}>
+          <Grid item md={6} marginBottom={2}>
+            <Select
+              error={error.Phong}
+              label="Phòng"
+              name="Phong"
+              options={option ? option : []}
+              value={value.Phong ? value.Phong : ""}
+              setChange={setOptionSel}
             />
           </Grid>
-          <Grid item md={6}>
+
+          <Grid item md={6} marginBottom={2}>
+            <div
+              ref={dateRef}
+              className="flex h-full items-center gap-3 relative"
+            >
+              <i class="fa-solid fa-calendar-days text-slate-300"></i>
+              <span
+                onClick={() => setOpenDate(!openDate)}
+                className="text-slate-300 cursor-pointer text-lg"
+              >{`${format(dates[0].startDate, "dd/MM/yyyy")} to ${format(
+                dates[0].endDate,
+                "dd/MM/yyyy"
+              )}`}</span>
+              {openDate && (
+                <DateRange
+                  editableDateInputs={true}
+                  onChange={(item) => {
+                    setDates([item.selection]);
+                  }}
+                  dateDisplayFormat="dd/MM/yyyy"
+                  moveRangeOnFirstSelection={false}
+                  ranges={dates}
+                  className="absolute -top-6 left-60 z-10 shadow-2xl"
+                  minDate={new Date()}
+                  disabledDates={lichDat}
+                />
+              )}
+            </div>
+          </Grid>
+
+          <Grid item md={6} marginBottom={2}>
             <Input
-              error={error.SoPhong}
-              name="SoPhong"
-              label="Số phòng: "
-              value={value.SoPhong ? value.SoPhong : ""}
+              error={error.TenKH}
+              name="TenKH"
+              label="Tên khách hàng "
+              value={value.TenKH ? value.TenKH : ""}
             />
           </Grid>
-          <Grid item md={6}>
+          <Grid item md={6} marginBottom={2}>
             <Input
-              error={error.Tang}
-              name="Tang"
-              label="Tầng: "
-              value={value.Tang ? value.Tang : ""}
+              error={error.SDT}
+              name="SDT"
+              label="Số điện thoại "
+              value={value.SDT ? value.SDT : ""}
             />
           </Grid>
-          <Grid item md={6}>
+          <Grid item md={6} marginBottom={2}>
             <Input
-              error={error.SoNguoi}
-              name="SoNguoi"
-              label="Số người: "
-              value={value.SoNguoi ? value.SoNguoi : ""}
-            />
-          </Grid>
-          <Grid item md={6}>
-            <Input
-              error={error.DienTich}
-              name="DienTich"
-              label="Diện tích: "
-              value={value.DienTich ? value.DienTich : ""}
-            />
-          </Grid>
-          <Grid item md={6}>
-            <Input
-              error={error.GiaPhong}
-              name="GiaPhong"
-              label="Giá phòng: "
-              value={value.GiaPhong ? value.GiaPhong : ""}
+              error={error.Email}
+              name="Email"
+              label="Email "
+              value={value.Email ? value.Email : ""}
             />
           </Grid>
         </Grid>
+
         <Button
           sx={{
             my: 2,

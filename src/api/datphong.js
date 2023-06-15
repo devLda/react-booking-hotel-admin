@@ -19,22 +19,29 @@ export const apiAddDP = (data) =>
     data,
   });
 
-export const apiGetDP = (_id) =>
+  export const apiCreateDP = (data) =>
   axios({
-    url: `/datphong/get/${_id}`,
+    url: "/datphong/create",
+    method: "post",
+    data,
+  });
+
+export const apiGetDP = (id) =>
+  axios({
+    url: `/datphong/get/${id}`,
     method: "get",
   });
 
-export const apiUpdateDP = (_id, data) =>
+export const apiUpdateDP = (id, data) =>
   axios({
-    url: `/datphong/update/${_id}`,
+    url: `/datphong/update/${id}`,
     method: "put",
     data,
   });
 
-export const apiDeleteDP = (_id) =>
+export const apiDeleteDP = (id) =>
   axios({
-    url: `/datphong/delete/${_id}`,
+    url: `/datphong/delete/${id}`,
     method: "delete",
   });
 

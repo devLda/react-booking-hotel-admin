@@ -188,28 +188,39 @@ const ChiTiet = () => {
                 <b>Đã đặt cọc</b>
               )}
             </Typography>
-            <Typography>
-              <b>Mã giao dịch:</b> {CTHD.current?.GiaoDich[0]?.MaGD}
-            </Typography>
-            <Typography>
-              <b>Ngày thanh toán:</b>{" "}
-              {CTHD.current?.TrangThai === "Đã thanh toán"
-                ? CTHD.current?.DatPhong?.NgayKetThuc
-                : CTHD.current?.GiaoDich[0]?.NgayThanhToan}
-            </Typography>
-            <Typography>
-              <b>Số tiền:</b>{" "}
-              {CTHD.current?.TrangThai === "Đã thanh toán"
-                ? CTHD.current?.TongTien
-                : CTHD.current?.GiaoDich[0]?.DaThanhToan}
-            </Typography>
-            <Typography>
-              <b>Chưa thanh toán:</b>{" "}
-              {CTHD.current?.TrangThai === "Đã thanh toán"
-                ? 0
-                : parseFloat(CTHD.current?.TongTien) -
-                  parseFloat(CTHD.current?.GiaoDich[0]?.DaThanhToan)}
-            </Typography>
+            {CTHD.current?.GiaoDich[0]?.DaThanhToan ? (
+              <>
+              <Typography>
+                  <b>Lần giao dịch trực tuyến mới nhất</b>
+                </Typography>
+                <Typography>
+                  <b>Mã giao dịch:</b> {CTHD.current?.GiaoDich[CTHD.current?.GiaoDich.length - 1]?.MaGD}
+                </Typography>
+                <Typography>
+                  <b>Ngày thanh toán:</b>{" "}
+                  {CTHD.current?.TrangThai === "Đã thanh toán"
+                    ? CTHD.current?.DatPhong?.NgayKetThuc
+                    : CTHD.current?.GiaoDich[CTHD.current?.GiaoDich.length - 1]?.NgayThanhToan}
+                </Typography>
+                <Typography>
+                  <b>Số tiền:</b>{" "}
+                  {CTHD.current?.TrangThai === "Đã thanh toán"
+                    ? CTHD.current?.TongTien
+                    : CTHD.current?.GiaoDich[CTHD.current?.GiaoDich.length - 1]?.DaThanhToan}
+                </Typography>
+                <Typography>
+                  <b>Chưa thanh toán:</b>{" "}
+                  {CTHD.current?.TrangThai === "Đã thanh toán"
+                    ? 0
+                    : parseFloat(CTHD.current?.TongTien) -
+                      parseFloat(CTHD.current?.GiaoDich[CTHD.current?.GiaoDich.length - 1]?.DaThanhToan)}
+                </Typography>{" "}
+              </>
+            ) : (
+              <Typography sx={{paddingY: 2}}>
+                Khách hàng không đặt phòng trực tuyến nên không có thông tin giao dịch
+              </Typography>
+            )}
           </Box>
 
           <Typography
