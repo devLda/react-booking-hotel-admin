@@ -45,13 +45,15 @@ const Create = (props) => {
   };
 
   const createDV = async (dataCre) => {
-    console.log('data', dataCre)
+    console.log("data", dataCre);
     const response = await apiAddDV(dataCre);
     if (response.success) {
       console.log("res ", response);
-      Swal.fire("Thành công", "Thêm mới dịch vụ thành công", "success").then(() => {
-        navigate(`/${path.DICHVU}`);
-      });
+      Swal.fire("Thành công", "Thêm mới dịch vụ thành công", "success").then(
+        () => {
+          navigate(`/${path.DICHVU}`);
+        }
+      );
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
@@ -67,7 +69,7 @@ const Create = (props) => {
           console.log("res ", res);
           setError({});
           if (Object.keys(data).length > 0) {
-            createDV(data)
+            createDV(data);
           }
         })
         .catch((err) => {
@@ -173,6 +175,8 @@ const Create = (props) => {
       <Card
         sx={{
           mb: 5,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Typography
@@ -184,6 +188,15 @@ const Create = (props) => {
         >
           {type === "Edit" ? "Cập nhật dịch vụ" : "Thêm dịch vụ mới"}
         </Typography>
+
+        <Button
+          sx={{ fontSize: "28px", my: 2 }}
+          text="&rarr;"
+          onClick={(e) => {
+            navigate(`/${path.DATPHONG}`);
+          }}
+          className="bg-green-600"
+        />
       </Card>
       <Card>
         <Grid container spacing={2} padding={2}>

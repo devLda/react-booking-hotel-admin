@@ -274,15 +274,15 @@ const Create = (props) => {
   useEffect(() => {
     if (type === "Edit") {
       apiGetDP(id)
-      .then(res => {
-        console.log('res ', res)
-        // const {createdAt, updatedAt, __v, ...valueRef} = res.mes
-        // defaultValue.current = valueRef
-        // setValue(res.mes)
-      })
-      .catch(err => {
-        console.log('err ', err)
-      })
+        .then((res) => {
+          console.log("res ", res);
+          // const {createdAt, updatedAt, __v, ...valueRef} = res.mes
+          // defaultValue.current = valueRef
+          // setValue(res.mes)
+        })
+        .catch((err) => {
+          console.log("err ", err);
+        });
     }
   }, [type]);
 
@@ -291,6 +291,8 @@ const Create = (props) => {
       <Card
         sx={{
           mb: 5,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Typography
@@ -304,13 +306,13 @@ const Create = (props) => {
         </Typography>
 
         <Button
-          sx={{ fontSize: "28px" }}
+          sx={{ fontSize: "28px", my: 2 }}
+          text="&rarr;"
           onClick={(e) => {
             navigate(`/${path.DATPHONG}`);
           }}
-        >
-          &rarr;
-        </Button>
+          className="bg-green-600"
+        />
       </Card>
       <Card>
         <Grid container spacing={2} paddingTop={4} paddingX={2}>

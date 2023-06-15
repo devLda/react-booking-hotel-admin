@@ -68,7 +68,7 @@ export default function ListToolbar({
         <StyledSearch
           value={filterName}
           onChange={onFilterName}
-          placeholder="Search..."
+          placeholder="Tìm kiếm..."
           startAdornment={
             <InputAdornment position="start">
               <Iconify
@@ -81,13 +81,17 @@ export default function ListToolbar({
       )}
 
       {numSelected > 0 ? (
-        <Tooltip title="Delete">
+        <Tooltip title="Xoá">
           <IconButton onClick={() => setValue(true)}>
             <Iconify icon="eva:trash-2-fill" />
           </IconButton>
         </Tooltip>
       ) : (
-        <></>
+        <Tooltip title="Lọc">
+          <IconButton onClick={() => setValue(true)}>
+            <Iconify icon="system-uicons:filter" />
+          </IconButton>
+        </Tooltip>
       )}
     </StyledRoot>
   );

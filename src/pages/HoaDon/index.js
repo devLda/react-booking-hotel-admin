@@ -349,13 +349,15 @@ const HoaDon = () => {
                             </TableCell> */}
 
                           <TableCell align="right">
-                            <IconButton
-                              size="large"
-                              color="inherit"
-                              onClick={(e) => handleOpenMenu(e, _id)}
-                            >
-                              <Iconify icon={"eva:more-vertical-fill"} />
-                            </IconButton>
+                            {TrangThai === "Đã đặt cọc" && (
+                              <IconButton
+                                size="large"
+                                color="inherit"
+                                onClick={(e) => handleOpenMenu(e, _id)}
+                              >
+                                <Iconify icon={"eva:more-vertical-fill"} />
+                              </IconButton>
+                            )}
                           </TableCell>
                         </TableRow>
                       );

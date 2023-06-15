@@ -1,6 +1,6 @@
 import { filter } from "lodash";
 // import { sentenceCase } from 'change-case';
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 // @mui
 import {
   Card,
@@ -20,6 +20,8 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  Modal,
+  Box,
 } from "@mui/material";
 
 // components
@@ -36,12 +38,20 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
+
 import { useDispatch, useSelector } from "react-redux";
 import { getAllDP } from "../../store/datphong/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
 import Swal from "sweetalert2";
-import { apiDeleteDP } from "../../api";
+import { apiAllPhong, apiDeleteDP } from "../../api";
+import { Select } from "../../components/UI/form";
+
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import { format } from "date-fns";
+import moment from "moment";
 
 // ----------------------------------------------------------------------
 
@@ -54,6 +64,21 @@ const TABLE_HEAD = [
   { id: "NgayKetThuc", label: "Ngày trả phòng", alignRight: false },
   { id: "Trạng thái", label: "Trạng thái", alignRight: false },
   { id: "" },
+];
+
+const optionTT = [
+  {
+    id: "DaThanhToan",
+    title: "Đã thanh toán",
+  },
+  {
+    id: "DaDat",
+    title: "Đã đặt",
+  },
+  {
+    id: "DaHuy",
+    title: "Đã huỷ",
+  },
 ];
 
 // ----------------------------------------------------------------------
@@ -96,6 +121,18 @@ const DatPhong = () => {
 
   const dispatch = useDispatch();
 
+  const dateRef = useRef();
+
+  const [openDate, setOpenDate] = useState(false);
+
+  const [dates, setDates] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+
   const [open, setOpen] = useState(null);
 
   const [page, setPage] = useState(0);
@@ -112,9 +149,16 @@ const DatPhong = () => {
 
   const [listDP, setListDP] = useState([]);
 
+  const [listPhong, setListPhong] = useState([]);
+
   const [DPSelected, setDPSelected] = useState("");
 
   const [openDialog, setOpenDialog] = useState(false);
+
+  const [openFilter, setOpenFilter] = useState(false);
+
+  const [selectedTT, setSelectedTT] = useState("");
+  const [selectedPhong, setSelectedPhong] = useState("");
 
   const [deleted, setDeleted] = useState(false);
 
@@ -220,6 +264,10 @@ const DatPhong = () => {
     }
   };
 
+  const handleFilter = () => {
+    console.log("sel ", selectedTT);
+  };
+
   useEffect(() => {
     dispatch(getAllDP())
       .then((res) => {
@@ -231,7 +279,39 @@ const DatPhong = () => {
       .catch((err) => {
         console.log("err ", err);
       });
+
+    apiAllPhong()
+      .then((res) => {
+        console.log("res ", res);
+        if (res.success) {
+          const list = res.data.map((item) => {
+            return {
+              id: item._id,
+              title: item.MaPhong,
+            };
+          });
+          setListPhong(list);
+        }
+      })
+      .catch((err) => {
+        console.log("err ", err);
+      });
   }, [dispatch, deleted]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dateRef.current && !dateRef.current.contains(event.target)) {
+        setOpenDate(false);
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dateRef, dates]);
 
   if (isLoading) {
     return <LoadingData />;
@@ -265,7 +345,7 @@ const DatPhong = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
-            setValue={setOpenDialog}
+            setValue={setOpenFilter}
           />
 
           <Scrollbar>
@@ -280,6 +360,7 @@ const DatPhong = () => {
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
+                  hasChk={false}
                 />
                 <TableBody>
                   {filteredPhong
@@ -303,12 +384,12 @@ const DatPhong = () => {
                           role="checkbox"
                           selected={selectedUser}
                         >
-                          <TableCell padding="checkbox">
+                          {/* <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
                               onChange={(event) => handleClick(event, _id)}
                             />
-                          </TableCell>
+                          </TableCell> */}
 
                           <TableCell align="left">{ThongTinKH.TenKH}</TableCell>
 
@@ -449,6 +530,88 @@ const DatPhong = () => {
           </DialogActions>
         </Dialog>
       )}
+
+      <Modal
+        open={openFilter}
+        onClose={() => {
+          setOpenFilter(!openFilter);
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "50vw",
+            height: "50vh",
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            overflowY: "scroll",
+          }}
+        >
+          <Typography
+            id="modal-modal-description"
+            sx={{
+              fontSize: 20,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              my: 2,
+            }}
+          >
+            Lọc
+          </Typography>
+
+          <div ref={dateRef} className="flex items-center gap-3 relative my-5">
+            <i class="fa-solid fa-calendar-days text-slate-300"></i>
+            <span
+              onClick={() => setOpenDate(!openDate)}
+              className="text-slate-300 cursor-pointer text-lg"
+            >{`Từ ngày ${format(dates[0].startDate, "dd/MM/yyyy")} đến ${format(
+              dates[0].endDate,
+              "dd/MM/yyyy"
+            )}`}</span>
+            {openDate && (
+              <DateRange
+                editableDateInputs={true}
+                onChange={(item) => {
+                  setDates([item.selection]);
+                }}
+                dateDisplayFormat="dd/MM/yyyy"
+                moveRangeOnFirstSelection={false}
+                ranges={dates}
+                className="absolute -top-20 right-0 z-10 shadow-2xl"
+                minDate={new Date()}
+              />
+            )}
+          </div>
+
+          <div className="my-5">
+            <Select
+              label="Trạng thái"
+              name="TrangThai"
+              options={optionTT}
+              setChange={setSelectedTT}
+            />
+          </div>
+          <div className="my-5">
+            <Select
+              label="Phòng"
+              name="Phong"
+              options={listPhong}
+              setChange={setSelectedPhong}
+            />
+          </div>
+
+          <div className="bg-yellow-800 my-5 text-white inline-block ">
+            <button className="p-3" onClick={handleFilter}>
+              Lọc
+            </button>
+          </div>
+        </Box>
+      </Modal>
     </>
   );
 };
