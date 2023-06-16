@@ -77,17 +77,77 @@ const optionTT = [
   },
   {
     id: "DaHuy",
-    title: "Đã huỷ",
+    title: "Đã hủy",
   },
 ];
 
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
-  if (b[orderBy] < a[orderBy]) {
+  if (orderBy === "TenKH") {
+    let arrA = a.ThongTinKH[orderBy].split(" ");
+    let arrB = b.ThongTinKH[orderBy].split(" ");
+    if (arrA[arrA.length - 1] > arrB[arrB.length - 1]) {
+      return -1;
+    }
+    if (arrA[arrA.length - 1] < arrB[arrB.length - 1]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "Email" || orderBy === "SDT") {
+    if (a.ThongTinKH[orderBy] > b.ThongTinKH[orderBy]) {
+      return -1;
+    }
+    if (a.ThongTinKH[orderBy] < b.ThongTinKH[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "MaPhong") {
+    if (a.Phong[orderBy] > b.Phong[orderBy]) {
+      return -1;
+    }
+    if (a.Phong[orderBy] < b.Phong[orderBy]) {
+      return 1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "NgayBatDau") {
+    let arrA = a[orderBy].split('-')
+    let arrB = b[orderBy].split('-')
+    let ABatDau = arrA[2] + "" + arrA[1] + "" + arrA[0]
+    let BBatDau = arrB[2] + "" + arrB[1] + "" + arrB[0]
+    if (ABatDau > BBatDau) {
+      return -1;
+    }
+    if (ABatDau < BBatDau) {
+      return 1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "NgayKetThuc") {
+    let arrA = a[orderBy].split('-')
+    let arrB = b[orderBy].split('-')
+    let AKetThuc = arrA[2] + "" + arrA[1] + "" + arrA[0]
+    let BKetThuc = arrB[2] + "" + arrB[1] + "" + arrB[0]
+    if (AKetThuc > BKetThuc) {
+      return -1;
+    }
+    if (AKetThuc < BKetThuc) {
+      return 1;
+    }
+    return 0;
+  }
+
+  if (b[orderBy] > a[orderBy]) {
     return -1;
   }
-  if (b[orderBy] > a[orderBy]) {
+  if (b[orderBy] < a[orderBy]) {
     return 1;
   }
   return 0;
@@ -146,6 +206,8 @@ const DatPhong = () => {
   const [filterName, setFilterName] = useState("");
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const [dondat, setDonDat] = useState([]);
 
   const [listDP, setListDP] = useState([]);
 
@@ -264,8 +326,72 @@ const DatPhong = () => {
     }
   };
 
+  const filterDate = (start, end, dondats) => {
+    let tempDay = [];
+    for (const item of dondats) {
+      let current = false;
+
+      if (
+        moment(start, "DD-MM-YYYY").isBefore(
+          moment(item?.NgayBatDau, "DD-MM-YYYY")
+        ) &&
+        moment(end, "DD-MM-YYYY").isAfter(
+          moment(item?.NgayKetThuc, "DD-MM-YYYY")
+        )
+      ) {
+        current = true;
+      } else if (start === item?.NgayBatDau && end === item?.NgayKetThuc) {
+        current = true;
+      } else {
+        current = false;
+      }
+
+      if (current) {
+        tempDay.push(item);
+      }
+    }
+    console.log("temp ", tempDay);
+    return tempDay;
+  };
+
   const handleFilter = () => {
-    console.log("sel ", selectedTT);
+    const hasDate = document.getElementById("chkHasDate").checked;
+    const start = moment(dates[0].startDate).format("DD-MM-YYYY");
+    const end = moment(dates[0].endDate).format("DD-MM-YYYY");
+
+    let temp = hasDate ? filterDate(start, end, dondat) : dondat;
+
+    if (selectedTT) {
+      let filterTT = null;
+      filterTT = temp.filter((item) => {
+        let trangthai = "";
+        if (item.TrangThai === "Đã đặt") {
+          trangthai = "DaDat";
+        }
+        if (item.TrangThai === "Đã thanh toán") {
+          trangthai = "DaThanhToan";
+        }
+        if (item.TrangThai === "Đã hủy") {
+          trangthai = "DaHuy";
+        }
+        return trangthai === selectedTT;
+      });
+      temp = [...filterTT];
+    }
+
+    if (selectedPhong) {
+      let filterPhong = null;
+      if (temp.length > 0) {
+        filterPhong = temp.filter((item) => item.Phong._id === selectedPhong);
+      } else {
+        filterPhong = [];
+      }
+      temp = [...filterPhong];
+    }
+
+    console.log("temp ", temp);
+    setListDP(temp);
+    setOpenFilter(!openFilter);
   };
 
   useEffect(() => {
@@ -274,6 +400,7 @@ const DatPhong = () => {
         console.log("res ", res);
         if (res.meta.requestStatus === "fulfilled") {
           setListDP(res.payload);
+          setDonDat(res.payload);
         }
       })
       .catch((err) => {
@@ -565,6 +692,7 @@ const DatPhong = () => {
           </Typography>
 
           <div ref={dateRef} className="flex items-center gap-3 relative my-5">
+            <input type="checkbox" id="chkHasDate" />
             <i class="fa-solid fa-calendar-days text-slate-300"></i>
             <span
               onClick={() => setOpenDate(!openDate)}
@@ -593,6 +721,7 @@ const DatPhong = () => {
               label="Trạng thái"
               name="TrangThai"
               options={optionTT}
+              value={selectedTT ? selectedTT : null}
               setChange={setSelectedTT}
             />
           </div>
@@ -601,6 +730,7 @@ const DatPhong = () => {
               label="Phòng"
               name="Phong"
               options={listPhong}
+              value={selectedPhong ? selectedPhong : null}
               setChange={setSelectedPhong}
             />
           </div>

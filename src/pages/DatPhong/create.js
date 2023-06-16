@@ -13,12 +13,12 @@ import "react-date-range/dist/theme/default.css"; // theme css file
 import { format } from "date-fns";
 import moment from "moment";
 
-import { apiCreateDP, apiAllPhong, apiGetDP } from "../../api";
+import { apiCreateDP, apiAllPhong, apiGetDP, apiUpdateDP } from "../../api";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
 import { object, string } from "yup";
 
-const userSchema = object({
+const DPSchema = object({
   Phong: string().required("Phòng là trường bắt buộc"),
   TenKH: string().required("Tên khách hàng là trường bắt buộc"),
   SDT: string().required("Số điện thoại là trường bắt buộc"),
@@ -53,8 +53,6 @@ const Create = (props) => {
 
   const navigate = useNavigate();
 
-  const defaultValue = useRef();
-
   const getValue = () => {
     const allInput = document.querySelectorAll("input");
     const data = {};
@@ -85,12 +83,11 @@ const Create = (props) => {
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
-  const updateLoaiPhong = async (dataUpdate) => {
-    // const response = await apiUpdatePhong(dataUpdate.TenLoaiPhong, dataUpdate);
-    // if (response.success) {
-    //   console.log("res ", response);
-    // } else Swal.fire("Thất bại", response.mes, "error");
-    console.log("up ");
+  const updateDP = async (id, data) => {
+    const response = await apiUpdateDP(id, data);
+    if (response.success) {
+      console.log("res ", response);
+    } else Swal.fire("Thất bại", response.mes, "error");
   };
 
   const handlePost = () => {
@@ -99,7 +96,7 @@ const Create = (props) => {
     console.log("dates ", dates);
 
     (async () => {
-      const validationResult = await userSchema
+      const validationResult = await DPSchema
         .validate(data, { abortEarly: false })
         .then((res) => {
           setError({});
@@ -129,44 +126,18 @@ const Create = (props) => {
     })();
   };
 
-  function deepEqual(obj1, obj2) {
-    // If both objects are the same instance, they are equal
-    if (obj1 === obj2) {
-      return true;
-    }
-
-    // Check if the objects are of the same type and have the same number of properties
-    if (
-      typeof obj1 !== "object" ||
-      typeof obj2 !== "object" ||
-      obj1 === null ||
-      obj2 === null ||
-      Object.keys(obj1).length !== Object.keys(obj2).length
-    ) {
-      return false;
-    }
-
-    // Recursively compare each property and value
-    for (let prop in obj1) {
-      if (!obj2.hasOwnProperty(prop) || !deepEqual(obj1[prop], obj2[prop])) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   const handlePut = (e) => {
+    //Đang làm dở
     const data = getValue();
 
     (async () => {
-      const validationResult = await userSchema
+      const validationResult = await DPSchema
         .validate(data, { abortEarly: false })
         .then((res) => {
           console.log("res ", res);
           setError({});
-          if (Object.keys(data).length > 0) {
-            updateLoaiPhong(data);
+          if (Object.keys(res).length > 0) {
+            updateDP(id, data);
           }
         })
         .catch((err) => {
@@ -176,9 +147,10 @@ const Create = (props) => {
       for (let i in validationResult.inner) {
         if (validationResult.inner[i].path) {
           err[validationResult.inner[i].path] =
-            validationResult.inner[i].message;
+          validationResult.inner[i].message;
         }
       }
+      console.log('er ', err)
       setError(err);
     })();
   };
@@ -265,6 +237,7 @@ const Create = (props) => {
   }, [dateRef, dates]);
 
   useEffect(() => {
+    setError({})
     const lich = phong?.filter(
       (item) => item?._id?.toString() === optionSel?.toString()
     );
@@ -278,7 +251,12 @@ const Create = (props) => {
           console.log("res ", res);
           // const {createdAt, updatedAt, __v, ...valueRef} = res.mes
           // defaultValue.current = valueRef
-          // setValue(res.mes)
+          const data = {}
+          data.Phong = res.Phong
+          data.TenKH = res.ThongTinKH.TenKH
+          data.SDT = res.ThongTinKH.SDT
+          data.Email = res.ThongTinKH.Email
+          setValue(data)
         })
         .catch((err) => {
           console.log("err ", err);
@@ -306,7 +284,7 @@ const Create = (props) => {
         </Typography>
 
         <Button
-          sx={{ fontSize: "28px", my: 2 }}
+          sx={{ fontSize: "28px", m: 2 }}
           text="&rarr;"
           onClick={(e) => {
             navigate(`/${path.DATPHONG}`);
@@ -375,6 +353,7 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6} marginBottom={2}>
             <Input
+              disable = {value.Email ? true : false}
               error={error.Email}
               name="Email"
               label="Email "

@@ -11,22 +11,21 @@ import { useState, useEffect } from "react";
 export default function Select(props) {
   const { name, label, value, setChange, error = null, options } = props;
   const [valueData, setValueData] = useState(value);
-  const [errorMes, setErrorMes] = useState(error)
+  // const [errorMes, setErrorMes] = useState(error)
   useEffect(() => {
     setValueData(value);
-    setErrorMes(error)
+    // setErrorMes(error)
   }, [value]);
-  console.log('errr ', error)
-
+  console.log('ẻ ', error)
   return (
-    <FormControl variant="outlined" fullWidth {...(error && { error: errorMes ? true : false })}>
+    <FormControl variant="outlined" fullWidth {...(error && { error: error ? true : false })}>
       <InputLabel>{label}</InputLabel>
       <MuiSelect
         label={label}
         name={name}
         value={valueData}
         onChange={(e) => {
-          setErrorMes(null)
+          // setErrorMes(null)
           setChange(e.target.value)
           setValueData(e.target.value);
         }}
@@ -38,7 +37,7 @@ export default function Select(props) {
           </MenuItem>
         ))}
       </MuiSelect>
-      {errorMes && <FormHelperText>{errorMes}</FormHelperText>}
+      {error && <FormHelperText>{error}</FormHelperText>}
     </FormControl>
   );
 }
