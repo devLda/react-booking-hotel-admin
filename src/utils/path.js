@@ -1,5 +1,6 @@
 const path = {
-  URL_API: "http://localhost:3300/api",
+  // URL_API: "http://localhost:3300/api",
+  URL_API: "https://react-booking-hotel-server.onrender.com/api",
   URL: "http://localhost:3100",
   LOGIN: "login",
   DASHBOARD: "dashboard",

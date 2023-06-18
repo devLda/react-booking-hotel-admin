@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+import { useState } from "react";
 // @mui
 import { alpha } from "@mui/material/styles";
 import {
@@ -14,7 +15,10 @@ import {
 // account
 import avata from "../../assets/images/avatars/avatar_default.jpg";
 import { useDispatch, useSelector } from "react-redux";
-import { Auth, apiLogout } from "../../api";
+
+// import { Auth, apiLogout } from "../../api";
+import { apiLogout } from "../../api";
+
 import { logout } from "../../store/user/userSlice";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
@@ -68,24 +72,24 @@ const AccountPopover = () => {
     } else Swal.fire("Thất bại", "Đã xảy ra lỗi!", "error");
   };
 
-  useEffect(() => {
-    Auth()
-      .then((res) => {
-        console.log("res ", res);
-        if (res.mes === "AccessToken không hợp lệ") {
-          Swal.fire(
-            "Thông báo",
-            "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại",
-            "info"
-          ).then(() => {
-            window.location.href = "/login";
-          });
-        }
-      })
-      .catch((err) => {
-        console.log("err ", err);
-      });
-  }, [dispatch]);
+  // useEffect(() => {
+  //   Auth()
+  //     .then((res) => {
+  //       console.log("res ", res);
+  //       if (res.mes === "AccessToken không hợp lệ") {
+  //         Swal.fire(
+  //           "Thông báo",
+  //           "Phiên đăng nhập đã hết hạn vui lòng đăng nhập lại",
+  //           "info"
+  //         ).then(() => {
+  //           window.location.href = "/login";
+  //         });
+  //       }
+  //     })
+  //     .catch((err) => {
+  //       console.log("err ", err);
+  //     });
+  // }, [dispatch]);
 
   return (
     <>
