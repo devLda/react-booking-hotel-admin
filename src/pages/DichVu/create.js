@@ -193,7 +193,7 @@ const Create = (props) => {
           sx={{ fontSize: "28px", my: 2 }}
           text="&rarr;"
           onClick={(e) => {
-            navigate(`/${path.DATPHONG}`);
+            navigate(`/${path.DICHVU}`);
           }}
           className="bg-green-600"
         />

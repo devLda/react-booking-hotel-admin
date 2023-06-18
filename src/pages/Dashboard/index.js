@@ -12,13 +12,47 @@ import path from "../../utils/path";
 import { apiCountDP } from "../../api";
 import { LoadingData } from "../../components/UI/loading";
 import moment from "moment";
-// import { getAllUser } from "../../store/user/asyncAction";
-// import { useDispatch } from "react-redux";
-// import Swal from "sweetalert2";
+
+const vnd = 23000;
+
+const formatMoney = (tien) => {
+  let moneyFormat = "";
+  const arrMoney = [];
+  while (tien > 0) {
+    if (tien % 1000 === 0) {
+      arrMoney.push(tien % 1000);
+      tien = tien / 1000;
+    } else {
+      arrMoney.push(tien % 1000);
+      tien = Math.floor(tien / 1000);
+    }
+  }
+
+  for (let i = arrMoney.length - 1; i >= 0; i--) {
+    if (i === arrMoney.length - 1) {
+      moneyFormat += arrMoney[i] + ".";
+      continue;
+    }
+
+    if (arrMoney[i] > 99) {
+      moneyFormat += arrMoney[i];
+    }
+    if (9 < arrMoney[i] && arrMoney[i] < 100) {
+      moneyFormat += arrMoney[i] + "0";
+    }
+    if (arrMoney[i] < 10) {
+      moneyFormat += arrMoney[i] + "00";
+    }
+
+    if (i > 0) {
+      moneyFormat += ".";
+    }
+  }
+  return moneyFormat;
+};
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  // const dispatch = useDispatch();
   const [statical, setStatical] = useState({});
 
   const isLogged = JSON.parse(localStorage.getItem("persist:admin/login"));
@@ -47,10 +81,9 @@ const Dashboard = () => {
   // }, [dispatch]);
 
   useEffect(() => {
-    // console.log("coolkie ", document.cookie);
     apiCountDP()
       .then((res) => {
-        console.log("res ", res);
+        console.log("ré ", res);
         setStatical(res);
       })
       .catch((err) => {
@@ -81,7 +114,11 @@ const Dashboard = () => {
         <Grid item xs={12} sm={12} md={3}>
           <AppWidgetSummary
             header="Tổng thu nhập"
-            total={statical?.total[0]?.total_tongtien + " $"}
+            total={
+              statical?.total
+                ? formatMoney(statical?.total * vnd) + " đ"
+                : 0 + " đ"
+            }
           />
         </Grid>
 
@@ -105,9 +142,9 @@ const Dashboard = () => {
           <AppWidgetSummary
             header="Thu nhập ngày"
             total={
-              statical?.totalthang[0]?.total_tongtien
-                ? statical?.totalthang[0]?.total_tongtien
-                : 0 + " $"
+              statical?.totalthang
+                ? formatMoney(statical?.totalthang * vnd) + " đ"
+                : 0 + " đ"
             }
             color="error"
           />
@@ -133,10 +170,9 @@ const Dashboard = () => {
           <AppOrderTimeline
             title="Mốc thời gian đặt phòng"
             list={[...Array(5)].map((_, index) => ({
-              // id: faker.datatype.uuid(),
               title: title[index],
               type: `order${index + 1}`,
-              time: new moment(orderline[index]),
+              time: moment(orderline[index]),
             }))}
           />
         </Grid>

@@ -16,9 +16,12 @@ export default function Select(props) {
     setValueData(value);
     // setErrorMes(error)
   }, [value]);
-  console.log('ẻ ', error)
   return (
-    <FormControl variant="outlined" fullWidth {...(error && { error: error ? true : false })}>
+    <FormControl
+      variant="outlined"
+      fullWidth
+      {...(error && { error: error ? true : false })}
+    >
       <InputLabel>{label}</InputLabel>
       <MuiSelect
         label={label}
@@ -26,7 +29,7 @@ export default function Select(props) {
         value={valueData}
         onChange={(e) => {
           // setErrorMes(null)
-          setChange(e.target.value)
+          if (setChange) setChange(e.target.value);
           setValueData(e.target.value);
         }}
       >

@@ -19,7 +19,7 @@ export const apiAddDP = (data) =>
     data,
   });
 
-  export const apiCreateDP = (data) =>
+export const apiCreateDP = (data) =>
   axios({
     url: "/datphong/create",
     method: "post",
@@ -39,10 +39,10 @@ export const apiUpdateDP = (id, data) =>
     data,
   });
 
-export const apiDeleteDP = (id) =>
+export const apiCancelDP = (id) =>
   axios({
-    url: `/datphong/delete/${id}`,
-    method: "delete",
+    url: `/datphong/cancel/${id}`,
+    method: "get",
   });
 
 export const apiCountDP = () =>

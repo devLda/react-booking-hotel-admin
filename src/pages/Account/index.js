@@ -11,7 +11,6 @@ import {
   // Avatar,
   Button,
   Popover,
-  Checkbox,
   TableRow,
   MenuItem,
   TableBody,
@@ -58,6 +57,42 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
+  if (orderBy === "HoVaTen") {
+    let arrA = a[orderBy].split(" ");
+    let arrB = b[orderBy].split(" ");
+    if (arrA[arrA.length - 1] > arrB[arrB.length - 1]) {
+      return 1;
+    }
+    if (arrA[arrA.length - 1] < arrB[arrB.length - 1]) {
+      return -1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "Email") {
+    if (b[orderBy] < a[orderBy]) {
+      return 11;
+    }
+    if (b[orderBy] > a[orderBy]) {
+      return -1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "NgayTao") {
+    let arrA = a["createdAt"].split("T");
+    let arrB = b["createdAt"].split("T");
+    let ABatDau = arrA[0];
+    let BBatDau = arrB[0];
+    if (ABatDau > BBatDau) {
+      return -1;
+    }
+    if (ABatDau < BBatDau) {
+      return 1;
+    }
+    return 0;
+  }
+
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -142,23 +177,23 @@ const Account = () => {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(
+  //       selected.slice(0, selectedIndex),
+  //       selected.slice(selectedIndex + 1)
+  //     );
+  //   }
+  //   setSelected(newSelected);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -190,7 +225,7 @@ const Account = () => {
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
     if (e.target.dataset.set) {
-      if (e.target.innerText === "Delete") setOpenDialog(true);
+      if (e.target.innerText === "Xoá") setOpenDialog(true);
     }
   };
 
@@ -307,12 +342,12 @@ const Account = () => {
                           role="checkbox"
                           selected={selectedUser}
                         >
-                          <TableCell padding="checkbox">
+                          {/* <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
                               onChange={(event) => handleClick(event, HoVaTen)}
                             />
-                          </TableCell>
+                          </TableCell> */}
 
                           <TableCell align="left">{HoVaTen}</TableCell>
 
@@ -353,14 +388,13 @@ const Account = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> Kiểm tra từ khoá bạn nhập vào
                           </Typography>
                         </Paper>
                       </TableCell>
@@ -371,16 +405,18 @@ const Account = () => {
             </TableContainer>
           </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            // count={USERLIST.length}
-            count={listAcc.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {filteredUsers.length > 5 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              // count={USERLIST.length}
+              count={filteredUsers.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Card>
       </Container>
 

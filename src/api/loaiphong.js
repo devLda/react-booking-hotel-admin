@@ -2,7 +2,7 @@ import axios from "../axios";
 
 export const apiAllLP = () =>
   axios({
-    url: "/loaiphong",
+    url: "/loaiphong/all",
     method: "get",
   });
 

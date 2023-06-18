@@ -80,13 +80,14 @@ export default function ListToolbar({
         />
       )}
 
-      {numSelected > 0 ? (
+      {numSelected > 0 && (
         <Tooltip title="Xoá">
           <IconButton onClick={() => setValue(true)}>
             <Iconify icon="eva:trash-2-fill" />
           </IconButton>
         </Tooltip>
-      ) : (
+      )}
+      {setValue && (
         <Tooltip title="Lọc">
           <IconButton onClick={() => setValue(true)}>
             <Iconify icon="system-uicons:filter" />

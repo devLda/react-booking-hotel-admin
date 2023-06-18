@@ -3,19 +3,31 @@
 import { Card, Typography } from "@mui/material";
 
 import { Grid } from "@mui/material";
-import { Input, Button } from "../../components/UI/form";
+import { Input, Button, Select } from "../../components/UI/form";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { object, string } from "yup";
-import { apiAddPhong, apiGetPhong, apiUpdatePhong } from "../../api";
+import { apiAddPhong, apiAllLP, apiGetPhong, apiUpdatePhong } from "../../api";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
 import axios from "axios";
 
+const numberRegExp = /^\d+$/;
+
 const userSchema = object({
   TenLoaiPhong: string().required("Tên loại phòng là trường bắt buộc"),
-  TienNghi: string().required("Tiện nghi là trường bắt buộc"),
+  SoPhong: string().required("Số phòng là trường bắt buộc"),
+  Tang: string().required("Tầng là trường bắt buộc"),
+  SoNguoi: string()
+    .required("Số người là trường bắt buộc")
+    .matches(numberRegExp, "Số người phải là số dương"),
+  DienTich: string()
+    .required("Diện tích là trường bắt buộc")
+    .matches(numberRegExp, "Diện tích phải là số dương"),
+  GiaPhong: string()
+    .required("Giá phòng là trường bắt buộc")
+    .matches(numberRegExp, "Giá phòng phải là số dương"),
 });
 
 const Create = (props) => {
@@ -23,6 +35,10 @@ const Create = (props) => {
   const { _id } = useParams();
   const [value, setValue] = useState({});
   const [error, setError] = useState({});
+
+  const [option, setOption] = useState([]);
+
+  const [optionSel, setOptionSel] = useState([]);
 
   const [imgPreview, setImgPreview] = useState([]);
 
@@ -35,20 +51,10 @@ const Create = (props) => {
     const data = {};
     for (let item in allInput) {
       if (allInput[item].value) {
-        let date = "";
         if (allInput[item].type === "file") continue;
-        if (allInput[item].value.includes("/")) {
-          let dayData = allInput[item].value.split("/");
-          date = dayData[2] + "-" + dayData[1] + "-" + dayData[0];
-          data["NgaySinh"] = date;
-          continue;
-        }
         data[`${allInput[item].name}`] = allInput[item].value;
       }
     }
-
-    const textarea = document.querySelector("textarea");
-    data["MoTa"] = textarea.value;
     return data;
   };
 
@@ -56,15 +62,31 @@ const Create = (props) => {
     const response = await apiAddPhong(dataAdd);
     if (response.success) {
       console.log("res ", response);
-      UploadImg(response.mes._id, imgPreview, true);
+      if (imgPreview.length > 0) {
+        UploadImg(response.mes._id, imgPreview, true);
+      } else {
+        Swal.fire("Thành công", "Thêm mới phòng thành công", "success").then(
+          () => {
+            navigate(`/${path.PHONG}`);
+          }
+        );
+      }
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
-  const updateLoaiPhong = async (dataUpdate) => {
-    const response = await apiUpdatePhong(dataUpdate.TenLoaiPhong, dataUpdate);
+  const updatePhong = async (id, dataUpdate) => {
+    const response = await apiUpdatePhong(id, dataUpdate);
     if (response.success) {
       console.log("res ", response);
-      UploadImg(response.mes.TenLoaiPhong, imgPreview, false);
+      if (imgPreview.length > 0) {
+        UploadImg(response.mes._id, imgPreview, false);
+      } else {
+        Swal.fire("Thành công", "Thêm mới phòng thành công", "success").then(
+          () => {
+            navigate(`/${path.PHONG}`);
+          }
+        );
+      }
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
@@ -79,8 +101,15 @@ const Create = (props) => {
         .then((res) => {
           console.log("res ", res);
           setError({});
-          if (Object.keys(data).length > 0) {
-            addPhong(data);
+          if (Object.keys(res).length > 0) {
+            const dataAdd = {};
+            dataAdd.IDLoaiPhong = res.TenLoaiPhong;
+            dataAdd.MaPhong = res.SoPhong;
+            dataAdd.Tang = res.Tang;
+            dataAdd.SoNguoi = parseInt(res.SoNguoi);
+            dataAdd.DienTich = parseInt(res.DienTich);
+            dataAdd.GiaPhong = parseInt(res.GiaPhong);
+            addPhong(dataAdd);
           }
         })
         .catch((err) => {
@@ -133,8 +162,15 @@ const Create = (props) => {
         .then((res) => {
           console.log("res ", res);
           setError({});
-          if (Object.keys(data).length > 0) {
-            updateLoaiPhong(data);
+          if (Object.keys(res).length > 0) {
+            const dataUpdate = {};
+            dataUpdate.IDLoaiPhong = res.TenLoaiPhong;
+            dataUpdate.MaPhong = res.SoPhong;
+            dataUpdate.Tang = res.Tang;
+            dataUpdate.SoNguoi = parseInt(res.SoNguoi);
+            dataUpdate.DienTich = parseInt(res.DienTich);
+            dataUpdate.GiaPhong = parseInt(res.GiaPhong);
+            updatePhong(_id, dataUpdate);
           }
         })
         .catch((err) => {
@@ -152,27 +188,25 @@ const Create = (props) => {
   };
 
   const UploadImg = async (_id, images, isCre) => {
-    if (images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
-        axios
-          .post(`${path.URL_API}/phong/uploadimage`, {
-            image: images[i],
-            _id: _id,
-            isCre: isCre,
-          })
-          .then((res) => {
-            Swal.fire(
-              "Thành công",
-              isCre ? "Tạo phòng thành công" : "Cập nhật phòng thành công",
-              "success"
-            ).then(() => {
-              navigate(`/${path.LOAIPHONG}`);
-            });
-          })
-          .catch((err) => {
-            Swal.fire("Thất bại", err.message, "error");
+    for (let i = 0; i < images.length; i++) {
+      axios
+        .post(`${path.URL_API}/phong/uploadimage`, {
+          image: images[i],
+          id: _id,
+          isCre: isCre,
+        })
+        .then((res) => {
+          Swal.fire(
+            "Thành công",
+            isCre ? "Tạo phòng thành công" : "Cập nhật phòng thành công",
+            "success"
+          ).then(() => {
+            navigate(`/${path.PHONG}`);
           });
-      }
+        })
+        .catch((err) => {
+          Swal.fire("Thất bại", err.message, "error");
+        });
     }
   };
 
@@ -235,13 +269,35 @@ const Create = (props) => {
   };
 
   useEffect(() => {
+    apiAllLP()
+      .then((res) => {
+        console.log("res ", res);
+        const lp = res.data.map((item) => {
+          return {
+            id: item._id,
+            title: item.TenLoaiPhong,
+          };
+        });
+        setOption(lp);
+      })
+      .catch((err) => {
+        console.log("err ", err);
+      });
+
     if (type === "Edit") {
       apiGetPhong(_id)
         .then((res) => {
           console.log("res ", res);
-          const { createdAt, updatedAt, __v, ...valueRef } = res.mes;
-          defaultValue.current = valueRef;
-          setValue(res.mes);
+          const phong = {
+            TenLoaiPhong: res.mes.LoaiPhong,
+            SoPhong: res.mes.MaPhong,
+            Tang: res.mes.Tang,
+            SoNguoi: res.mes.SoNguoi,
+            DienTich: res.mes.DienTich,
+            GiaPhong: res.mes.GiaPhong,
+          };
+          defaultValue.current = phong;
+          setValue(phong);
         })
         .catch((err) => {
           console.log("err ", err);
@@ -258,11 +314,19 @@ const Create = (props) => {
     };
   }, [imgPreview]);
 
+  useEffect(() => {
+    setError((pre) => {
+      return { ...pre, TenLoaiPhong: "" };
+    });
+  }, [optionSel]);
+
   return (
     <>
       <Card
         sx={{
           mb: 5,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Typography
@@ -274,16 +338,27 @@ const Create = (props) => {
         >
           {type === "Edit" ? "Cập nhật phòng" : "Tạo phòng mới"}
         </Typography>
+
+        <Button
+          sx={{ fontSize: "28px", m: 2 }}
+          text="&rarr;"
+          onClick={(e) => {
+            navigate(`/${path.PHONG}`);
+          }}
+          className="bg-green-600"
+        />
       </Card>
+
       <Card>
         <Grid container spacing={2} padding={2}>
           <Grid item md={6}>
-            <Input
+            <Select
               error={error.TenLoaiPhong}
-              disable={value.TenLoaiPhong ? true : false}
+              label="Tên loại phòng"
               name="TenLoaiPhong"
-              label="Tên loại phòng: "
+              options={option ? option : []}
               value={value.TenLoaiPhong ? value.TenLoaiPhong : ""}
+              setChange={setOptionSel}
             />
           </Grid>
           <Grid item md={6}>

@@ -24,17 +24,9 @@ import { useNavigate } from "react-router-dom";
 
 const MENU_OPTIONS = [
   {
-    label: "Home",
+    label: "bảng điều khiển",
     icon: "eva:home-fill",
   },
-  // {
-  //   label: "Profile",
-  //   icon: "eva:person-fill",
-  // },
-  // {
-  //   label: "Settings",
-  //   icon: "eva:settings-2-fill",
-  // },
 ];
 
 // ----------------------------------------------------------------------
@@ -158,7 +150,7 @@ const AccountPopover = () => {
         <Divider sx={{ borderStyle: "dashed" }} />
 
         <MenuItem onClick={handleLogout} sx={{ m: 1 }}>
-          Logout
+          Đăng xuất
         </MenuItem>
       </Popover>
     </>

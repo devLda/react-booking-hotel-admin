@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, useRoutes } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import Login from "../pages/Login";
-import Page404 from "../pages/Page404";
+import { Page404 } from "../pages/Page404";
 import Layout from "../components/Layout/Layout";
 import Reservation from "../pages/Reservation";
 import Account from "../pages/Account";
@@ -216,6 +216,10 @@ const Routers = () => {
         { element: <Navigate to="/dashboard/app" />, index: true },
         { path: "404", element: <Page404 /> },
       ],
+    },
+    {
+      path: "*",
+      element: <Page404 />,
     },
   ]);
 

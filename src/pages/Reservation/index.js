@@ -40,7 +40,7 @@ const TABLE_HEAD = [
   { id: "" },
 ];
 
-const USERLIST = []
+const USERLIST = [];
 
 // ----------------------------------------------------------------------
 
@@ -200,14 +200,7 @@ const Reservation = () => {
                   {filteredUsers
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const {
-                        id,
-                        photoURL,
-                        name,
-                        email,
-                        role,
-                        status
-                      } = row;
+                      const { id, photoURL, name, email, role, status } = row;
                       const selectedUser = selected.indexOf(name) !== -1;
 
                       return (
@@ -242,9 +235,7 @@ const Reservation = () => {
 
                           <TableCell align="left">{role}</TableCell>
 
-                          <TableCell align="left">
-                            {status}
-                          </TableCell>
+                          <TableCell align="left">{status}</TableCell>
 
                           {/* <TableCell align="left">
                             <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
@@ -279,14 +270,13 @@ const Reservation = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> Kiểm tra từ khoá bạn nhập vào
                           </Typography>
                         </Paper>
                       </TableCell>

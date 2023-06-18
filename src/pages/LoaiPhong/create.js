@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { object, string } from "yup";
-import { apiAddLP, apiGetLP, apiUpdateLP, apiUploadImg } from "../../api";
+import { apiAddLP, apiGetLP, apiUpdateLP } from "../../api";
 import Swal from "sweetalert2";
 import path from "../../utils/path";
 import axios from "axios";
@@ -55,8 +55,17 @@ const Create = (props) => {
   const addLoaiPhong = async (dataAdd) => {
     const response = await apiAddLP(dataAdd);
     if (response.success) {
-      console.log("res ", response);
-      UploadImg(response.mes.TenLoaiPhong, imgPreview, true);
+      if (imgPreview.length > 0) {
+        UploadImg(response.mes.TenLoaiPhong, imgPreview, true);
+      } else {
+        Swal.fire(
+          "Thành công",
+          "Thêm mới loại phòng thành công",
+          "success"
+        ).then(() => {
+          navigate(`/${path.LOAIPHONG}`);
+        });
+      }
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
@@ -64,7 +73,17 @@ const Create = (props) => {
     const response = await apiUpdateLP(dataUpdate.TenLoaiPhong, dataUpdate);
     if (response.success) {
       console.log("res ", response);
-      UploadImg(response.mes.TenLoaiPhong, imgPreview, false);
+      if (imgPreview.length > 0) {
+        UploadImg(response.mes.TenLoaiPhong, imgPreview, false);
+      } else {
+        Swal.fire(
+          "Thành công",
+          "Cập nhật loại phòng thành công",
+          "success"
+        ).then(() => {
+          navigate(`/${path.LOAIPHONG}`);
+        });
+      }
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
@@ -152,91 +171,87 @@ const Create = (props) => {
   };
 
   const UploadImg = async (TenLoaiPhong, images, isCre) => {
-    if (images.length > 0) {
-      for (let i = 0; i < images.length; i++) {
-        axios
-          .post(`${path.URL_API}/loaiphong/uploadimage`, {
-            image: images[i],
-            TenLoaiPhong: TenLoaiPhong,
-            isCre: isCre,
-          })
-          .then((res) => {
-            Swal.fire(
-              "Thành công",
-              isCre
-                ? "Tạo loại phòng thành công"
-                : "Cập nhật loại phòng thành công",
-              "success"
-            ).then(() => {
-              navigate(`/${path.LOAIPHONG}`);
-            });
-          })
-          .catch((err) => {
-            Swal.fire("Thất bại", err.message, "error");
+    for (let i = 0; i < images.length; i++) {
+      axios
+        .post(`${path.URL_API}/loaiphong/uploadimage`, {
+          image: images[i],
+          TenLoaiPhong: TenLoaiPhong,
+          isCre: isCre,
+        })
+        .then((res) => {
+          Swal.fire(
+            "Thành công",
+            isCre
+              ? "Tạo loại phòng thành công"
+              : "Cập nhật loại phòng thành công",
+            "success"
+          ).then(() => {
+            navigate(`/${path.LOAIPHONG}`);
           });
+        })
+        .catch((err) => {
+          Swal.fire("Thất bại", err.message, "error");
+        });
+    }
+  };
+
+  const ChangeImage = (e) => {
+    let files = e.target.files;
+
+    if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
+    else {
+      if (files.length > 3) {
+        Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
+        let count = 0;
+        for (let file = 0; file < 3; file++) {
+          if (files[file].size > 100000) {
+            ++count;
+            continue;
+          }
+          setImgPreview([]);
+          setFileToBase(files[file]);
+        }
+        if (count > 0) {
+          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+        }
+        console.log(files);
+      }
+
+      if (files.length >= 2 && files.length <= 3) {
+        let count = 0;
+        for (let file = 0; file < files.length; file++) {
+          if (files[file].size > 100000) {
+            ++count;
+            continue;
+          }
+          setImgPreview([]);
+          setFileToBase(files[file]);
+        }
+
+        if (count > 0) {
+          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+        }
+      }
+
+      if (files.length === 1) {
+        if (files[0].size < 100000) {
+          setImgPreview([]);
+          setFileToBase(files[0]);
+        } else {
+          Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
+        }
       }
     }
   };
 
-  const ChangeImage = async (e) => {
-    let files = e.target.files;
-    console.log('file ', files)
-    const response = await apiUploadImg({images: files[0]})
-    console.log('res ', response)
-    // if (!files) Swal.fire("Thông Tin", "Bạn chưa chọn ảnh", "info");
-    // else {
-    //   if (files.length > 3) {
-    //     Swal.fire("Thông Tin", "Chỉ được chọn tối đa 3 ảnh", "info");
-    //     let count = 0;
-    //     for (let file = 0; file < 3; file++) {
-    //       if (files[file].size > 100000) {
-    //         ++count;
-    //         continue;
-    //       }
-    //       setImgPreview([]);
-    //       setFileToBase(files[file]);
-    //     }
-    //     if (count > 0) {
-    //       Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-    //     }
-    //     console.log(files);
-    //   }
-
-    //   if (files.length >= 2 && files.length <= 3) {
-    //     let count = 0;
-    //     for (let file = 0; file < files.length; file++) {
-    //       if (files[file].size > 100000) {
-    //         ++count;
-    //         continue;
-    //       }
-    //       setImgPreview([]);
-    //       setFileToBase(files[file]);
-    //     }
-
-    //     if (count > 0) {
-    //       Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-    //     }
-    //   }
-
-    //   if (files.length === 1) {
-    //     if (files[0].size < 100000) {
-    //       setImgPreview([]);
-    //       setFileToBase(files[0]);
-    //     } else {
-    //       Swal.fire("Thông Tin", "Ảnh có kích thước quá lớn", "info");
-    //     }
-    //   }
-    // }
+  const setFileToBase = (file) => {
+    console.log("file ", file.size);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = () => {
+      setImgPreview((pre) => [...pre, reader.result]);
+    };
   };
-
-  // const setFileToBase = (file) => {
-  //   console.log("file ", file.size);
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(file);
-  //   reader.onloadend = () => {
-  //     setImgPreview((pre) => [...pre, reader.result]);
-  //   };
-  // };
 
   useEffect(() => {
     if (type === "Edit") {
@@ -267,6 +282,8 @@ const Create = (props) => {
       <Card
         sx={{
           mb: 5,
+          display: "flex",
+          justifyContent: "space-between",
         }}
       >
         <Typography
@@ -278,7 +295,17 @@ const Create = (props) => {
         >
           {type === "Edit" ? "Cập nhật loại phòng" : "Tạo loại phòng mới"}
         </Typography>
+
+        <Button
+          sx={{ fontSize: "28px", m: 2 }}
+          text="&rarr;"
+          onClick={(e) => {
+            navigate(`/${path.LOAIPHONG}`);
+          }}
+          className="bg-green-600"
+        />
       </Card>
+
       <Card>
         <Grid container spacing={2} padding={2}>
           <Grid item md={6}>

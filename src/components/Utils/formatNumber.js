@@ -1,6 +1,8 @@
 import numeral from "numeral";
 
-import { format } from "date-fns";
+// import { format } from "date-fns";
+
+import moment from "moment";
 
 // ----------------------------------------------------------------------
 
@@ -8,10 +10,11 @@ export function fNumber(number) {
   return numeral(number).format();
 }
 
-export function fDateTime(date, newFormat) {
-  const fm = newFormat || "dd MMM yyyy p";
+// export function fDateTime(date, newFormat) {
+export function fDateTime(date) {
+  // const fm = newFormat || "dd MMM yyyy p";
 
-  return date ? format(new Date(date), fm) : "";
+  return date ? moment(date).format("DD-MM-YYYY hh:mm:ss") : "";
 }
 
 export function fCurrency(number) {

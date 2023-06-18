@@ -43,7 +43,7 @@ export {
   apiCreateDP,
   apiGetDP,
   apiUpdateDP,
-  apiDeleteDP,
+  apiCancelDP,
   apiCountDP,
 } from "./datphong";
 

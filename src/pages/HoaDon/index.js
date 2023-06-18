@@ -1,15 +1,12 @@
 import { filter } from "lodash";
-// import { sentenceCase } from 'change-case';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 // @mui
 import {
   Card,
   Table,
   Stack,
   Paper,
-  // Avatar,
   Popover,
-  Checkbox,
   TableRow,
   MenuItem,
   TableBody,
@@ -19,6 +16,8 @@ import {
   IconButton,
   TableContainer,
   TablePagination,
+  Modal,
+  Box,
 } from "@mui/material";
 
 // components
@@ -28,11 +27,19 @@ import Scrollbar from "../../components/UI/scrollbar";
 // sections
 import { ListHead, ListToolbar } from "../../components/UI/table";
 
+import { Select } from "../../components/UI/form";
+
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllHD } from "../../store/hoadon/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
+
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import { format } from "date-fns";
+import moment from "moment";
 
 // ----------------------------------------------------------------------
 
@@ -42,22 +49,56 @@ const TABLE_HEAD = [
   { id: "Email", label: "Email", alignRight: false },
   { id: "SDT", label: "Số điện thoại", alignRight: false },
   { id: "DatPhong", label: "Mã đặt phòng", alignRight: false },
-  // { id: "DaThanhToan", label: "Đã thanh toán", alignRight: false },
-  // { id: "MaGD", label: "Mã Giao Dịch", alignRight: false },
-  // { id: "NgayThanhToan", label: "Thời gian thanh toán", alignRight: false },
   { id: "TongTien", label: "Tổng tiền", alignRight: false },
   { id: "TrangThai", label: "Trạng thái", alignRight: false },
   { id: "" },
 ];
 
+const optionTT = [
+  {
+    id: "DaThanhToan",
+    title: "Đã thanh toán",
+  },
+  {
+    id: "DaDat",
+    title: "Đã đặt cọc",
+  },
+  {
+    id: "DaHuy",
+    title: "Đã hủy",
+  },
+];
+
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
-  if (orderBy === "TenKH" || orderBy === "Email" || orderBy === "SDT") {
-    if (b.ThongTinKH[orderBy] < a.ThongTinKH[orderBy]) {
+  if (orderBy === "TenKH") {
+    let arrA = a.ThongTinKH[orderBy].split(" ");
+    let arrB = b.ThongTinKH[orderBy].split(" ");
+    if (arrA[arrA.length - 1] > arrB[arrB.length - 1]) {
+      return 1;
+    }
+    if (arrA[arrA.length - 1] < arrB[arrB.length - 1]) {
       return -1;
     }
-    if (b.ThongTinKH[orderBy] > a.ThongTinKH[orderBy]) {
+    return 0;
+  }
+
+  if (orderBy === "Email") {
+    if (a.ThongTinKH[orderBy] > b.ThongTinKH[orderBy]) {
+      return 1;
+    }
+    if (a.ThongTinKH[orderBy] < b.ThongTinKH[orderBy]) {
+      return -1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "SDT") {
+    if (a.ThongTinKH[orderBy] > b.ThongTinKH[orderBy]) {
+      return -1;
+    }
+    if (a.ThongTinKH[orderBy] < b.ThongTinKH[orderBy]) {
       return 1;
     }
     return 0;
@@ -102,7 +143,23 @@ const HoaDon = () => {
 
   const dispatch = useDispatch();
 
+  const dateRef = useRef();
+
+  const [openDate, setOpenDate] = useState(false);
+
+  const [dates, setDates] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
+
   const [open, setOpen] = useState(null);
+
+  const [openFilter, setOpenFilter] = useState(false);
+
+  const [selectedTT, setSelectedTT] = useState("");
 
   const [page, setPage] = useState(0);
 
@@ -116,7 +173,9 @@ const HoaDon = () => {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  const [listPhong, setListPhong] = useState([]);
+  const [hoadon, setHoaDon] = useState([]);
+
+  const [listHD, setListHD] = useState([]);
 
   const [phongSelected, setPhongSelected] = useState("");
 
@@ -139,29 +198,11 @@ const HoaDon = () => {
   const handleSelectAllClick = (event) => {
     if (event.target.checked) {
       // const newSelecteds = USERLIST.map((n) => n.name);
-      const newSelecteds = listPhong.map((n) => n._id);
+      const newSelecteds = listHD.map((n) => n._id);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
   };
 
   const handleChangePage = (event, newPage) => {
@@ -178,18 +219,86 @@ const HoaDon = () => {
     setFilterName(event.target.value);
   };
 
+  const filterDate = (start, end, hoadons) => {
+    let tempDay = [];
+    for (const item of hoadons) {
+      let current = false;
+
+      if (
+        moment(start, "DD-MM-YYYY").isBefore(
+          moment(item?.DatPhong?.NgayBatDau, "DD-MM-YYYY")
+        ) &&
+        moment(end, "DD-MM-YYYY").isAfter(
+          moment(item?.DatPhong?.NgayKetThuc, "DD-MM-YYYY")
+        )
+      ) {
+        current = true;
+      } else if (
+        (start === item?.DatPhong?.NgayBatDau &&
+          moment(end, "DD-MM-YYYY").isAfter(
+            moment(item?.DatPhong?.NgayKetThuc, "DD-MM-YYYY")
+          )) ||
+        (moment(start, "DD-MM-YYYY").isBefore(
+          moment(item?.DatPhong?.NgayBatDau, "DD-MM-YYYY")
+        ) &&
+          end === item?.DatPhong?.NgayKetThuc) ||
+        (start === item?.DatPhong?.NgayBatDau &&
+          end === item?.DatPhong?.NgayKetThuc)
+      ) {
+        current = true;
+      } else {
+        current = false;
+      }
+
+      if (current) {
+        tempDay.push(item);
+      }
+    }
+    console.log("temp ", tempDay);
+    return tempDay;
+  };
+
+  const handleFilter = () => {
+    const hasDate = document.getElementById("chkHasDate").checked;
+    const start = moment(dates[0].startDate).format("DD-MM-YYYY");
+    const end = moment(dates[0].endDate).format("DD-MM-YYYY");
+
+    let temp = hasDate ? filterDate(start, end, hoadon) : hoadon;
+
+    if (selectedTT) {
+      let filterTT = null;
+      filterTT = temp.filter((item) => {
+        let trangthai = "";
+        if (item.TrangThai === "Đã đặt cọc") {
+          trangthai = "DaDat";
+        }
+        if (item.TrangThai === "Đã thanh toán") {
+          trangthai = "DaThanhToan";
+        }
+        if (item.TrangThai === "Đã hủy") {
+          trangthai = "DaHuy";
+        }
+        return trangthai === selectedTT;
+      });
+      temp = [...filterTT];
+    }
+
+    console.log("temp ", temp);
+    setListHD(temp);
+    setOpenFilter(!openFilter);
+  };
+
   const emptyRows =
     // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listPhong.length) : 0;
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listHD.length) : 0;
 
-  const filteredPhong = applySortFilter(
-    // USERLIST,
-    listPhong,
+  const filteredHD = applySortFilter(
+    listHD,
     getComparator(order, orderBy),
     filterName
   );
 
-  const isNotFound = !filteredPhong.length && !!filterName;
+  const isNotFound = !filteredHD.length && !!filterName;
 
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
@@ -201,7 +310,8 @@ const HoaDon = () => {
       .then((res) => {
         console.log("res ", res);
         if (res.meta.requestStatus === "fulfilled") {
-          setListPhong(res.payload);
+          setHoaDon(res.payload);
+          setListHD(res.payload);
         }
       })
       .catch((err) => {
@@ -225,15 +335,6 @@ const HoaDon = () => {
           <Typography variant="h4" gutterBottom>
             Hóa đơn
           </Typography>
-          {/* <Link to={`/${path.PHONG_CREATE}`}>
-            <Button
-              variant="contained"
-              startIcon={<Iconify icon="eva:plus-fill" />}
-              className="bg-green-600"
-            >
-              Thêm Đơn Đặt
-            </Button>
-          </Link> */}
         </Stack>
 
         <Card>
@@ -241,7 +342,7 @@ const HoaDon = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
-            // setValue={setOpenDialog}
+            setValue={setOpenFilter}
           />
 
           <Scrollbar>
@@ -252,36 +353,18 @@ const HoaDon = () => {
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
                   // rowCount={USERLIST.length}
-                  rowCount={listPhong.length}
+                  rowCount={listHD.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
+                  hasChk={false}
                 />
                 <TableBody>
-                  {filteredPhong
+                  {filteredHD
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
-                      const {
-                        _id,
-                        ThongTinKH,
-                        DatPhong,
-                        TongTien,
-                        TrangThai,
-
-                        // _id,
-                        // ThongTinKH,
-                        // Phong,
-                        // NgayBatDau,
-                        // NgayKetThuc,
-                        // TrangThai,
-
-                        // LoaiPhong,
-                        // Tang,
-                        // SoNguoi,
-                        // DienTich,
-                        // GiaPhong,
-                        // images,
-                      } = row;
+                      const { _id, ThongTinKH, DatPhong, TongTien, TrangThai } =
+                        row;
                       const selectedUser = selected.indexOf(_id) !== -1;
 
                       return (
@@ -292,16 +375,11 @@ const HoaDon = () => {
                           role="checkbox"
                           selected={selectedUser}
                         >
-                          <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={selectedUser}
-                              onChange={(event) => handleClick(event, _id)}
-                            />
-                          </TableCell>
-
                           <TableCell align="left">
                             <Link to={`/${path.CHITIETHD}/${_id}`}>
-                              {ThongTinKH?._id}
+                              <p className="w-24 overflow-hidden" align="left">
+                                {ThongTinKH?._id}
+                              </p>
                             </Link>
                           </TableCell>
 
@@ -323,23 +401,6 @@ const HoaDon = () => {
                             </p>
                           </TableCell>
 
-                          {/* <TableCell align="left">
-                            {GiaoDich[GiaoDich?.length - 1].DaThanhToan}
-                          </TableCell>
-
-                          <TableCell >
-                            <p
-                              className="w-24 overflow-hidden"
-                              align="left"
-                            >
-                            {GiaoDich[GiaoDich?.length - 1].MaGD}
-                            </p>
-                          </TableCell>
-
-                          <TableCell align="left">
-                            {GiaoDich[GiaoDich?.length - 1].NgayThanhToan}
-                          </TableCell> */}
-
                           <TableCell align="left">{TongTien}</TableCell>
 
                           <TableCell align="left">{TrangThai}</TableCell>
@@ -349,7 +410,7 @@ const HoaDon = () => {
                             </TableCell> */}
 
                           <TableCell align="right">
-                            {TrangThai === "Đã đặt cọc" && (
+                            {TrangThai === "Đang sử dụng" && (
                               <IconButton
                                 size="large"
                                 color="inherit"
@@ -379,14 +440,13 @@ const HoaDon = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> Kiểm tra từ khoá bạn nhập vào
                           </Typography>
                         </Paper>
                       </TableCell>
@@ -397,16 +457,17 @@ const HoaDon = () => {
             </TableContainer>
           </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            // count={USERLIST.length}
-            count={listPhong.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {filteredHD.length > 5 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredHD.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Card>
       </Container>
 
@@ -447,6 +508,81 @@ const HoaDon = () => {
           Thêm dịch vụ
         </MenuItem>
       </Popover>
+
+      <Modal
+        open={openFilter}
+        onClose={() => {
+          setOpenFilter(!openFilter);
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "50vw",
+            height: "50vh",
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            overflowY: "scroll",
+          }}
+        >
+          <Typography
+            id="modal-modal-description"
+            sx={{
+              fontSize: 20,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              my: 2,
+            }}
+          >
+            Lọc
+          </Typography>
+
+          <div ref={dateRef} className="flex items-center gap-3 relative my-5">
+            <input type="checkbox" id="chkHasDate" />
+            <i class="fa-solid fa-calendar-days text-slate-300"></i>
+            <span
+              onClick={() => setOpenDate(!openDate)}
+              className="text-slate-300 cursor-pointer text-lg"
+            >{`Từ ngày ${format(dates[0].startDate, "dd/MM/yyyy")} đến ${format(
+              dates[0].endDate,
+              "dd/MM/yyyy"
+            )}`}</span>
+            {openDate && (
+              <DateRange
+                editableDateInputs={true}
+                onChange={(item) => {
+                  setDates([item.selection]);
+                }}
+                dateDisplayFormat="dd/MM/yyyy"
+                moveRangeOnFirstSelection={false}
+                ranges={dates}
+                className="absolute -top-20 right-0 z-10 shadow-2xl"
+              />
+            )}
+          </div>
+
+          <div className="my-5">
+            <Select
+              label="Trạng thái"
+              name="TrangThai"
+              options={optionTT}
+              value={selectedTT ? selectedTT : null}
+              setChange={setSelectedTT}
+            />
+          </div>
+
+          <div className="bg-yellow-800 my-5 text-white inline-block ">
+            <button className="p-3" onClick={handleFilter}>
+              Lọc
+            </button>
+          </div>
+        </Box>
+      </Modal>
     </>
   );
 };

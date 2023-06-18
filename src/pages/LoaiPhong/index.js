@@ -10,7 +10,6 @@ import {
   // Avatar,
   Button,
   Popover,
-  Checkbox,
   TableRow,
   MenuItem,
   TableBody,
@@ -46,7 +45,7 @@ import { apiDeleteLP } from "../../api";
 // ----------------------------------------------------------------------
 
 const TABLE_HEAD = [
-  { id: "TenLoaiPhong", label: "Name", alignRight: false },
+  { id: "TenLoaiPhong", label: "Tên loại phòng", alignRight: false },
   { id: "MoTa", label: "Mô Tả", alignRight: false },
   { id: "TienNghi", label: "Tiện nghi", alignRight: false },
   { id: "Image", label: "Image", alignRight: false },
@@ -57,10 +56,10 @@ const TABLE_HEAD = [
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
-    return -1;
+    return 1;
   }
   if (b[orderBy] > a[orderBy]) {
-    return 1;
+    return -1;
   }
   return 0;
 }
@@ -140,23 +139,23 @@ const LoaiPhong = () => {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(
+  //       selected.slice(0, selectedIndex),
+  //       selected.slice(selectedIndex + 1)
+  //     );
+  //   }
+  //   setSelected(newSelected);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -176,14 +175,14 @@ const LoaiPhong = () => {
     // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listLP.length) : 0;
 
-  const filteredUsers = applySortFilter(
+  const filteredLP = applySortFilter(
     // USERLIST,
     listLP,
     getComparator(order, orderBy),
     filterName
   );
 
-  const isNotFound = !filteredUsers.length && !!filterName;
+  const isNotFound = !filteredLP.length && !!filterName;
 
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
@@ -261,7 +260,7 @@ const LoaiPhong = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
-            setValue={setOpenDialog}
+            setValue={false}
           />
 
           <Scrollbar>
@@ -271,14 +270,14 @@ const LoaiPhong = () => {
                   order={order}
                   orderBy={orderBy}
                   headLabel={TABLE_HEAD}
-                  // rowCount={USERLIST.length}
                   rowCount={listLP.length}
                   numSelected={selected.length}
                   onRequestSort={handleRequestSort}
                   onSelectAllClick={handleSelectAllClick}
+                  hasChk={false}
                 />
                 <TableBody>
-                  {filteredUsers
+                  {filteredLP
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       const {
@@ -299,14 +298,14 @@ const LoaiPhong = () => {
                           role="checkbox"
                           selected={selectedUser}
                         >
-                          <TableCell padding="checkbox">
+                          {/* <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
                               onChange={(event) =>
                                 handleClick(event, TenLoaiPhong)
                               }
                             />
-                          </TableCell>
+                          </TableCell> */}
 
                           <TableCell align="left">{TenLoaiPhong}</TableCell>
 
@@ -317,11 +316,13 @@ const LoaiPhong = () => {
                           </TableCell>
 
                           <TableCell align="left">
-                            <img
-                              src={images[0]}
-                              className="w-20 h-20"
-                              alt={TenLoaiPhong}
-                            />
+                            {images.length > 0 && (
+                              <img
+                                src={images[0]}
+                                className="w-20 h-20"
+                                alt={TenLoaiPhong}
+                              />
+                            )}
                           </TableCell>
 
                           {/* <TableCell align="left">
@@ -357,14 +358,13 @@ const LoaiPhong = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> .Thử kiểm tra tên loại phòng bạn nhập vào
                           </Typography>
                         </Paper>
                       </TableCell>
@@ -375,16 +375,17 @@ const LoaiPhong = () => {
             </TableContainer>
           </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            // count={USERLIST.length}
-            count={listLP.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {filteredLP.length > 5 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredLP.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Card>
       </Container>
 

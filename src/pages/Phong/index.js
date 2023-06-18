@@ -1,5 +1,4 @@
 import { filter } from "lodash";
-// import { sentenceCase } from 'change-case';
 import { useEffect, useState } from "react";
 // @mui
 import {
@@ -7,10 +6,8 @@ import {
   Table,
   Stack,
   Paper,
-  // Avatar,
   Button,
   Popover,
-  Checkbox,
   TableRow,
   MenuItem,
   TableBody,
@@ -41,7 +38,7 @@ import { getAllPhong } from "../../store/phong/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
 import Swal from "sweetalert2";
-import { apiDeleteLP } from "../../api";
+import { apiDeletePhong } from "../../api";
 
 // ----------------------------------------------------------------------
 
@@ -59,6 +56,16 @@ const TABLE_HEAD = [
 // ----------------------------------------------------------------------
 
 function descendingComparator(a, b, orderBy) {
+  if (orderBy === "TenLoaiPhong") {
+    if (b.LoaiPhong[orderBy] < a.LoaiPhong[orderBy]) {
+      return 1;
+    }
+    if (b.LoaiPhong[orderBy] > a.LoaiPhong[orderBy]) {
+      return -1;
+    }
+    return 0;
+  }
+
   if (b[orderBy] < a[orderBy]) {
     return -1;
   }
@@ -145,23 +152,23 @@ const Phong = () => {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(
+  //       selected.slice(0, selectedIndex),
+  //       selected.slice(selectedIndex + 1)
+  //     );
+  //   }
+  //   setSelected(newSelected);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -205,7 +212,7 @@ const Phong = () => {
 
   const handleDelete = async (event, selectedAcc) => {
     if (event) {
-      const response = await apiDeleteLP(selectedAcc);
+      const response = await apiDeletePhong(selectedAcc);
       if (response.success) {
         setOpenDialog(false);
         setDeleted(true);
@@ -266,7 +273,7 @@ const Phong = () => {
             numSelected={selected.length}
             filterName={filterName}
             onFilterName={handleFilterByName}
-            setValue={setOpenDialog}
+            setValue={false}
           />
 
           <Scrollbar>
@@ -306,12 +313,12 @@ const Phong = () => {
                           role="checkbox"
                           selected={selectedUser}
                         >
-                          <TableCell padding="checkbox">
+                          {/* <TableCell padding="checkbox">
                             <Checkbox
                               checked={selectedUser}
                               onChange={(event) => handleClick(event, _id)}
                             />
-                          </TableCell>
+                          </TableCell> */}
 
                           <TableCell align="left">
                             {LoaiPhong.TenLoaiPhong}
@@ -328,11 +335,13 @@ const Phong = () => {
                           <TableCell align="left">{GiaPhong}</TableCell>
 
                           <TableCell align="left">
-                            <img
-                              src={images[0]}
-                              className="w-20 h-20"
-                              alt={LoaiPhong.TenLoaiPhong}
-                            />
+                            {images.length > 0 && (
+                              <img
+                                src={images[0]}
+                                className="w-20 h-20"
+                                alt={LoaiPhong.TenLoaiPhong}
+                              />
+                            )}
                           </TableCell>
 
                           {/* <TableCell align="left">
@@ -368,14 +377,13 @@ const Phong = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> Kiểm tra từ khoá bạn nhập vào
                           </Typography>
                         </Paper>
                       </TableCell>
@@ -386,16 +394,17 @@ const Phong = () => {
             </TableContainer>
           </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            // count={USERLIST.length}
-            count={listPhong.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {filteredPhong.length > 5 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              count={filteredPhong.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Card>
       </Container>
 
@@ -418,7 +427,7 @@ const Phong = () => {
         }}
       >
         <Link
-          to={`/${path.LOAIPHONG_UPDATE}/${phongSelected}`}
+          to={`/${path.PHONG_UPDATE}/${phongSelected}`}
           className="no-underline"
         >
           <MenuItem>

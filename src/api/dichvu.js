@@ -2,7 +2,7 @@ import axios from "../axios";
 
 export const apiAllDV = () =>
   axios({
-    url: "/dichvu",
+    url: "/dichvu/all",
     method: "get",
   });
 

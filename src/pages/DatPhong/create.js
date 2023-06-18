@@ -87,6 +87,9 @@ const Create = (props) => {
     const response = await apiUpdateDP(id, data);
     if (response.success) {
       console.log("res ", response);
+      Swal.fire("Thành công", response.mes, "success").then(() => {
+        navigate(`/${path.DATPHONG}`);
+      });
     } else Swal.fire("Thất bại", response.mes, "error");
   };
 
@@ -96,8 +99,9 @@ const Create = (props) => {
     console.log("dates ", dates);
 
     (async () => {
-      const validationResult = await DPSchema
-        .validate(data, { abortEarly: false })
+      const validationResult = await DPSchema.validate(data, {
+        abortEarly: false,
+      })
         .then((res) => {
           setError({});
           if (Object.keys(res).length > 0) {
@@ -127,16 +131,18 @@ const Create = (props) => {
   };
 
   const handlePut = (e) => {
-    //Đang làm dở
     const data = getValue();
 
     (async () => {
-      const validationResult = await DPSchema
-        .validate(data, { abortEarly: false })
+      const validationResult = await DPSchema.validate(data, {
+        abortEarly: false,
+      })
         .then((res) => {
           console.log("res ", res);
           setError({});
           if (Object.keys(res).length > 0) {
+            res.NgayBatDau = moment(dates[0].startDate).format("DD-MM-YYYY");
+            res.NgayKetThuc = moment(dates[0].endDate).format("DD-MM-YYYY");
             updateDP(id, data);
           }
         })
@@ -144,13 +150,14 @@ const Create = (props) => {
           return err;
         });
       let err = {};
-      for (let i in validationResult.inner) {
-        if (validationResult.inner[i].path) {
-          err[validationResult.inner[i].path] =
-          validationResult.inner[i].message;
+      if (validationResult)
+        for (let i in validationResult.inner) {
+          if (validationResult.inner[i].path) {
+            err[validationResult.inner[i].path] =
+              validationResult.inner[i].message;
+          }
         }
-      }
-      console.log('er ', err)
+      console.log("er ", err);
       setError(err);
     })();
   };
@@ -237,7 +244,7 @@ const Create = (props) => {
   }, [dateRef, dates]);
 
   useEffect(() => {
-    setError({})
+    setError({});
     const lich = phong?.filter(
       (item) => item?._id?.toString() === optionSel?.toString()
     );
@@ -249,14 +256,24 @@ const Create = (props) => {
       apiGetDP(id)
         .then((res) => {
           console.log("res ", res);
-          // const {createdAt, updatedAt, __v, ...valueRef} = res.mes
-          // defaultValue.current = valueRef
-          const data = {}
-          data.Phong = res.Phong
-          data.TenKH = res.ThongTinKH.TenKH
-          data.SDT = res.ThongTinKH.SDT
-          data.Email = res.ThongTinKH.Email
-          setValue(data)
+          const arrBD = res.NgayBatDau.split("-");
+          const arrKT = res.NgayKetThuc.split("-");
+          const ngayBD = arrBD[2] + "-" + arrBD[1] + "-" + arrBD[0];
+          const ngayKT = arrKT[2] + "-" + arrKT[1] + "-" + arrKT[0];
+
+          const data = {};
+          data.Phong = res.Phong;
+          data.TenKH = res.ThongTinKH.TenKH;
+          data.SDT = res.ThongTinKH.SDT;
+          data.Email = res.ThongTinKH.Email;
+          setValue(data);
+          setDates([
+            {
+              startDate: new Date(ngayBD),
+              endDate: new Date(ngayKT),
+              key: "selection",
+            },
+          ]);
         })
         .catch((err) => {
           console.log("err ", err);
@@ -353,7 +370,6 @@ const Create = (props) => {
           </Grid>
           <Grid item md={6} marginBottom={2}>
             <Input
-              disable = {value.Email ? true : false}
               error={error.Email}
               name="Email"
               label="Email "

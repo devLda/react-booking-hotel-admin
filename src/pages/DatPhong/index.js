@@ -1,5 +1,4 @@
 import { filter } from "lodash";
-// import { sentenceCase } from 'change-case';
 import { useEffect, useRef, useState } from "react";
 // @mui
 import {
@@ -7,10 +6,8 @@ import {
   Table,
   Stack,
   Paper,
-  // Avatar,
   Button,
   Popover,
-  Checkbox,
   TableRow,
   MenuItem,
   TableBody,
@@ -25,7 +22,6 @@ import {
 } from "@mui/material";
 
 // components
-// import Label from '../components/label';
 import Iconify from "../../components/UI/iconify";
 import Scrollbar from "../../components/UI/scrollbar";
 // sections
@@ -44,7 +40,7 @@ import { getAllDP } from "../../store/datphong/asyncAction";
 import { LoadingData } from "../../components/UI/loading";
 import path from "../../utils/path";
 import Swal from "sweetalert2";
-import { apiAllPhong, apiDeleteDP } from "../../api";
+import { apiAllPhong, apiCancelDP } from "../../api";
 import { Select } from "../../components/UI/form";
 
 import { DateRange } from "react-date-range";
@@ -88,15 +84,25 @@ function descendingComparator(a, b, orderBy) {
     let arrA = a.ThongTinKH[orderBy].split(" ");
     let arrB = b.ThongTinKH[orderBy].split(" ");
     if (arrA[arrA.length - 1] > arrB[arrB.length - 1]) {
-      return -1;
+      return 1;
     }
     if (arrA[arrA.length - 1] < arrB[arrB.length - 1]) {
-      return 1;
+      return -1;
     }
     return 0;
   }
 
-  if (orderBy === "Email" || orderBy === "SDT") {
+  if (orderBy === "Email") {
+    if (a.ThongTinKH[orderBy] > b.ThongTinKH[orderBy]) {
+      return 1;
+    }
+    if (a.ThongTinKH[orderBy] < b.ThongTinKH[orderBy]) {
+      return -1;
+    }
+    return 0;
+  }
+
+  if (orderBy === "SDT") {
     if (a.ThongTinKH[orderBy] > b.ThongTinKH[orderBy]) {
       return -1;
     }
@@ -117,10 +123,10 @@ function descendingComparator(a, b, orderBy) {
   }
 
   if (orderBy === "NgayBatDau") {
-    let arrA = a[orderBy].split('-')
-    let arrB = b[orderBy].split('-')
-    let ABatDau = arrA[2] + "" + arrA[1] + "" + arrA[0]
-    let BBatDau = arrB[2] + "" + arrB[1] + "" + arrB[0]
+    let arrA = a[orderBy].split("-");
+    let arrB = b[orderBy].split("-");
+    let ABatDau = arrA[2] + "" + arrA[1] + "" + arrA[0];
+    let BBatDau = arrB[2] + "" + arrB[1] + "" + arrB[0];
     if (ABatDau > BBatDau) {
       return -1;
     }
@@ -131,10 +137,10 @@ function descendingComparator(a, b, orderBy) {
   }
 
   if (orderBy === "NgayKetThuc") {
-    let arrA = a[orderBy].split('-')
-    let arrB = b[orderBy].split('-')
-    let AKetThuc = arrA[2] + "" + arrA[1] + "" + arrA[0]
-    let BKetThuc = arrB[2] + "" + arrB[1] + "" + arrB[0]
+    let arrA = a[orderBy].split("-");
+    let arrB = b[orderBy].split("-");
+    let AKetThuc = arrA[2] + "" + arrA[1] + "" + arrA[0];
+    let BKetThuc = arrB[2] + "" + arrB[1] + "" + arrB[0];
     if (AKetThuc > BKetThuc) {
       return -1;
     }
@@ -220,6 +226,7 @@ const DatPhong = () => {
   const [openFilter, setOpenFilter] = useState(false);
 
   const [selectedTT, setSelectedTT] = useState("");
+
   const [selectedPhong, setSelectedPhong] = useState("");
 
   const [deleted, setDeleted] = useState(false);
@@ -250,23 +257,23 @@ const DatPhong = () => {
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
+  // const handleClick = (event, name) => {
+  //   const selectedIndex = selected.indexOf(name);
+  //   let newSelected = [];
+  //   if (selectedIndex === -1) {
+  //     newSelected = newSelected.concat(selected, name);
+  //   } else if (selectedIndex === 0) {
+  //     newSelected = newSelected.concat(selected.slice(1));
+  //   } else if (selectedIndex === selected.length - 1) {
+  //     newSelected = newSelected.concat(selected.slice(0, -1));
+  //   } else if (selectedIndex > 0) {
+  //     newSelected = newSelected.concat(
+  //       selected.slice(0, selectedIndex),
+  //       selected.slice(selectedIndex + 1)
+  //     );
+  //   }
+  //   setSelected(newSelected);
+  // };
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -283,23 +290,21 @@ const DatPhong = () => {
   };
 
   const emptyRows =
-    // page > 0 ? Math.max(0, (1 + page) * rowsPerPage - USERLIST.length) : 0;
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - listDP.length) : 0;
 
-  const filteredPhong = applySortFilter(
-    // USERLIST,
+  const filteredDP = applySortFilter(
     listDP,
     getComparator(order, orderBy),
     filterName
   );
 
-  const isNotFound = !filteredPhong.length && !!filterName;
+  const isNotFound = !filteredDP.length && !!filterName;
 
   const handleAction = (e) => {
     console.log("event ", e.target.innerText);
     console.log("target", e.target.dataset.set);
     if (e.target.dataset.set) {
-      if (e.target.innerText === "Xoá") setOpenDialog(true);
+      if (e.target.innerText === "Huỷ") setOpenDialog(true);
     }
   };
 
@@ -308,9 +313,9 @@ const DatPhong = () => {
     setOpen(false);
   };
 
-  const handleDelete = async (event, selectedAcc) => {
+  const handleDelete = async (event, selectedDP) => {
     if (event) {
-      const response = await apiDeleteDP(selectedAcc);
+      const response = await apiCancelDP(selectedDP);
       if (response.success) {
         setOpenDialog(false);
         setDeleted(true);
@@ -340,7 +345,17 @@ const DatPhong = () => {
         )
       ) {
         current = true;
-      } else if (start === item?.NgayBatDau && end === item?.NgayKetThuc) {
+      } else if (
+        (start === item?.NgayBatDau &&
+          moment(end, "DD-MM-YYYY").isAfter(
+            moment(item?.NgayKetThuc, "DD-MM-YYYY")
+          )) ||
+        (moment(start, "DD-MM-YYYY").isBefore(
+          moment(item?.NgayBatDau, "DD-MM-YYYY")
+        ) &&
+          end === item?.NgayKetThuc) ||
+        (start === item?.NgayBatDau && end === item?.NgayKetThuc)
+      ) {
         current = true;
       } else {
         current = false;
@@ -490,7 +505,7 @@ const DatPhong = () => {
                   hasChk={false}
                 />
                 <TableBody>
-                  {filteredPhong
+                  {filteredDP
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row) => {
                       const {
@@ -511,13 +526,6 @@ const DatPhong = () => {
                           role="checkbox"
                           selected={selectedUser}
                         >
-                          {/* <TableCell padding="checkbox">
-                            <Checkbox
-                              checked={selectedUser}
-                              onChange={(event) => handleClick(event, _id)}
-                            />
-                          </TableCell> */}
-
                           <TableCell align="left">{ThongTinKH.TenKH}</TableCell>
 
                           <TableCell align="left">{ThongTinKH.Email}</TableCell>
@@ -531,10 +539,6 @@ const DatPhong = () => {
                           <TableCell align="left">{NgayKetThuc}</TableCell>
 
                           <TableCell align="left">{TrangThai}</TableCell>
-
-                          {/* <TableCell align="left">
-                              <Label color={(status === 'banned' && 'error') || 'success'}>{sentenceCase(status)}</Label>
-                            </TableCell> */}
 
                           <TableCell align="right">
                             {TrangThai === "Đã đặt" && (
@@ -567,14 +571,13 @@ const DatPhong = () => {
                           }}
                         >
                           <Typography variant="h6" paragraph>
-                            Not found
+                            Không tìm thấy
                           </Typography>
 
                           <Typography variant="body2">
-                            No results found for &nbsp;
+                            Không có kết quả cho &nbsp;
                             <strong>&quot;{filterName}&quot;</strong>.
-                            <br /> Try checking for typos or using complete
-                            words.
+                            <br /> Kiểm tra từ khoá bạn nhập vào
                           </Typography>
                         </Paper>
                       </TableCell>
@@ -585,16 +588,18 @@ const DatPhong = () => {
             </TableContainer>
           </Scrollbar>
 
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            // count={USERLIST.length}
-            count={listDP.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {filteredDP.length > 5 && (
+            <TablePagination
+              rowsPerPageOptions={[5, 10, 25]}
+              component="div"
+              // count={USERLIST.length}
+              count={filteredDP.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          )}
         </Card>
       </Container>
 
@@ -622,7 +627,7 @@ const DatPhong = () => {
         >
           <MenuItem>
             <Iconify icon={"eva:edit-fill"} sx={{ mr: 2 }} />
-            Sửa đơn
+            Sửa
           </MenuItem>
         </Link>
 
@@ -632,7 +637,7 @@ const DatPhong = () => {
           onClick={handleAction}
         >
           <Iconify icon={"eva:trash-2-outline"} sx={{ mr: 2 }} />
-          Huỷ đơn
+          Huỷ
         </MenuItem>
       </Popover>
 
@@ -646,7 +651,7 @@ const DatPhong = () => {
           <DialogTitle id="alert-dialog-title">Xóa loại phòng</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">
-              {`Bạn có muốn xóa loại phòng có tên ${DPSelected} không?`}
+              {`Bạn có muốn huỷ đơn đặt có mã ${DPSelected} không?`}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -711,7 +716,6 @@ const DatPhong = () => {
                 moveRangeOnFirstSelection={false}
                 ranges={dates}
                 className="absolute -top-20 right-0 z-10 shadow-2xl"
-                minDate={new Date()}
               />
             )}
           </div>
