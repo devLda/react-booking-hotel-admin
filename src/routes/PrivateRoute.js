@@ -4,7 +4,7 @@ import Swal from "sweetalert2";
 const PrivateRoute = ({ children }) => {
   const isLogged = JSON.parse(localStorage.getItem("persist:admin/login"));
 
-  if (isLogged.isLoggedIn === "false")
+  if (isLogged?.isLoggedIn)
     Swal.fire(
       "Bạn chưa đăng nhập",
       "Vui lòng đăng nhập bằng tài khoản admin",
