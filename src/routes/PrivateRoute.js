@@ -13,7 +13,7 @@ const PrivateRoute = ({ children }) => {
 
   // Add your own authentication on the below line.
 
-  return isLogged.isLoggedIn === "true" ? children : <Navigate to="/login" />;
+  return isLogged?.isLoggedIn === "true" ? children : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

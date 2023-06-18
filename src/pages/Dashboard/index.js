@@ -57,7 +57,7 @@ const Dashboard = () => {
 
   const isLogged = JSON.parse(localStorage.getItem("persist:admin/login"));
 
-  if (isLogged.isLoggedIn === "false") navigate(`/${path.LOGIN}`);
+  if (isLogged?.isLoggedIn) navigate(`/${path.LOGIN}`);
 
   // useEffect(() => {
   //   dispatch(getAllUser())
